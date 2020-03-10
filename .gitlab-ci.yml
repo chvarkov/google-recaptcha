@@ -17,6 +17,6 @@ Publish:
     - npm i --no-progress --loglevel error
     - npx tsc
     - npx npm-cli-login -u ${NPM_USER} -p ${NPM_PASS} -e ${NPM_EMAIL}
-    - npm publish
+    - npm publish --access public
   only:
     - master
