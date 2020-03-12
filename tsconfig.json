@@ -9,11 +9,8 @@
         "sourceMap": true,
         "outDir": "./dist",
         "baseUrl": "./src",
-        "rootDir": "./"
+        "rootDir": "./src"
     },
-    "include": [
-        "./index.ts"
-    ],
     "exclude": [
         "node_modules",
         "dist",
