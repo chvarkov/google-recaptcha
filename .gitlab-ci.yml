@@ -7,6 +7,7 @@ Test:
   image: node:10.16-alpine
   script:
     - npm install --no-progress --loglevel error
+    - npx tsc
     - npm run test
 
 Publish:
