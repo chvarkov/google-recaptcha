@@ -1,7 +1,8 @@
 import { Test } from '@nestjs/testing';
 import { BadRequestException, INestApplication } from '@nestjs/common';
-import { GoogleRecaptchaGuard, GoogleRecaptchaModule } from '../index';
 import { GoogleRecaptchaValidator } from '../src/services/google-recaptcha.validator';
+import { GoogleRecaptchaGuard } from '../src/guards/google-recaptcha.guard';
+import { GoogleRecaptchaModule } from '../src/google-recaptcha.module';
 
 describe('Google recaptcha module', () => {
     let app: INestApplication;
