@@ -11,7 +11,7 @@
     "captcha"
   ],
   "private": false,
-  "main": "dist/index.ts",
+  "main": "dist/index.js",
   "scripts": {
     "test": "jest"
   },
