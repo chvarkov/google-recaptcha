@@ -1,0 +1,1 @@
+export const RECAPTCHA_OPTIONS = Symbol('RECAPTCHA_OPTIONS');
