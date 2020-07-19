@@ -12,9 +12,9 @@ $ npm i @nestlab/google-recaptcha
     imports: [
         GoogleRecaptchaModule.forRoot({
             secretKey: process.env.GOOGLE_RECAPTCHA_SECRET_KEY,
-            response: req => req.headers.authorization,
+            response: req => req.headers.recaptcha,
             skipIf: req => process.env.NODE_ENV !== 'production',
-            onError: e => {
+            onError: () => {
                 throw new BadRequestException('Invalid recaptcha.')
             }
         })

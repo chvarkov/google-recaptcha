@@ -19,9 +19,9 @@ export class GoogleRecaptchaValidator {
             .toPromise()
             .then(res => res.data)
             .then(result => result.success)
-            .catch(e => {
+            .catch(() => {
                 if (this.options.onError) {
-                    return this.options.onError(e);
+                    return this.options.onError();
                 }
 
                 throw new InternalServerErrorException('Failed recaptcha verification.');
