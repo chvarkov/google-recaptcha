@@ -13,7 +13,7 @@
   "private": false,
   "main": "index.js",
   "scripts": {
-    "build": "rimraf dist && webpack --config webpack.config.js --progress && cp package.json dist && cp README.md dist",
+    "build": "rimraf dist && tsc && cp package.json dist && cp README.md dist",
     "test": "jest"
   },
   "repository": {
