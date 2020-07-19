@@ -14,7 +14,7 @@ describe('Google recaptcha module', () => {
                     secretKey: process.env.GOOGLE_RECAPTCHA_SECRET_KEY,
                     response: req => req.headers.authorization,
                     skipIf: req => process.env.NODE_ENV !== 'production',
-                    onError: e => {
+                    onError: () => {
                         throw new BadRequestException('Invalid recaptcha.')
                     }
                 })
