@@ -1,6 +1,6 @@
 {
   "name": "@nestlab/google-recaptcha",
-  "version": "0.0.5",
+  "version": "1.0.0",
   "description": "Google recaptcha module for NestJs.",
   "keywords": [
     "nestjs",

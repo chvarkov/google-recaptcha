@@ -29,16 +29,16 @@ module.exports = () => {
             extensions: ['.tsx', '.ts', '.js'],
         },
         plugins: [
-            new DtsBundleWebpack({
-                name: 'package-name',
-                main: 'dist/index.d.ts',
-                baseDir: 'dist',
-                out: 'index.d.ts',
-                externals: false,
-                removeSource: true,
-                outputAsModuleFolder: true,
-                headerText: ` Package ${require('./package').name} `
-            })
+            // new DtsBundleWebpack({
+            //     name: 'package-name',
+            //     main: 'dist/index.d.ts',
+            //     baseDir: 'dist',
+            //     out: 'index.d.ts',
+            //     externals: false,
+            //     removeSource: true,
+            //     outputAsModuleFolder: true,
+            //     headerText: ` Package ${require('./package').name} `
+            // })
         ],
         watchOptions: {
             ignored: '**/*.log',
