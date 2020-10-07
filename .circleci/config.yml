@@ -45,7 +45,7 @@ jobs:
       - run:
           name: Build
           command: npm run build
-       - run:
+      - run:
          name: Open dist
          command: cd dist
       - run:
