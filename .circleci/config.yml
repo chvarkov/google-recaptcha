@@ -44,7 +44,10 @@ jobs:
           paths: .
       - run:
           name: Build
-          command: npm run build && cd dist
+          command: npm run build
+       - run:
+         name: Open dist
+         command: cd dist
       - run:
           name: Authentication
           command: npx npm-cli-login -u ${NPM_USER} -p ${NPM_PASS} -e ${NPM_EMAIL}

@@ -2,6 +2,7 @@
 coverage
 src/*
 test/*
+.circleci/*
 index.ts
 
 #tests
@@ -42,6 +43,5 @@ lerna-debug.log*
 !.vscode/launch.json
 !.vscode/extensions.json
 
-.circleci
 .gitlab-ci.yml
 .tsconfig.json
