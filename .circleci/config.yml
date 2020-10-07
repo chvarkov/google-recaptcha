@@ -48,6 +48,9 @@ jobs:
       - run:
          name: Open dist
          command: cd dist
+      - persist_to_workspace:
+          root: ~/repo/dist
+          paths: ./dist
       - run:
           name: Authentication
           command: npx npm-cli-login -u ${NPM_USER} -p ${NPM_PASS} -e ${NPM_EMAIL}
