@@ -49,7 +49,7 @@ jobs:
          name: Open dist
          command: cd dist
       - persist_to_workspace:
-          root: ~/repo/dist
+          root: ~/repo
           paths: ./dist
       - run:
           name: Authentication
