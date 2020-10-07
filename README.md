@@ -1,5 +1,7 @@
 # Google recaptcha module
 
+Usage example [here](https://github.com/chvarkov/google-recaptcha-example)
+
 ### Install
 ```
 $ npm i @nestlab/google-recaptcha
