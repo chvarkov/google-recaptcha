@@ -45,18 +45,18 @@ jobs:
       - run:
           name: Build
           command: npm run build
-      - run:
-         name: Open dist
-         command: cd dist
-      - persist_to_workspace:
-          root: ~/repo
-          paths: ./dist
+#      - run:
+#         name: Open dist
+#         command: cd dist
+#      - persist_to_workspace:
+#          root: ~/repo
+#          paths: ./dist
       - run:
           name: Authentication
           command: npx npm-cli-login -u ${NPM_USER} -p ${NPM_PASS} -e ${NPM_EMAIL}
       - run:
           name: Publish
-          command: npm publish --access public
+          command: cd dist && npm publish --access public
 workflows:
   version: 2
   test-publish:
