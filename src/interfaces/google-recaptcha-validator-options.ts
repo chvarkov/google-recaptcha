@@ -1,4 +1,6 @@
+import { ErrorHandler } from '../types';
+
 export interface GoogleRecaptchaValidatorOptions {
     secretKey: string;
-    onError?: () => never,
+    onError?: ErrorHandler,
 }

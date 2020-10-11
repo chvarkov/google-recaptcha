@@ -15,10 +15,7 @@ $ npm i @nestlab/google-recaptcha
         GoogleRecaptchaModule.forRoot({
             secretKey: process.env.GOOGLE_RECAPTCHA_SECRET_KEY,
             response: req => req.headers.recaptcha,
-            skipIf: req => process.env.NODE_ENV !== 'production',
-            onError: () => {
-                throw new BadRequestException('Invalid recaptcha.')
-            }
+            skipIf: () => process.env.NODE_ENV !== 'production',
         })
     ],
 })
@@ -39,6 +36,39 @@ export class FeedbackController {
     }
 }
 
+```
+
+### Error handling
+
+Example error customization. You can return or throw HttpException or return string.
+
+If you will return string, then response will have status code 400 (Bad request).
+
+```typescript
+GoogleRecaptchaModule.forRoot({
+    secretKey: process.env.GOOGLE_RECAPTCHA_SECRET_KEY,
+    response: req => req.headers.recaptcha,
+    skipIf: () => process.env.NODE_ENV !== 'production',
+    onError: (errorCodes: ErrorCode[]) => {
+        switch (errorCodes.shift()) {
+            case ErrorCode.MissingInputSecret:
+                return 'The secret parameter is missing.';
+            case ErrorCode.InvalidInputSecret:
+                return 'The secret parameter is invalid or malformed.';
+            case ErrorCode.MissingInputResponse:
+                return 'The response parameter is missing.';
+            case ErrorCode.InvalidInputResponse:
+                return 'The response parameter is invalid or malformed.';
+            case ErrorCode.BadRequest:
+                return 'The request is invalid or malformed.';
+            case ErrorCode.TimeoutOrDuplicate:
+                return 'The response is no longer valid: either is too old or has been used previously.';
+            case ErrorCode.UnknownError:
+            default:
+                return new BadGatewayException('Unknown error when checking captcha.');
+        }
+    },
+})
 ```
 
 Enjoy!

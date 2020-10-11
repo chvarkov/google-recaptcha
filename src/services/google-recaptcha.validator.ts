@@ -1,7 +1,9 @@
-import { HttpService, Inject, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { HttpService, Inject, Injectable } from '@nestjs/common';
 import { GoogleRecaptchaValidatorOptions } from '../interfaces/google-recaptcha-validator-options';
 import { RECAPTCHA_OPTIONS } from '../provider.declarations';
 import * as qs from 'querystring';
+import { GoogleRecaptchaValidationResult } from '../interfaces/google-recaptcha-validation-result';
+import { ErrorCode } from '../enums/error-code';
 
 @Injectable()
 export class GoogleRecaptchaValidator {
@@ -12,19 +14,19 @@ export class GoogleRecaptchaValidator {
                 @Inject(RECAPTCHA_OPTIONS) private readonly options: GoogleRecaptchaValidatorOptions) {
     }
 
-    validate(response: string): Promise<boolean> {
+    validate(response: string): Promise<GoogleRecaptchaValidationResult> {
         const data = qs.stringify({secret: this.options.secretKey, response});
 
         return this.http.post(this.apiUrl, data, {headers: this.headers})
             .toPromise()
             .then(res => res.data)
-            .then(result => result.success)
-            .catch(() => {
-                if (this.options.onError) {
-                    return this.options.onError();
-                }
-
-                throw new InternalServerErrorException('Failed recaptcha verification.');
-            });
+            .then(result => ({
+                success: result.success,
+                errors: result['error-codes'] || [],
+            }))
+            .catch(() => ({
+                success: false,
+                errors: [ErrorCode.UnknownError],
+            }));
     }
 }
