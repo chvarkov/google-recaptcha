@@ -1,8 +1,8 @@
-import { ForbiddenException } from '@nestjs/common';
+import { BadRequestException } from '@nestjs/common';
 import { ErrorCode } from '../enums/error-code';
 
-export class GoogleRecaptchaException extends ForbiddenException {
+export class GoogleRecaptchaException extends BadRequestException {
 	constructor(public readonly errorCodes: ErrorCode[]) {
-		super();
+		super(`Google recaptcha errors: ${errorCodes.join(', ')}.`);
 	}
 }
