@@ -1,16 +1,8 @@
-import {
-    BadGatewayException,
-    BadRequestException,
-    CanActivate,
-    ExecutionContext,
-    ForbiddenException, HttpException,
-    Inject,
-    Injectable
-} from '@nestjs/common';
+import { CanActivate, ExecutionContext, Inject, Injectable } from '@nestjs/common';
 import { GoogleRecaptchaValidator } from '../services/google-recaptcha.validator';
 import { GoogleRecaptchaGuardOptions } from '../interfaces/google-recaptcha-guard-options';
 import { RECAPTCHA_OPTIONS } from '../provider.declarations';
-import { ErrorCode } from '../enums/error-code';
+import { GoogleRecaptchaException } from '../exceptions/google-recaptcha.exception';
 
 @Injectable()
 export class GoogleRecaptchaGuard implements CanActivate {
@@ -35,42 +27,6 @@ export class GoogleRecaptchaGuard implements CanActivate {
             return true;
         }
 
-        const error = this.options.onError
-            ? this.options.onError(result.errors)
-            : this.errorHandler(result.errors);
-
-        if (error instanceof Error) {
-            throw error;
-        }
-
-        throw new BadRequestException(error);
-    }
-
-    errorHandler(errorCodes: ErrorCode[]): string | HttpException {
-        const first = errorCodes.shift();
-
-        switch (first) {
-            case ErrorCode.MissingInputSecret:
-                return 'The secret parameter is missing.';
-
-            case ErrorCode.InvalidInputSecret:
-                return 'The secret parameter is invalid or malformed.';
-
-            case ErrorCode.MissingInputResponse:
-                return 'The response parameter is missing.';
-
-            case ErrorCode.InvalidInputResponse:
-                return 'The response parameter is invalid or malformed.';
-
-            case ErrorCode.BadRequest:
-                return 'The request is invalid or malformed.';
-
-            case ErrorCode.TimeoutOrDuplicate:
-                return 'The response is no longer valid: either is too old or has been used previously.';
-
-            case ErrorCode.UnknownError:
-            default:
-                return new BadGatewayException('Unknown error when checking captcha.');
-        }
+        throw new GoogleRecaptchaException(result.errors);
     }
 }

@@ -1,5 +1,5 @@
 import { Test } from '@nestjs/testing';
-import { BadRequestException, INestApplication } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import { GoogleRecaptchaValidator } from '../src/services/google-recaptcha.validator';
 import { GoogleRecaptchaGuard } from '../src/guards/google-recaptcha.guard';
 import { GoogleRecaptchaModule } from '../src/google-recaptcha.module';
@@ -13,10 +13,7 @@ describe('Google recaptcha module', () => {
                 GoogleRecaptchaModule.forRoot({
                     secretKey: process.env.GOOGLE_RECAPTCHA_SECRET_KEY,
                     response: req => req.headers.authorization,
-                    skipIf: req => process.env.NODE_ENV !== 'production',
-                    onError: () => {
-                        throw new BadRequestException('Invalid recaptcha.')
-                    }
+                    skipIf: () => process.env.NODE_ENV !== 'production',
                 })
             ],
         }).compile();
