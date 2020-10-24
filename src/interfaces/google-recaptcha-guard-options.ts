@@ -1,4 +1,6 @@
+import { RecaptchaResponseProvider } from '../types';
+
 export interface GoogleRecaptchaGuardOptions {
-    response: (req) => string | Promise<string>;
+    response: RecaptchaResponseProvider;
     skipIf?: () => boolean | Promise<boolean>;
 }

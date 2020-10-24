@@ -49,6 +49,21 @@ export class FeedbackController {
 
 ```
 
+You can override default property that contain recaptcha for specific endpoint.
+
+```typescript
+
+@Controller('feedback')
+export class FeedbackController {
+    @Recaptcha(req => req.body.recaptha)
+    @Post('send')
+    async send(): Promise<any> {
+        // TODO: Your implementation.
+    }
+}
+
+```
+
 If you want use google recaptcha guard in combination with another guards then you can use `@UseGuards` decorator.
 
 ```typescript
