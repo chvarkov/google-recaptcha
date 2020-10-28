@@ -40,7 +40,7 @@ export class GoogleRecaptchaModule {
             module: GoogleRecaptchaModule,
             imports: [
                 HttpModule,
-                ...options.imports
+                ...options.imports || []
             ],
             providers: providers,
             exports: providers,
@@ -60,9 +60,7 @@ export class GoogleRecaptchaModule {
         return providers;
     }
 
-    private static createAsyncOptionsProvider(
-            options: GoogleRecaptchaModuleAsyncOptions,
-    ): Provider {
+    private static createAsyncOptionsProvider(options: GoogleRecaptchaModuleAsyncOptions): Provider {
         if (options.useFactory) {
             return {
                 provide: RECAPTCHA_OPTIONS,
@@ -73,10 +71,17 @@ export class GoogleRecaptchaModule {
 
         return {
             provide: RECAPTCHA_OPTIONS,
-            useFactory: async (optionsFactory: GoogleRecaptchaOptionsFactory) => {
+            useFactory: (optionsFactory: GoogleRecaptchaOptionsFactory) => {
+                if (!this.isGoogleRecaptchaFactory(optionsFactory)) {
+                    throw new Error('Factory must be implement \'GoogleRecaptchaOptionsFactory\' interface.')
+                }
                 return optionsFactory.createGoogleRecaptchaOptions();
             },
             inject: [options.useExisting! || options.useClass!],
         };
+    }
+
+    private static isGoogleRecaptchaFactory(object: any): object is GoogleRecaptchaOptionsFactory {
+        return !!object && typeof object.createGoogleRecaptchaOptions === 'function';
     }
 }
