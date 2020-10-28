@@ -32,6 +32,22 @@ export class AppModule {
 }
 ```
 
+If you want import configs from your [ConfigService](https://docs.nestjs.com/techniques/configuration#getting-started) via [custom getter function](https://docs.nestjs.com/techniques/configuration#custom-getter-functions) that will return `GoogleRecaptchaModuleOptions` object.
+
+```typescript
+@Module({
+    imports: [
+        GoogleRecaptchaModule.forRootAsync({
+            imports: [ConfigModule],
+            useFactory: (configService: ConfigService) => configService.googleRecaptchaOptions,
+            inject: [ConfigService],
+        })
+    ],
+})
+export class AppModule {
+}
+```
+
 ### Usage <a name="Usage"></a>
 
 Use `@Recaptcha` decorator to protect your endpoints.
