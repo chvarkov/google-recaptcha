@@ -25,9 +25,6 @@ $ npm i @nestlab/google-recaptcha
             secretKey: process.env.GOOGLE_RECAPTCHA_SECRET_KEY,
             response: req => req.headers.recaptcha,
             skipIf: () => process.env.NODE_ENV !== 'production',
-            // If your server has trouble connecting to https://www.google.com
-            // You can use https://recaptcha.net instead
-            // Or use an agent (see proxy-agent NPM module)
             useRecaptchaNet: false,
             agent: null
         })
@@ -36,6 +33,17 @@ $ npm i @nestlab/google-recaptcha
 export class AppModule {
 }
 ```
+
+**Configuration options**
+
+| Property          |   | Type                       | Description |
+|-------------------|---|----------------------------|-------------|
+| `secretKey`       | ✔ | string                     | Google recaptcha secret key |
+| `response`        | ✔ | (request) => string        | Function that returns response (recaptcha token) by request |
+| `skipIf`          | ✖ | () => boolean              | Function that returns true if you need skip check for development or testing |
+| `useRecaptchaNet` | ✖ | boolean                    | If your server has trouble connecting to https://www.google.com. You can use https://recaptcha.net instead, just set true |
+| `agent`           | ✖ | https.Agent                | If you need to use an agent |
+
 
 If you want import configs from your [ConfigService](https://docs.nestjs.com/techniques/configuration#getting-started) via [custom getter function](https://docs.nestjs.com/techniques/configuration#custom-getter-functions) that will return `GoogleRecaptchaModuleOptions` object.
 

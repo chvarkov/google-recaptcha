@@ -18,8 +18,9 @@ export class GoogleRecaptchaValidator {
     validate(response: string): Promise<GoogleRecaptchaValidationResult> {
         const data = qs.stringify({secret: this.options.secretKey, response});
 
-        return this.http.post(
-            this.options.useRecaptchaNet ? this.apiUrlUseRecaptchaNet : this.apiUrl, data, {
+        const url = this.options.useRecaptchaNet ? this.apiUrlUseRecaptchaNet : this.apiUrl;
+
+        return this.http.post(url, data, {
                 headers: this.headers,
                 httpsAgent: this.options.agent
             }
