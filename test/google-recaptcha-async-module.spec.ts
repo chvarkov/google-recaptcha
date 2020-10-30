@@ -17,6 +17,8 @@ export class TestConfigService {
             secretKey: 'secret',
             response: req => req.body.recaptcha,
             skipIf: () => true,
+            useRecaptchaNet: false,
+            agent: null
         };
     }
 }
