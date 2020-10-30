@@ -25,6 +25,11 @@ $ npm i @nestlab/google-recaptcha
             secretKey: process.env.GOOGLE_RECAPTCHA_SECRET_KEY,
             response: req => req.headers.recaptcha,
             skipIf: () => process.env.NODE_ENV !== 'production',
+            // If your server has trouble connecting to https://www.google.com
+            // You can use https://recaptcha.net instead
+            // Or use an agent (see proxy-agent NPM module)
+            useRecaptchaNet: false,
+            agent: null
         })
     ],
 })

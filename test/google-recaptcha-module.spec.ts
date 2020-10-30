@@ -14,6 +14,8 @@ describe('Google recaptcha module', () => {
                     secretKey: process.env.GOOGLE_RECAPTCHA_SECRET_KEY,
                     response: req => req.headers.authorization,
                     skipIf: () => process.env.NODE_ENV !== 'production',
+                    useRecaptchaNet: false,
+                    agent: null
                 })
             ],
         }).compile();
