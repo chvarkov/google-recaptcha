@@ -20,6 +20,7 @@ export class GoogleRecaptchaModule {
         ];
 
         return {
+            global: true,
             module: GoogleRecaptchaModule,
             imports: [
                 HttpModule
