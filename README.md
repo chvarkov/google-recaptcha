@@ -36,14 +36,13 @@ export class AppModule {
 
 **Configuration options**
 
-| Property          | Type                                                   | Description |
-|-------------------|--------------------------------------------------------|-------------|
-| `secretKey`       | string                                                 | **Required.** Google recaptcha secret key |
-| `response`        | (request) => string                                    | **Required.** Function that returns response (recaptcha token) by request |
-| `skipIf`          | boolean \| (request) => boolean \| Promise\<boolean\>  | Optional. Function that returns true if you allow the request to skip the recaptcha verification. Useful for involing other check methods (e.g. custom privileged API key) or for development or testing |
-| `useRecaptchaNet` | boolean                                                | Optional. If your server has trouble connecting to https://www.google.com. You can use https://recaptcha.net instead, just set true |
-| `agent`           | https.Agent                                            | Optional. If you need to use an agent |
-
+| Property          | Description |
+|-------------------|-------------|
+| `secretKey`       | **Required.**<br> Type: `string`<br> Google recaptcha secret key |
+| `response`        | **Required.**<br> Type: `(request) => string`<br> Function that returns response (recaptcha token) by request |
+| `skipIf`          | Optional.<br> Type: `boolean` \| `(request) => boolean \| Promise<boolean>` <br> Function that returns true if you allow the request to skip the recaptcha verification. Useful for involing other check methods (e.g. custom privileged API key) or for development or testing |
+| `useRecaptchaNet` | Optional.<br> Type: `boolean`<br> If your server has trouble connecting to https://www.google.com. You can use https://recaptcha.net instead, just set true |
+| `agent`           | Optional.<br> Type: `https.Agent`<br> If you need to use an agent |
 
 If you want import configs from your [ConfigService](https://docs.nestjs.com/techniques/configuration#getting-started) via [custom getter function](https://docs.nestjs.com/techniques/configuration#custom-getter-functions) that will return `GoogleRecaptchaModuleOptions` object.
 
