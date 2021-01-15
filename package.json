@@ -1,6 +1,6 @@
 {
   "name": "@nestlab/google-recaptcha",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Google recaptcha module for NestJS.",
   "keywords": [
     "nest",
@@ -17,7 +17,7 @@
   "private": false,
   "main": "index.js",
   "scripts": {
-    "build": "rimraf dist && tsc && cp package.json dist && cp README.md dist",
+    "build": "rimraf dist && tsc && cp package.json dist && cp README.md dist && cp LICENSE dist && cp CONTRIBUTING.md dist",
     "test": "jest"
   },
   "repository": {

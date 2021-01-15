@@ -107,7 +107,7 @@ export class FeedbackController {
 
 ```
 
-### Error handling
+## Error handling
 
 Google recaptcha guard will throw GoogleRecaptchaException on error.
 
