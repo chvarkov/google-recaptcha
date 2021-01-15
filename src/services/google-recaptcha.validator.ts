@@ -4,11 +4,11 @@ import { RECAPTCHA_OPTIONS } from '../provider.declarations';
 import * as qs from 'querystring';
 import { GoogleRecaptchaValidationResult } from '../interfaces/google-recaptcha-validation-result';
 import { ErrorCode } from '../enums/error-code';
+import { GoogleRecaptchaNetwork } from '../enums/google-recaptcha-network';
 
 @Injectable()
 export class GoogleRecaptchaValidator {
-    private readonly apiUrl = 'https://www.google.com/recaptcha/api/siteverify';
-    private readonly apiUrlUseRecaptchaNet = 'https://recaptcha.net/recaptcha/api/siteverify';
+    private readonly defaultNetwork = GoogleRecaptchaNetwork.Google;
     private readonly headers = {'Content-Type': 'application/x-www-form-urlencoded'};
 
     constructor(private readonly http: HttpService,
@@ -18,7 +18,7 @@ export class GoogleRecaptchaValidator {
     validate(response: string): Promise<GoogleRecaptchaValidationResult> {
         const data = qs.stringify({secret: this.options.secretKey, response});
 
-        const url = this.options.useRecaptchaNet ? this.apiUrlUseRecaptchaNet : this.apiUrl;
+        const url = this.options.network || this.defaultNetwork;
 
         return this.http.post(url, data, {
                 headers: this.headers,

@@ -1,9 +1,9 @@
-import { Test } from '@nestjs/testing';
-import { Module } from '@nestjs/common';
-import { GoogleRecaptchaValidator } from '../src/services/google-recaptcha.validator';
-import { GoogleRecaptchaModule } from '../src/google-recaptcha.module';
-import { GoogleRecaptchaModuleOptions } from '../src';
-import { GoogleRecaptchaOptionsFactory } from '../src/interfaces/google-recaptcha-module-options';
+import {Test} from '@nestjs/testing';
+import {Module} from '@nestjs/common';
+import {GoogleRecaptchaValidator} from '../src/services/google-recaptcha.validator';
+import {GoogleRecaptchaModule} from '../src/google-recaptcha.module';
+import {GoogleRecaptchaModuleOptions, GoogleRecaptchaNetwork} from '../src';
+import {GoogleRecaptchaOptionsFactory} from '../src/interfaces/google-recaptcha-module-options';
 
 export class GoogleRecaptchaModuleOptionsFactory implements GoogleRecaptchaOptionsFactory {
     createGoogleRecaptchaOptions(): Promise<GoogleRecaptchaModuleOptions> {
@@ -17,7 +17,7 @@ export class TestConfigService {
             secretKey: 'secret',
             response: req => req.body.recaptcha,
             skipIf: () => true,
-            useRecaptchaNet: false,
+            network: GoogleRecaptchaNetwork.Google,
             agent: null
         };
     }

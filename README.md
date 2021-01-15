@@ -2,21 +2,21 @@
 
 The [NestJS](https://docs.nestjs.com/) module to protect your endpoints via [google recaptcha](https://www.google.com/recaptcha/about/).
 
-- [Installation](#Installation)
-- [Configuration](#Configuration)
-- [Usage](#Usage)
-- [Error handling](#ErrorHandling)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Usage](#usage)
+- [Error handling](#error-handling)
 
 Usage example [here](https://github.com/chvarkov/google-recaptcha-example)
 
 
-### Installation <a name="Installation"></a>
+## Installation
 
 ```
 $ npm i @nestlab/google-recaptcha
 ```
 
-### Configuration <a name="Configuration"></a>
+## Configuration
 
 ```typescript
 @Module({
@@ -25,7 +25,7 @@ $ npm i @nestlab/google-recaptcha
             secretKey: process.env.GOOGLE_RECAPTCHA_SECRET_KEY,
             response: req => req.headers.recaptcha,
             skipIf: process.env.NODE_ENV !== 'production',
-            useRecaptchaNet: false,
+            network: GoogleRecaptchaNetwork.Recaptcha,
             agent: null
         })
     ],
@@ -36,13 +36,13 @@ export class AppModule {
 
 **Configuration options**
 
-| Property          | Description |
-|-------------------|-------------|
-| `secretKey`       | **Required.**<br> Type: `string`<br> Google recaptcha secret key |
-| `response`        | **Required.**<br> Type: `(request) => string`<br> Function that returns response (recaptcha token) by request |
-| `skipIf`          | Optional.<br> Type: `boolean` \| `(request) => boolean \| Promise<boolean>` <br> Function that returns true if you allow the request to skip the recaptcha verification. Useful for involing other check methods (e.g. custom privileged API key) or for development or testing |
-| `useRecaptchaNet` | Optional.<br> Type: `boolean`<br> If your server has trouble connecting to https://www.google.com. You can use https://recaptcha.net instead, just set true |
-| `agent`           | Optional.<br> Type: `https.Agent`<br> If you need to use an agent |
+| Property    | Description |
+|-------------|-------------|
+| `secretKey` | **Required.**<br> Type: `string`<br> Google recaptcha secret key |
+| `response`  | **Required.**<br> Type: `(request) => string`<br> Function that returns response (recaptcha token) by request |
+| `skipIf`    | Optional.<br> Type: `boolean` \| `(request) => boolean \| Promise<boolean>` <br> Function that returns true if you allow the request to skip the recaptcha verification. Useful for involing other check methods (e.g. custom privileged API key) or for development or testing |
+| `network`   | Optional.<br> Type: `GoogleRecaptchaNetwork` \| `boolean`<br> Default: `GoogleRecaptchaNetwork.Google` <br> If your server has trouble connecting to https://google.com then you can set networks:<br> `GoogleRecaptchaNetwork.Google` = 'https://www.google.com/recaptcha/api/siteverify'<br>`GoogleRecaptchaNetwork.Recaptcha` = 'https://recaptcha.net/recaptcha/api/siteverify'<br> or set any api url |
+| `agent`     | Optional.<br> Type: `https.Agent`<br> If you need to use an agent |
 
 If you want import configs from your [ConfigService](https://docs.nestjs.com/techniques/configuration#getting-started) via [custom getter function](https://docs.nestjs.com/techniques/configuration#custom-getter-functions) that will return `GoogleRecaptchaModuleOptions` object.
 
@@ -60,7 +60,7 @@ export class AppModule {
 }
 ```
 
-### Usage <a name="Usage"></a>
+## Usage
 
 Use `@Recaptcha` decorator to protect your endpoints.
 
@@ -107,7 +107,7 @@ export class FeedbackController {
 
 ```
 
-### Error handling <a name="ErrorHandling"></a>
+### Error handling
 
 Google recaptcha guard will throw GoogleRecaptchaException on error.
 

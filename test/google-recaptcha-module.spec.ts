@@ -1,13 +1,14 @@
-import { Test } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
-import { GoogleRecaptchaValidator } from '../src/services/google-recaptcha.validator';
-import { GoogleRecaptchaGuard } from '../src/guards/google-recaptcha.guard';
-import { GoogleRecaptchaModule } from '../src/google-recaptcha.module';
-import { Agent } from 'https';
-import { RECAPTCHA_OPTIONS } from '../src/provider.declarations';
-import { GoogleRecaptchaModuleOptions } from '../src';
+import {Test} from '@nestjs/testing';
+import {INestApplication} from '@nestjs/common';
+import {GoogleRecaptchaValidator} from '../src/services/google-recaptcha.validator';
+import {GoogleRecaptchaGuard} from '../src/guards/google-recaptcha.guard';
+import {GoogleRecaptchaModule} from '../src/google-recaptcha.module';
+import {Agent} from 'https';
+import {RECAPTCHA_OPTIONS} from '../src/provider.declarations';
+import {GoogleRecaptchaModuleOptions} from '../src';
 
 describe('Google recaptcha module', () => {
+    const customNetwork = 'CUSTOM_URL';
     let app: INestApplication;
 
     beforeAll(async () => {
@@ -17,7 +18,7 @@ describe('Google recaptcha module', () => {
                     secretKey: process.env.GOOGLE_RECAPTCHA_SECRET_KEY,
                     response: req => req.headers.authorization,
                     skipIf: () => process.env.NODE_ENV !== 'production',
-                    useRecaptchaNet: true,
+                    network: customNetwork,
                     agent: new Agent({maxFreeSockets: 10}),
                 }),
             ],
@@ -42,7 +43,7 @@ describe('Google recaptcha module', () => {
         const options: GoogleRecaptchaModuleOptions = app.get(RECAPTCHA_OPTIONS);
 
         expect(options).toBeDefined();
-        expect(options.useRecaptchaNet).toBeTruthy();
+        expect(options.network).toBe(customNetwork);
         expect(options.agent).toBeDefined();
         expect(options.agent).toBeInstanceOf(Agent);
         expect(options.agent.maxFreeSockets).toBe(10);
