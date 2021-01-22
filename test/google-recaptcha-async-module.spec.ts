@@ -1,41 +1,9 @@
-import {Test} from '@nestjs/testing';
-import {Module} from '@nestjs/common';
-import {GoogleRecaptchaValidator} from '../src/services/google-recaptcha.validator';
-import {GoogleRecaptchaModule} from '../src/google-recaptcha.module';
-import {GoogleRecaptchaModuleOptions, GoogleRecaptchaNetwork} from '../src';
-import {GoogleRecaptchaOptionsFactory} from '../src/interfaces/google-recaptcha-module-options';
-
-export class GoogleRecaptchaModuleOptionsFactory implements GoogleRecaptchaOptionsFactory {
-    createGoogleRecaptchaOptions(): Promise<GoogleRecaptchaModuleOptions> {
-        return Promise.resolve(new TestConfigService().getGoogleRecaptchaOptions());
-    }
-}
-
-export class TestConfigService {
-    getGoogleRecaptchaOptions(): GoogleRecaptchaModuleOptions {
-        return {
-            secretKey: 'secret',
-            response: req => req.body.recaptcha,
-            skipIf: () => true,
-            network: GoogleRecaptchaNetwork.Google,
-            agent: null
-        };
-    }
-}
-
-@Module({
-    providers: [
-        TestConfigService,
-        GoogleRecaptchaModuleOptionsFactory,
-    ],
-    exports: [
-        TestConfigService,
-        GoogleRecaptchaModuleOptionsFactory,
-    ],
-})
-export class TestConfigModule {
-
-}
+import { Test } from '@nestjs/testing';
+import { GoogleRecaptchaValidator } from '../src/services/google-recaptcha.validator';
+import { GoogleRecaptchaModule } from '../src';
+import { TestConfigModule } from './assets/test-config-module';
+import { TestConfigService } from './assets/test-config-service';
+import { GoogleRecaptchaModuleOptionsFactory } from './assets/test-recaptcha-options-factory';
 
 describe('Google recaptcha async module', () => {
     test('Test via import module',  async () => {

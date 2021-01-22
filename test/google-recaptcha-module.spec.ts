@@ -1,11 +1,9 @@
-import {Test} from '@nestjs/testing';
-import {INestApplication} from '@nestjs/common';
-import {GoogleRecaptchaValidator} from '../src/services/google-recaptcha.validator';
-import {GoogleRecaptchaGuard} from '../src/guards/google-recaptcha.guard';
-import {GoogleRecaptchaModule} from '../src/google-recaptcha.module';
-import {Agent} from 'https';
-import {RECAPTCHA_OPTIONS} from '../src/provider.declarations';
-import {GoogleRecaptchaModuleOptions} from '../src';
+import { Test } from '@nestjs/testing';
+import { INestApplication } from '@nestjs/common';
+import { GoogleRecaptchaValidator } from '../src/services/google-recaptcha.validator';
+import { GoogleRecaptchaGuard, GoogleRecaptchaModuleOptions, GoogleRecaptchaModule } from '../src';
+import { Agent } from 'https';
+import { RECAPTCHA_OPTIONS } from '../src/provider.declarations';
 
 describe('Google recaptcha module', () => {
     const customNetwork = 'CUSTOM_URL';
