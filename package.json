@@ -1,6 +1,6 @@
 {
   "name": "@nestlab/google-recaptcha",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Google recaptcha module for NestJS.",
   "keywords": [
     "nest",
@@ -12,7 +12,8 @@
     "captcha",
     "google-recaptcha",
     "nestjs captcha",
-    "nestjs recaptcha"
+    "nestjs recaptcha",
+    "graphql"
   ],
   "private": false,
   "main": "index.js",
@@ -38,6 +39,7 @@
   "devDependencies": {
     "@nestjs/common": "^6.0.0",
     "@nestjs/core": "^6.0.0",
+    "@nestjs/graphql": "^7.9.8",
     "@nestjs/platform-express": "^6.11.11",
     "@nestjs/testing": "^6.11.11",
     "@types/express": "^4.17.11",

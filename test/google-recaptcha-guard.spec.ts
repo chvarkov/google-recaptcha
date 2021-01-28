@@ -6,6 +6,7 @@ import { GoogleRecaptchaValidatorOptions } from '../src/interfaces/google-recapt
 import { createExecutionContext } from './helpers/create-execution-context';
 import { TestController } from './assets/test-controller';
 import { TestRecaptchaNetwork } from './network/test-recaptcha-network';
+import { RecaptchaRequestResolver } from '../src/services/recaptcha-request.resolver';
 
 describe('Google recaptcha guard', () => {
     let network: TestRecaptchaNetwork;
@@ -29,7 +30,7 @@ describe('Google recaptcha guard', () => {
 
     test('SkipIf = true + default response provider', async () => {
         const validator = createGoogleRecaptchaValidator(validatorOptions);
-        const guard = new GoogleRecaptchaGuard(validator, new Reflector(), {
+        const guard = new GoogleRecaptchaGuard(validator, new Reflector(), new RecaptchaRequestResolver(), {
             ...guardOptions,
             skipIf: true,
         });
@@ -43,7 +44,7 @@ describe('Google recaptcha guard', () => {
 
     test('SkipIf = (req) => true + overridden response provider', async () => {
         const validator = createGoogleRecaptchaValidator(validatorOptions);
-        const guard = new GoogleRecaptchaGuard(validator, new Reflector(), {
+        const guard = new GoogleRecaptchaGuard(validator, new Reflector(), new RecaptchaRequestResolver(), {
             ...guardOptions,
             skipIf: req => true,
         });
@@ -57,7 +58,7 @@ describe('Google recaptcha guard', () => {
 
     test('Invalid secret', async () => {
         const validator = createGoogleRecaptchaValidator(validatorOptions);
-        const guard = new GoogleRecaptchaGuard(validator, new Reflector(), guardOptions);
+        const guard = new GoogleRecaptchaGuard(validator, new Reflector(), new RecaptchaRequestResolver(), guardOptions);
 
         const context = createExecutionContext(controller.submit, {body: {recaptcha: 'RECAPTCHA_TOKEN'}});
 
@@ -71,7 +72,7 @@ describe('Google recaptcha guard', () => {
             ...validatorOptions,
             network: 'https://localhost/some-invalid-path',
         });
-        const guard = new GoogleRecaptchaGuard(validator, new Reflector(), guardOptions);
+        const guard = new GoogleRecaptchaGuard(validator, new Reflector(), new RecaptchaRequestResolver(), guardOptions);
 
         const context = createExecutionContext(controller.submit, {body: {recaptcha: 'RECAPTCHA_TOKEN'}});
 
@@ -88,7 +89,7 @@ describe('Google recaptcha guard', () => {
             ...validatorOptions,
             network: network.url,
         });
-        const guard = new GoogleRecaptchaGuard(validator, new Reflector(), guardOptions);
+        const guard = new GoogleRecaptchaGuard(validator, new Reflector(), new RecaptchaRequestResolver(), guardOptions);
 
         const context = createExecutionContext(controller.submit, {body: {recaptcha: 'RECAPTCHA_TOKEN'}});
 
