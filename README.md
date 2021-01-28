@@ -5,6 +5,8 @@ The [NestJS](https://docs.nestjs.com/) module to protect your endpoints via [goo
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [Usage](#usage)
+    -  [Rest](#rest)
+    -  [GraphQL](#graphql)
 - [Error handling](#error-handling)
 
 Usage example [here](https://github.com/chvarkov/google-recaptcha-example)
@@ -16,7 +18,14 @@ Usage example [here](https://github.com/chvarkov/google-recaptcha-example)
 $ npm i @nestlab/google-recaptcha
 ```
 
+For using application type GraphQL `ApplicationType.GraphQL` you need to install `@nestjs/graphql`.
+```
+$ npm i @nestjs/graphql
+```
+
 ## Configuration
+
+**Configuration for REST application**
 
 ```typescript
 @Module({
@@ -34,15 +43,40 @@ export class AppModule {
 }
 ```
 
+**Configuration for GraphQL application**
+
+```typescript
+@Module({
+    imports: [
+        GoogleRecaptchaModule.forRoot({
+            secretKey: process.env.GOOGLE_RECAPTCHA_SECRET_KEY,
+            response: req => (req: IncomingMessage) => (req.headers.recaptcha || '').toString(),
+            skipIf: process.env.NODE_ENV !== 'production',
+            network: GoogleRecaptchaNetwork.Recaptcha,
+            applicationType: ApplicationType.GraphQL,
+            agent: null
+        })
+    ],
+})
+export class AppModule {
+}
+```
+
+
+**Tip: header names transforming to lower case.**
+
+**For example:** If you send 'Recaptcha' header then use `(req) => req.headers.recaptcha`
+
 **Configuration options**
 
-| Property    | Description |
-|-------------|-------------|
-| `secretKey` | **Required.**<br> Type: `string`<br> Google recaptcha secret key |
-| `response`  | **Required.**<br> Type: `(request) => string`<br> Function that returns response (recaptcha token) by request |
-| `skipIf`    | Optional.<br> Type: `boolean` \| `(request) => boolean \| Promise<boolean>` <br> Function that returns true if you allow the request to skip the recaptcha verification. Useful for involing other check methods (e.g. custom privileged API key) or for development or testing |
-| `network`   | Optional.<br> Type: `GoogleRecaptchaNetwork` \| `boolean`<br> Default: `GoogleRecaptchaNetwork.Google` <br> If your server has trouble connecting to https://google.com then you can set networks:<br> `GoogleRecaptchaNetwork.Google` = 'https://www.google.com/recaptcha/api/siteverify'<br>`GoogleRecaptchaNetwork.Recaptcha` = 'https://recaptcha.net/recaptcha/api/siteverify'<br> or set any api url |
-| `agent`     | Optional.<br> Type: `https.Agent`<br> If you need to use an agent |
+| Property          | Description |
+|-------------------|-------------|
+| `secretKey`       | **Required.**<br> Type: `string`<br> Google recaptcha secret key |
+| `response`        | **Required.**<br> Type: `(request) => string`<br> Function that returns response (recaptcha token) by request |
+| `skipIf`          | Optional.<br> Type: `boolean` \| `(request) => boolean \| Promise<boolean>` <br> Function that returns true if you allow the request to skip the recaptcha verification. Useful for involing other check methods (e.g. custom privileged API key) or for development or testing |
+| `network`         | Optional.<br> Type: `GoogleRecaptchaNetwork` \| `boolean`<br> Default: `GoogleRecaptchaNetwork.Google` <br> If your server has trouble connecting to https://google.com then you can set networks:<br> `GoogleRecaptchaNetwork.Google` = 'https://www.google.com/recaptcha/api/siteverify'<br>`GoogleRecaptchaNetwork.Recaptcha` = 'https://recaptcha.net/recaptcha/api/siteverify'<br> or set any api url |
+| `applicationType` | Optional.<br> Type: `ApplicationType` <br> Default: `ApplicationType.Rest` <br> Application type affect on type of request argument on `response` provider function <br> Request types:<br> `ApplicationType.Rest` - `(req: express.Request \| fastify.Request) => string \| Promise<string>` <br> `ApplicationType.GraphQL` - `(req: http.IncommingMessage) => string \| Promise<string>` |
+| `agent`           | Optional.<br> Type: `https.Agent`<br> If you need to use an agent |
 
 If you want import configs from your [ConfigService](https://docs.nestjs.com/techniques/configuration#getting-started) via [custom getter function](https://docs.nestjs.com/techniques/configuration#custom-getter-functions) that will return `GoogleRecaptchaModuleOptions` object.
 
@@ -61,6 +95,8 @@ export class AppModule {
 ```
 
 ## Usage
+
+### Rest
 
 Use `@Recaptcha` decorator to protect your endpoints.
 
@@ -105,6 +141,41 @@ export class FeedbackController {
     }
 }
 
+```
+
+### GraphQL
+
+Use `@Recaptcha` decorator to protect your resolver.
+
+```typescript
+@Recaptcha()
+@Resolver(of => Recipe)
+export class RecipesResolver {
+    @Query(returns => Recipe)
+    async recipe(@Args('id') id: string): Promise<Recipe> {
+        // TODO: Your implementation.
+    }
+}
+```
+
+You can override default property that contain recaptcha for specific query, mutation or subscription.
+
+```typescript
+@Recaptcha()
+@Resolver(of => Recipe)
+export class RecipesResolver {
+    @Query(returns => Recipe)
+    async recipe(@Args('id') id: string): Promise<Recipe> {
+        // TODO: Your implementation.
+    }
+
+    // Overridden default header. This query using X-Recaptcha header 
+    @Recaptcha((req: IncomingMessage) => (req.headers['x-recaptcha'] || '').toString())
+    @Query(returns => [Recipe])
+    recipes(@Args() recipesArgs: RecipesArgs): Promise<Recipe[]> {
+        // TODO: Your implementation.
+    }
+}
 ```
 
 ## Error handling

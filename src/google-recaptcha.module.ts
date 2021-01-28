@@ -6,6 +6,7 @@ import {
     GoogleRecaptchaModuleOptions, GoogleRecaptchaOptionsFactory
 } from './interfaces/google-recaptcha-module-options';
 import { RECAPTCHA_OPTIONS } from './provider.declarations';
+import { RecaptchaRequestResolver } from './services/recaptcha-request.resolver';
 
 @Module({})
 export class GoogleRecaptchaModule {
@@ -13,6 +14,7 @@ export class GoogleRecaptchaModule {
         const providers: Provider[] = [
             GoogleRecaptchaGuard,
             GoogleRecaptchaValidator,
+            RecaptchaRequestResolver,
             {
                 provide: RECAPTCHA_OPTIONS,
                 useValue: options,
@@ -34,6 +36,7 @@ export class GoogleRecaptchaModule {
         const providers: Provider[] = [
             GoogleRecaptchaGuard,
             GoogleRecaptchaValidator,
+            RecaptchaRequestResolver,
             ...this.createAsyncProviders(options)
         ];
 

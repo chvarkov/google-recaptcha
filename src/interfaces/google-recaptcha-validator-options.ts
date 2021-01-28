@@ -1,5 +1,5 @@
-import * as https from "https";
-import {GoogleRecaptchaNetwork} from "../enums/google-recaptcha-network";
+import * as https from 'https';
+import { GoogleRecaptchaNetwork } from '../enums/google-recaptcha-network';
 
 export interface GoogleRecaptchaValidatorOptions {
     secretKey: string;
