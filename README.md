@@ -5,8 +5,9 @@ The [NestJS](https://docs.nestjs.com/) module to protect your endpoints via [goo
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [Usage](#usage)
-    -  [Rest](#rest)
-    -  [GraphQL](#graphql)
+    -  [Validate in service](#validate-in-service)
+    -  [Guard](#guard)
+    -  [GraphQL guard](#graphql-guard)
 - [Error handling](#error-handling)
 
 Usage example [here](https://github.com/chvarkov/google-recaptcha-example)
@@ -96,7 +97,26 @@ export class AppModule {
 
 ## Usage
 
-### Rest
+### Validate in service
+
+```typescript
+@Injectable()
+export class SomeService {
+    constructor(private readonly recaptchaValidator: GoogleRecaptchaValidator) {
+    }
+
+    async someAction(recaptchaToken: string): Promise<void> {
+        const result = await this.recaptchaValidator.validate(recaptchaToken);
+        
+        if (!result.success) {
+            throw new GoogleRecaptchaException(result.errors);
+        }
+        // TODO: Your implemetation
+    }
+}
+```
+
+### Guard
 
 Use `@Recaptcha` decorator to protect your endpoints.
 
@@ -143,7 +163,7 @@ export class FeedbackController {
 
 ```
 
-### GraphQL
+### GraphQL guard
 
 Use `@Recaptcha` decorator to protect your resolver.
 
