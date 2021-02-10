@@ -51,7 +51,7 @@ export class AppModule {
     imports: [
         GoogleRecaptchaModule.forRoot({
             secretKey: process.env.GOOGLE_RECAPTCHA_SECRET_KEY,
-            response: req => (req: IncomingMessage) => (req.headers.recaptcha || '').toString(),
+            response: (req: IncomingMessage) => (req.headers.recaptcha || '').toString(),
             skipIf: process.env.NODE_ENV !== 'production',
             network: GoogleRecaptchaNetwork.Recaptcha,
             applicationType: ApplicationType.GraphQL,
