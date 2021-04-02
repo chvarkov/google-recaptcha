@@ -1,13 +1,13 @@
-import {HttpService, Inject, Injectable} from '@nestjs/common';
-import {GoogleRecaptchaValidatorOptions} from '../interfaces/google-recaptcha-validator-options';
-import {RECAPTCHA_OPTIONS} from '../provider.declarations';
+import { HttpService, Inject, Injectable } from '@nestjs/common';
+import { GoogleRecaptchaValidatorOptions } from '../interfaces/google-recaptcha-validator-options';
+import { RECAPTCHA_OPTIONS } from '../provider.declarations';
 import * as qs from 'querystring';
-import {GoogleRecaptchaValidationResult} from '../interfaces/google-recaptcha-validation-result';
-import {GoogleRecaptchaNetwork} from '../enums/google-recaptcha-network';
-import {ScoreValidator} from '../types';
-import {VerifyResponseOptions} from '../interfaces/verify-response-decorator-options';
-import {VerifyResponseV2, VerifyResponseV3} from '../interfaces/verify-response';
-import {ErrorCode} from '../enums/error-code';
+import { GoogleRecaptchaValidationResult } from '../interfaces/google-recaptcha-validation-result';
+import { GoogleRecaptchaNetwork } from '../enums/google-recaptcha-network';
+import { ScoreValidator } from '../types';
+import { VerifyResponseOptions } from '../interfaces/verify-response-decorator-options';
+import { VerifyResponseV2, VerifyResponseV3 } from '../interfaces/verify-response';
+import { ErrorCode } from '../enums/error-code';
 
 @Injectable()
 export class GoogleRecaptchaValidator {
@@ -24,8 +24,6 @@ export class GoogleRecaptchaValidator {
         if (!this.isUseV3(result)) {
             return result;
         }
-
-        console.log(result)
 
         if (!this.isValidAction(result.action, options)) {
             result.success = false;
