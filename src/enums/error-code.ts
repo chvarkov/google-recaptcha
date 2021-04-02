@@ -5,5 +5,7 @@ export enum ErrorCode {
 	InvalidInputResponse = 'invalid-input-response',
 	BadRequest = 'bad-request',
 	TimeoutOrDuplicate = 'timeout-or-duplicate',
-	UnknownError = 'unknown-error'
+	UnknownError = 'unknown-error',
+	ForbiddenAction = 'forbidden-action',
+	LowScore = 'low-score',
 }

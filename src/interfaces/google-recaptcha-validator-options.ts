@@ -1,8 +1,12 @@
 import * as https from 'https';
 import { GoogleRecaptchaNetwork } from '../enums/google-recaptcha-network';
+import { ScoreValidator } from '../types';
 
 export interface GoogleRecaptchaValidatorOptions {
     secretKey: string;
+    actions?: string[];
+    score?: ScoreValidator;
+
     /**
      * If your server has trouble connecting to https://google.com then you can set networks:
      * GoogleRecaptchaNetwork.Google = 'https://www.google.com/recaptcha/api/siteverify'
