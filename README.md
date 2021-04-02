@@ -44,6 +44,25 @@ export class AppModule {
 }
 ```
 
+**Configuration for reCAPTCHA V3**
+
+```typescript
+@Module({
+    imports: [
+        GoogleRecaptchaModule.forRoot({
+            secretKey: process.env.GOOGLE_RECAPTCHA_SECRET_KEY,
+            response: (req: IncomingMessage) => (req.headers.recaptcha || '').toString(),
+            skipIf: process.env.NODE_ENV !== 'production',
+            agent: null,
+            actions: ['SignUp', 'SignIn'],
+            score: 0.8,
+        })
+    ],
+})
+export class AppModule {
+}
+```
+
 **Configuration for GraphQL application**
 
 ```typescript
@@ -78,6 +97,8 @@ export class AppModule {
 | `network`         | Optional.<br> Type: `GoogleRecaptchaNetwork` \| `boolean`<br> Default: `GoogleRecaptchaNetwork.Google` <br> If your server has trouble connecting to https://google.com then you can set networks:<br> `GoogleRecaptchaNetwork.Google` = 'https://www.google.com/recaptcha/api/siteverify'<br>`GoogleRecaptchaNetwork.Recaptcha` = 'https://recaptcha.net/recaptcha/api/siteverify'<br> or set any api url |
 | `applicationType` | Optional.<br> Type: `ApplicationType` <br> Default: `ApplicationType.Rest` <br> Application type affect on type of request argument on `response` provider function <br> Request types:<br> `ApplicationType.Rest` - `(req: express.Request \| fastify.Request) => string \| Promise<string>` <br> `ApplicationType.GraphQL` - `(req: http.IncommingMessage) => string \| Promise<string>` |
 | `agent`           | Optional.<br> Type: `https.Agent`<br> If you need to use an agent |
+| `score`           | Optional.<br> Type: `number` \| `(score: number) => boolean`<br> Score validator for reCAPTCHA v3. <br> `number` - minimum available score. <br> `(score: number) => boolean` - function with custom validation rules. |
+| `actions`         | Optional.<br> Type: `string[]`<br> Available action list for reCAPTCHA v3. <br> You can make this check stricter by passing the action property parameter to `@Recaptcha(...)` decorator. |
 
 If you want import configs from your [ConfigService](https://docs.nestjs.com/techniques/configuration#getting-started) via [custom getter function](https://docs.nestjs.com/techniques/configuration#custom-getter-functions) that will return `GoogleRecaptchaModuleOptions` object.
 
@@ -106,7 +127,11 @@ export class SomeService {
     }
 
     async someAction(recaptchaToken: string): Promise<void> {
-        const result = await this.recaptchaValidator.validate(recaptchaToken);
+        const result = await this.recaptchaValidator.validate({
+            response: recaptchaToken,
+            score: 0.8,
+            action: 'SomeAction',
+        });
         
         if (!result.success) {
             throw new GoogleRecaptchaException(result.errors);
@@ -139,7 +164,22 @@ You can override default property that contain recaptcha for specific endpoint.
 
 @Controller('feedback')
 export class FeedbackController {
-    @Recaptcha(req => req.body.recaptha)
+    @Recaptcha({response: req => req.body.recaptha})
+    @Post('send')
+    async send(): Promise<any> {
+        // TODO: Your implementation.
+    }
+}
+
+```
+
+Also you can override recaptcha v3 options.
+
+```typescript
+
+@Controller('feedback')
+export class FeedbackController {
+    @Recaptcha({response: req => req.body.recaptha, action: 'Send', score: 0.8})
     @Post('send')
     async send(): Promise<any> {
         // TODO: Your implementation.
@@ -190,7 +230,7 @@ export class RecipesResolver {
     }
 
     // Overridden default header. This query using X-Recaptcha header 
-    @Recaptcha((req: IncomingMessage) => (req.headers['x-recaptcha'] || '').toString())
+    @Recaptcha({response: (req: IncomingMessage) => (req.headers['x-recaptcha'] || '').toString()})
     @Query(returns => [Recipe])
     recipes(@Args() recipesArgs: RecipesArgs): Promise<Recipe[]> {
         // TODO: Your implementation.

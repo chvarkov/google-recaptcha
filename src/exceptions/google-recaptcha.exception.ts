@@ -21,6 +21,12 @@ export class GoogleRecaptchaException extends HttpException {
 			case ErrorCode.MissingInputSecret:
 				return 'Invalid module configuration. Please check public-secret keys.';
 
+			case ErrorCode.LowScore:
+				return 'Low recaptcha score.'
+
+			case ErrorCode.ForbiddenAction:
+				return 'Forbidden recaptcha action.'
+
 			case ErrorCode.UnknownError:
 			case ErrorCode.BadRequest:
 			default:
@@ -31,7 +37,9 @@ export class GoogleRecaptchaException extends HttpException {
 	private static getErrorStatus(errorCode: ErrorCode): number {
 		return errorCode === ErrorCode.InvalidInputResponse ||
 			errorCode === ErrorCode.MissingInputResponse ||
-			errorCode === ErrorCode.TimeoutOrDuplicate
+			errorCode === ErrorCode.TimeoutOrDuplicate ||
+			errorCode === ErrorCode.ForbiddenAction ||
+			errorCode === ErrorCode.LowScore
 		? HttpStatus.BAD_REQUEST
 		: HttpStatus.INTERNAL_SERVER_ERROR;
 	}

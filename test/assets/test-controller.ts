@@ -6,6 +6,6 @@ export class TestController {
     @Recaptcha()
     submit(): void {}
 
-    @Recaptcha(req => req.body.customRecaptchaField)
+    @Recaptcha({response: req => req.body.customRecaptchaField})
     submitOverridden(): void {}
 }
