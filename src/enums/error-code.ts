@@ -8,4 +8,5 @@ export enum ErrorCode {
 	UnknownError = 'unknown-error',
 	ForbiddenAction = 'forbidden-action',
 	LowScore = 'low-score',
+	InvalidKeys = 'invalid-keys',
 }

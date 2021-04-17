@@ -1,5 +1,5 @@
-import { HttpException, HttpStatus } from '@nestjs/common';
-import { ErrorCode } from '../enums/error-code';
+import {HttpException, HttpStatus} from '@nestjs/common';
+import {ErrorCode} from '../enums/error-code';
 
 export class GoogleRecaptchaException extends HttpException {
 
@@ -21,6 +21,9 @@ export class GoogleRecaptchaException extends HttpException {
 			case ErrorCode.MissingInputSecret:
 				return 'Invalid module configuration. Please check public-secret keys.';
 
+			case ErrorCode.InvalidKeys:
+				return 'Recaptcha token was signed by invalid api key.';
+
 			case ErrorCode.LowScore:
 				return 'Low recaptcha score.'
 
@@ -39,7 +42,8 @@ export class GoogleRecaptchaException extends HttpException {
 			errorCode === ErrorCode.MissingInputResponse ||
 			errorCode === ErrorCode.TimeoutOrDuplicate ||
 			errorCode === ErrorCode.ForbiddenAction ||
-			errorCode === ErrorCode.LowScore
+			errorCode === ErrorCode.LowScore ||
+			errorCode === ErrorCode.InvalidKeys
 		? HttpStatus.BAD_REQUEST
 		: HttpStatus.INTERNAL_SERVER_ERROR;
 	}
