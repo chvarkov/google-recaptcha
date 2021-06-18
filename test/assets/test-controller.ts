@@ -1,5 +1,6 @@
-import { Controller } from '@nestjs/common';
-import { Recaptcha } from '../../src';
+import { Controller, UseGuards } from '@nestjs/common';
+import { GoogleRecaptchaGuard, Recaptcha } from '../../src';
+import { SetRecaptchaOptions } from '../../src/decorators/set-recaptcha-options';
 
 @Controller('test')
 export class TestController {
@@ -8,4 +9,8 @@ export class TestController {
 
     @Recaptcha({response: req => req.body.customRecaptchaField})
     submitOverridden(): void {}
+
+    @SetRecaptchaOptions({action: 'TestOptions', score: 0.5})
+    @UseGuards(GoogleRecaptchaGuard)
+    submitWithSetRecaptchaOptionsDecorator(): void {}
 }
