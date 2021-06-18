@@ -194,6 +194,7 @@ If you want use google recaptcha guard in combination with another guards then y
 
 @Controller('feedback')
 export class FeedbackController {
+    @SetRecaptchaOptions({action: 'Send', score: 0.8})
     @UseGuards(Guard1, GoogleRecaptchaGuard, Guard2)
     @Post('send')
     async send(): Promise<any> {
