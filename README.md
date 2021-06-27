@@ -188,6 +188,22 @@ export class FeedbackController {
 
 ```
 
+Get verification result
+
+```typescript
+
+@Controller('feedback')
+export class FeedbackController {
+    @Recaptcha()
+    @Post('send')
+    async send(@RecaptchaResult() recaptchaResult: GoogleRecaptchaValidationResult): Promise<any> {
+        console.log(`Action: ${recaptchaResult.action} Score: ${recaptchaResult.score}`);
+        // TODO: Your implementation.
+    }
+}
+
+```
+
 If you want use google recaptcha guard in combination with another guards then you can use `@UseGuards` decorator.
 
 ```typescript
