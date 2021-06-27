@@ -36,12 +36,12 @@ export class GoogleRecaptchaGuard implements CanActivate {
         const score = options?.score || this.options.score;
         const action = options?.action;
 
-        const result = await this.validator.validate({response, score, action});
+        request.recaptchaValidationResult = await this.validator.validate({response, score, action});
 
-        if (result.success) {
+        if (request.recaptchaValidationResult.success) {
             return true;
         }
 
-        throw new GoogleRecaptchaException(result.errors);
+        throw new GoogleRecaptchaException(request.recaptchaValidationResult.errors);
     }
 }
