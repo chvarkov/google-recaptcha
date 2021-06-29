@@ -1,5 +1,6 @@
-import { ExecutionContext, Injectable, Logger } from '@nestjs/common';
+import { ExecutionContext, Injectable } from '@nestjs/common';
 import { ApplicationType } from '../enums/application-type';
+import { loadModule } from '../helpers/load-module';
 
 @Injectable()
 export class RecaptchaRequestResolver {
@@ -9,19 +10,10 @@ export class RecaptchaRequestResolver {
                 return context.switchToHttp().getRequest();
 
             case ApplicationType.GraphQL:
-                const graphqlModule = this.loadModule('@nestjs/graphql');
+                const graphqlModule = loadModule('@nestjs/graphql');
                 return graphqlModule.GqlExecutionContext.create(context).getContext().req?.connection?._httpMessage?.req;
             default:
                 throw new Error(`Unsupported request type '${type}'.`);
-        }
-    }
-
-    private loadModule(moduleName: string): any {
-        try {
-            return require(moduleName);
-        } catch (e) {
-            Logger.error(`Module '${moduleName}' not found. \nPotential solution npm i  ${moduleName}`);
-            throw e;
         }
     }
 }
