@@ -1,12 +1,14 @@
-import { DynamicModule, HttpModule, Module, Provider } from '@nestjs/common';
+import { DynamicModule, Module, Provider } from '@nestjs/common';
 import { GoogleRecaptchaGuard } from './guards/google-recaptcha.guard';
 import { GoogleRecaptchaValidator } from './services/google-recaptcha.validator';
 import {
     GoogleRecaptchaModuleAsyncOptions,
     GoogleRecaptchaModuleOptions, GoogleRecaptchaOptionsFactory
 } from './interfaces/google-recaptcha-module-options';
-import { RECAPTCHA_OPTIONS } from './provider.declarations';
+import { RECAPTCHA_HTTP_SERVICE, RECAPTCHA_OPTIONS } from './provider.declarations';
 import { RecaptchaRequestResolver } from './services/recaptcha-request.resolver';
+import { loadModule } from './helpers/load-module';
+import { Reflector } from '@nestjs/core';
 
 @Module({})
 export class GoogleRecaptchaModule {
@@ -21,13 +23,23 @@ export class GoogleRecaptchaModule {
             },
         ];
 
+        const httpModule = this.resolveHttpModule();
+
+        const internalProviders: Provider[] = [
+            Reflector,
+            {
+                provide: RECAPTCHA_HTTP_SERVICE,
+                useExisting: httpModule.HttpService,
+            }
+        ];
+
         return {
             global: true,
             module: GoogleRecaptchaModule,
             imports: [
-                HttpModule
+                httpModule.HttpModule,
             ],
-            providers: providers,
+            providers: providers.concat(internalProviders),
             exports: providers,
         }
     }
@@ -40,15 +52,33 @@ export class GoogleRecaptchaModule {
             ...this.createAsyncProviders(options)
         ];
 
+        const httpModule = this.resolveHttpModule();
+
+        const internalProviders: Provider[] = [
+            Reflector,
+            {
+                provide: RECAPTCHA_HTTP_SERVICE,
+                useExisting: httpModule.HttpService,
+            }
+        ];
+
         return {
 	        global: true,
             module: GoogleRecaptchaModule,
             imports: [
-                HttpModule,
+                httpModule.HttpModule,
                 ...options.imports || []
             ],
-            providers: providers,
+            providers: providers.concat(internalProviders),
             exports: providers,
+        }
+    }
+
+    private static resolveHttpModule(): any {
+        try {
+            return loadModule('@nestjs/axios');
+        } catch (e) {
+            return loadModule('@nestjs/common');
         }
     }
 

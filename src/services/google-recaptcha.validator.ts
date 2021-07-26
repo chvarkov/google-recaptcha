@@ -1,6 +1,6 @@
 import { HttpService, Inject, Injectable } from '@nestjs/common';
 import { GoogleRecaptchaValidatorOptions } from '../interfaces/google-recaptcha-validator-options';
-import { RECAPTCHA_OPTIONS } from '../provider.declarations';
+import { RECAPTCHA_HTTP_SERVICE, RECAPTCHA_OPTIONS } from '../provider.declarations';
 import * as qs from 'querystring';
 import { GoogleRecaptchaValidationResult } from '../interfaces/google-recaptcha-validation-result';
 import { GoogleRecaptchaNetwork } from '../enums/google-recaptcha-network';
@@ -14,7 +14,7 @@ export class GoogleRecaptchaValidator {
     private readonly defaultNetwork = GoogleRecaptchaNetwork.Google;
     private readonly headers = {'Content-Type': 'application/x-www-form-urlencoded'};
 
-    constructor(private readonly http: HttpService,
+    constructor(@Inject(RECAPTCHA_HTTP_SERVICE) private readonly http: HttpService,
                 @Inject(RECAPTCHA_OPTIONS) private readonly options: GoogleRecaptchaValidatorOptions) {
     }
 
