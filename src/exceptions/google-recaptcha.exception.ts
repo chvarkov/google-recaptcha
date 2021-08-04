@@ -2,9 +2,12 @@ import {HttpException, HttpStatus} from '@nestjs/common';
 import {ErrorCode} from '../enums/error-code';
 
 export class GoogleRecaptchaException extends HttpException {
-
-	constructor(public readonly errorCodes: ErrorCode[]) {
-        super(GoogleRecaptchaException.getErrorMessage(errorCodes[0]), GoogleRecaptchaException.getErrorStatus(errorCodes[0]));
+	constructor(public readonly errorCodes: ErrorCode[],
+                errorMessage?: string) {
+        super(
+            errorMessage || GoogleRecaptchaException.getErrorMessage(errorCodes[0]),
+            GoogleRecaptchaException.getErrorStatus(errorCodes[0]),
+        );
 	}
 
 	private static getErrorMessage(errorCode: ErrorCode): string {
@@ -13,7 +16,7 @@ export class GoogleRecaptchaException extends HttpException {
 				return 'The response parameter is invalid or malformed.';
 
 			case ErrorCode.MissingInputResponse:
-				return  'The response parameter is missing.';
+				return 'The response parameter is missing.';
 			case ErrorCode.TimeoutOrDuplicate:
 				return 'The response is no longer valid: either is too old or has been used previously.';
 
@@ -30,7 +33,7 @@ export class GoogleRecaptchaException extends HttpException {
 			case ErrorCode.ForbiddenAction:
 				return 'Forbidden recaptcha action.'
 
-			case ErrorCode.UnknownError:
+            case ErrorCode.UnknownError:
 			case ErrorCode.BadRequest:
 			default:
 				return 'Unexpected error. Please submit issue to @nestlab/google-recaptcha.';

@@ -6,3 +6,4 @@ export { ErrorCode } from './enums/error-code';
 export { ApplicationType } from './enums/application-type';
 export { GoogleRecaptchaNetwork } from './enums/google-recaptcha-network'
 export { GoogleRecaptchaException } from './exceptions/google-recaptcha.exception';
+export { GoogleRecaptchaNetworkException } from './exceptions/google-recaptcha-network.exception';

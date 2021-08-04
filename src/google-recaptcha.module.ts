@@ -5,10 +5,11 @@ import {
     GoogleRecaptchaModuleAsyncOptions,
     GoogleRecaptchaModuleOptions, GoogleRecaptchaOptionsFactory
 } from './interfaces/google-recaptcha-module-options';
-import { RECAPTCHA_HTTP_SERVICE, RECAPTCHA_OPTIONS } from './provider.declarations';
+import { RECAPTCHA_AXIOS_INSTANCE, RECAPTCHA_HTTP_SERVICE, RECAPTCHA_OPTIONS } from './provider.declarations';
 import { RecaptchaRequestResolver } from './services/recaptcha-request.resolver';
 import { loadModule } from './helpers/load-module';
 import { Reflector } from '@nestjs/core';
+import * as axios from 'axios';
 
 @Module({})
 export class GoogleRecaptchaModule {
@@ -29,8 +30,15 @@ export class GoogleRecaptchaModule {
             Reflector,
             {
                 provide: RECAPTCHA_HTTP_SERVICE,
-                useExisting: httpModule.HttpService,
-            }
+                useFactory: (axiosInstance: axios.AxiosInstance) => new httpModule.HttpService(axiosInstance),
+                inject: [
+                    RECAPTCHA_AXIOS_INSTANCE,
+                ],
+            },
+            {
+                provide: RECAPTCHA_AXIOS_INSTANCE,
+                useFactory: () => axios.default.create(this.transformAxiosConfig(options.axiosConfig)),
+            },
         ];
 
         return {
@@ -58,16 +66,29 @@ export class GoogleRecaptchaModule {
             Reflector,
             {
                 provide: RECAPTCHA_HTTP_SERVICE,
-                useExisting: httpModule.HttpService,
-            }
+                useFactory: (axiosInstance: axios.AxiosInstance) => new httpModule.HttpService(axiosInstance),
+                inject: [
+                    RECAPTCHA_AXIOS_INSTANCE,
+                ],
+            },
+            {
+                provide: RECAPTCHA_AXIOS_INSTANCE,
+                useFactory: (options: GoogleRecaptchaModuleOptions) => {
+                    const transformedAxiosConfig = this.transformAxiosConfig(options.axiosConfig);
+                    return axios.default.create(transformedAxiosConfig);
+                },
+                inject: [
+                    RECAPTCHA_OPTIONS,
+                ],
+            },
         ];
 
         return {
 	        global: true,
             module: GoogleRecaptchaModule,
             imports: [
+                ...options.imports || [],
                 httpModule.HttpModule,
-                ...options.imports || []
             ],
             providers: providers.concat(internalProviders),
             exports: providers,
@@ -80,6 +101,24 @@ export class GoogleRecaptchaModule {
         } catch (e) {
             return loadModule('@nestjs/common');
         }
+    }
+
+    private static transformAxiosConfig(axiosConfig?: axios.AxiosRequestConfig): axios.AxiosRequestConfig {
+        const {
+            baseURL,
+            url,
+            responseType,
+            method,
+            transformRequest,
+            transformResponse,
+            paramsSerializer,
+            validateStatus,
+            data,
+            adapter,
+            ...config
+        } = axiosConfig || {};
+
+        return config;
     }
 
     private static createAsyncProviders(options: GoogleRecaptchaModuleAsyncOptions): Provider[] {

@@ -2,12 +2,14 @@ import { HttpService, Inject, Injectable } from '@nestjs/common';
 import { GoogleRecaptchaValidatorOptions } from '../interfaces/google-recaptcha-validator-options';
 import { RECAPTCHA_HTTP_SERVICE, RECAPTCHA_OPTIONS } from '../provider.declarations';
 import * as qs from 'querystring';
+import * as axios from 'axios';
 import { GoogleRecaptchaValidationResult } from '../interfaces/google-recaptcha-validation-result';
 import { GoogleRecaptchaNetwork } from '../enums/google-recaptcha-network';
 import { ScoreValidator } from '../types';
 import { VerifyResponseOptions } from '../interfaces/verify-response-decorator-options';
 import { VerifyResponseV2, VerifyResponseV3 } from '../interfaces/verify-response';
 import { ErrorCode } from '../enums/error-code';
+import { GoogleRecaptchaNetworkException } from '../exceptions/google-recaptcha-network.exception';
 
 @Injectable()
 export class GoogleRecaptchaValidator {
@@ -18,6 +20,10 @@ export class GoogleRecaptchaValidator {
                 @Inject(RECAPTCHA_OPTIONS) private readonly options: GoogleRecaptchaValidatorOptions) {
     }
 
+    /**
+     * @throws GoogleRecaptchaNetworkException
+     * @param {VerifyResponseOptions} options
+     */
     async validate(options: VerifyResponseOptions): Promise<GoogleRecaptchaValidationResult> {
         const result = await this.verifyResponse<VerifyResponseV3>(options.response);
 
@@ -42,10 +48,15 @@ export class GoogleRecaptchaValidator {
         const data = qs.stringify({secret: this.options.secretKey, response});
         const url = this.options.network || this.defaultNetwork;
 
-        return this.http.post(url, data, {
+        const config: axios.AxiosRequestConfig = {
             headers: this.headers,
-            httpsAgent: this.options.agent
-        })
+        };
+
+        if (this.options.agent) {
+            config.httpsAgent = this.options.agent;
+        }
+
+        return this.http.post(url, data, config)
             .toPromise()
             .then(res => res.data)
             .then(result => ({
@@ -56,10 +67,18 @@ export class GoogleRecaptchaValidator {
                 delete result['error-codes'];
                 return result;
             })
-            .catch(() => ({
-                success: false,
-                errors: [ErrorCode.UnknownError],
-            }))
+            .catch((err: axios.AxiosError) => {
+                const networkErrorCode = err.isAxiosError && err.code;
+
+                if (networkErrorCode) {
+                    throw new GoogleRecaptchaNetworkException(networkErrorCode);
+                }
+
+                return {
+                    success: false,
+                    errors: [ErrorCode.UnknownError],
+                }
+            })
     }
 
     private isValidAction(action: string, options?: VerifyResponseOptions): boolean {

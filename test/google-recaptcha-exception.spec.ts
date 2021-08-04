@@ -3,42 +3,54 @@ import { HttpStatus } from '@nestjs/common';
 
 describe('Google recaptcha exception', () => {
     test('Test error code InvalidInputResponse', () => {
-        const exception = new GoogleRecaptchaException([ErrorCode.InvalidInputResponse])
+        const exception = new GoogleRecaptchaException([ErrorCode.InvalidInputResponse]);
         expect(exception.getStatus()).toBe(HttpStatus.BAD_REQUEST);
     });
 
     test('Test error code MissingInputResponse', () => {
-        const exception = new GoogleRecaptchaException([ErrorCode.MissingInputResponse])
+        const exception = new GoogleRecaptchaException([ErrorCode.MissingInputResponse]);
         expect(exception.getStatus()).toBe(HttpStatus.BAD_REQUEST);
     });
 
     test('Test error code TimeoutOrDuplicate', () => {
-        const exception = new GoogleRecaptchaException([ErrorCode.TimeoutOrDuplicate])
+        const exception = new GoogleRecaptchaException([ErrorCode.TimeoutOrDuplicate]);
         expect(exception.getStatus()).toBe(HttpStatus.BAD_REQUEST);
     });
 
     test('Test error code InvalidInputSecret', () => {
-        const exception = new GoogleRecaptchaException([ErrorCode.InvalidInputSecret])
+        const exception = new GoogleRecaptchaException([ErrorCode.InvalidInputSecret]);
         expect(exception.getStatus()).toBe(HttpStatus.INTERNAL_SERVER_ERROR);
     });
 
     test('Test error code MissingInputSecret', () => {
-        const exception = new GoogleRecaptchaException([ErrorCode.MissingInputSecret])
+        const exception = new GoogleRecaptchaException([ErrorCode.MissingInputSecret]);
         expect(exception.getStatus()).toBe(HttpStatus.INTERNAL_SERVER_ERROR);
     });
 
     test('Test error code BadRequest', () => {
-        const exception = new GoogleRecaptchaException([ErrorCode.BadRequest])
+        const exception = new GoogleRecaptchaException([ErrorCode.BadRequest]);
         expect(exception.getStatus()).toBe(HttpStatus.INTERNAL_SERVER_ERROR);
     });
 
     test('Test error code UnknownError', () => {
-        const exception = new GoogleRecaptchaException([ErrorCode.UnknownError])
+        const exception = new GoogleRecaptchaException([ErrorCode.UnknownError]);
         expect(exception.getStatus()).toBe(HttpStatus.INTERNAL_SERVER_ERROR);
     });
 
     test('Test unexpected error code', () => {
-        const exception = new GoogleRecaptchaException(['UnexpectedErrorCode' as ErrorCode])
+        const exception = new GoogleRecaptchaException(['UnexpectedErrorCode' as ErrorCode]);
         expect(exception.getStatus()).toBe(HttpStatus.INTERNAL_SERVER_ERROR);
+    });
+
+    test('Test network error code', () => {
+        const exception = new GoogleRecaptchaException([ErrorCode.NetworkError]);
+        expect(exception.getStatus()).toBe(HttpStatus.INTERNAL_SERVER_ERROR);
+    });
+
+    test('Test network error with custom message', () => {
+        const message = 'TEST_MSG';
+        const exception = new GoogleRecaptchaException([ErrorCode.NetworkError], message);
+        expect(exception.getStatus()).toBe(HttpStatus.INTERNAL_SERVER_ERROR);
+        expect(exception.message).toBe(message);
     });
 });

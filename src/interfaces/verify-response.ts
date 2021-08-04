@@ -4,7 +4,7 @@ export interface VerifyResponseV2 {
     success: boolean;
     challenge_ts: string;
     hostname: string;
-    errors: ErrorCode[]
+    errors: ErrorCode[];
 }
 
 export interface VerifyResponseV3 extends VerifyResponseV2 {

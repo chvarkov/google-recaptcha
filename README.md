@@ -96,9 +96,10 @@ export class AppModule {
 | `skipIf`          | Optional.<br> Type: `boolean` \| `(request) => boolean \| Promise<boolean>` <br> Function that returns true if you allow the request to skip the recaptcha verification. Useful for involing other check methods (e.g. custom privileged API key) or for development or testing |
 | `network`         | Optional.<br> Type: `GoogleRecaptchaNetwork` \| `boolean`<br> Default: `GoogleRecaptchaNetwork.Google` <br> If your server has trouble connecting to https://google.com then you can set networks:<br> `GoogleRecaptchaNetwork.Google` = 'https://www.google.com/recaptcha/api/siteverify'<br>`GoogleRecaptchaNetwork.Recaptcha` = 'https://recaptcha.net/recaptcha/api/siteverify'<br> or set any api url |
 | `applicationType` | Optional.<br> Type: `ApplicationType` <br> Default: `ApplicationType.Rest` <br> Application type affect on type of request argument on `response` provider function <br> Request types:<br> `ApplicationType.Rest` - `(req: express.Request \| fastify.Request) => string \| Promise<string>` <br> `ApplicationType.GraphQL` - `(req: http.IncommingMessage) => string \| Promise<string>` |
-| `agent`           | Optional.<br> Type: `https.Agent`<br> If you need to use an agent |
+| `agent`           | **Deprecated.** Use `axiosConfig` option <br> Optional.<br> Type: `https.Agent`<br> If you need to use an agent |
 | `score`           | Optional.<br> Type: `number` \| `(score: number) => boolean`<br> Score validator for reCAPTCHA v3. <br> `number` - minimum available score. <br> `(score: number) => boolean` - function with custom validation rules. |
 | `actions`         | Optional.<br> Type: `string[]`<br> Available action list for reCAPTCHA v3. <br> You can make this check stricter by passing the action property parameter to `@Recaptcha(...)` decorator. |
+| `axiosConfig`     | Optional.<br> Type: `AxiosRequestConfig`<br> Allows to setup proxy, response timeout, https agent etc... |
 
 If you want import configs from your [ConfigService](https://docs.nestjs.com/techniques/configuration#getting-started) via [custom getter function](https://docs.nestjs.com/techniques/configuration#custom-getter-functions) that will return `GoogleRecaptchaModuleOptions` object.
 
@@ -259,9 +260,17 @@ export class RecipesResolver {
 
 Google recaptcha guard will throw GoogleRecaptchaException on error.
 
+**GoogleRecaptchaException**
+
 `GoogleRecaptchaException` has data with google recaptcha error codes.
 
 `GoogleRecaptchaException` ← `HttpException` ← `Error`.
+
+**GoogleRecaptchaNetworkException**
+
+`GoogleRecaptchaNetworkException` has error code `ErrorCode.NetworkError`.
+
+`GoogleRecaptchaException` ← `GoogleRecaptchaException`
 
 You can handle it via [ExceptionFilter](https://docs.nestjs.com/exception-filters).
 

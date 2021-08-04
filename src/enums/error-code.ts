@@ -9,4 +9,5 @@ export enum ErrorCode {
 	ForbiddenAction = 'forbidden-action',
 	LowScore = 'low-score',
 	InvalidKeys = 'invalid-keys',
+    NetworkError = 'network-error',
 }
