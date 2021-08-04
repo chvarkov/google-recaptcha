@@ -270,7 +270,7 @@ Google recaptcha guard will throw GoogleRecaptchaException on error.
 
 `GoogleRecaptchaNetworkException` has error code `ErrorCode.NetworkError`.
 
-`GoogleRecaptchaException` ← `GoogleRecaptchaException`
+`GoogleRecaptchaNetworkException` ← `GoogleRecaptchaException`
 
 You can handle it via [ExceptionFilter](https://docs.nestjs.com/exception-filters).
 
