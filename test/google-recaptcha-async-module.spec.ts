@@ -1,19 +1,48 @@
 import { Test } from '@nestjs/testing';
 import { GoogleRecaptchaValidator } from '../src/services/google-recaptcha.validator';
-import { GoogleRecaptchaModule } from '../src';
+import { GoogleRecaptchaModule, GoogleRecaptchaModuleOptions } from '../src';
 import { TestConfigModule } from './assets/test-config-module';
 import { TestConfigService } from './assets/test-config-service';
 import { GoogleRecaptchaModuleOptionsFactory } from './assets/test-recaptcha-options-factory';
+import { HttpModule, HttpService } from '@nestjs/common';
+import { RECAPTCHA_AXIOS_INSTANCE, RECAPTCHA_OPTIONS } from '../src/provider.declarations';
+import { AxiosInstance, AxiosProxyConfig, AxiosRequestConfig } from 'axios';
 
 describe('Google recaptcha async module', () => {
-    test('Test via import module',  async () => {
+    const checkDefaultConfigs = (defaults: AxiosRequestConfig) => {
+        expect(defaults).toBeDefined();
+        expect(defaults.proxy).toBeDefined();
+
+        const proxy: AxiosProxyConfig = defaults.proxy as AxiosProxyConfig;
+
+        expect(proxy).toBeDefined();
+        expect(typeof proxy).toBe('object');
+        expect(proxy.host).toBe('TEST_PROXY_HOST');
+        expect(proxy.port).toBe(7777);
+    };
+
+    test('Test via import module and use default axios config',  async () => {
         const testingModule = await Test.createTestingModule({
             imports: [
                 GoogleRecaptchaModule.forRootAsync({
-                    imports: [TestConfigModule],
-                    useFactory: (config: TestConfigService) => config.getGoogleRecaptchaOptions(),
+                    imports: [
+                        HttpModule.register({
+                            proxy: {
+                                host: 'TEST_PROXY_HOST',
+                                port: 7777,
+                            },
+                            data: 'TEST',
+                            timeout: 1000000000,
+                        }),
+                        TestConfigModule,
+                    ],
+                    useFactory: (config: TestConfigService, http: HttpService) => ({
+                        ...config.getGoogleRecaptchaOptions(),
+                        axiosConfig: http.axiosRef.defaults,
+                    }),
                     inject: [
                         TestConfigService,
+                        HttpService,
                     ],
                 }),
             ],
@@ -21,8 +50,24 @@ describe('Google recaptcha async module', () => {
 
         const app = testingModule.createNestApplication();
 
+        await app.init();
+
         const validator = app.get(GoogleRecaptchaValidator);
         expect(validator).toBeInstanceOf(GoogleRecaptchaValidator);
+
+        const axiosInstance: AxiosInstance = app.get(RECAPTCHA_AXIOS_INSTANCE);
+
+        checkDefaultConfigs(axiosInstance.defaults);
+
+        expect(axiosInstance.defaults.data).toBeUndefined();
+
+        const options: GoogleRecaptchaModuleOptions = app.get(RECAPTCHA_OPTIONS);
+
+        expect(options).toBeDefined();
+
+        checkDefaultConfigs(options.axiosConfig);
+
+        expect(options.axiosConfig.data).toBe('TEST');
     });
 
     test('Test via useClass',  async () => {
