@@ -1,4 +1,4 @@
-import { DynamicModule, Module, Provider } from '@nestjs/common';
+import { DynamicModule, Provider } from '@nestjs/common';
 import { GoogleRecaptchaGuard } from './guards/google-recaptcha.guard';
 import { GoogleRecaptchaValidator } from './services/google-recaptcha.validator';
 import {
@@ -11,7 +11,6 @@ import { loadModule } from './helpers/load-module';
 import { Reflector } from '@nestjs/core';
 import * as axios from 'axios';
 
-@Module({})
 export class GoogleRecaptchaModule {
     static forRoot(options: GoogleRecaptchaModuleOptions): DynamicModule {
         const providers: Provider[] = [
