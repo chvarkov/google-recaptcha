@@ -1,4 +1,4 @@
-import { GoogleRecaptchaException, GoogleRecaptchaGuard } from '../src';
+import { ApplicationType, GoogleRecaptchaException, GoogleRecaptchaGuard } from '../src';
 import { Reflector } from '@nestjs/core';
 import { GoogleRecaptchaGuardOptions } from '../src/interfaces/google-recaptcha-guard-options';
 import { createGoogleRecaptchaValidator } from './helpers/create-google-recaptcha-validator';
@@ -98,4 +98,23 @@ describe('Google recaptcha guard', () => {
         expect(canActivate).toBeTruthy();
     });
 
+    test('Valid + AppType', async () => {
+        network.setResult({
+            success: true,
+        })
+        const validator = createGoogleRecaptchaValidator({
+            ...validatorOptions,
+            network: network.url,
+        });
+        const guard = new GoogleRecaptchaGuard(validator, new Reflector(), new RecaptchaRequestResolver(), {
+            ...guardOptions,
+            applicationType: ApplicationType.Rest,
+        });
+
+        const context = createExecutionContext(controller.submit, {body: {recaptcha: 'RECAPTCHA_TOKEN'}});
+
+        const canActivate = await guard.canActivate(context);
+
+        expect(canActivate).toBeTruthy();
+    });
 });

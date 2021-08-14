@@ -47,8 +47,7 @@ export function createExecutionContext(handler: Function, req: Partial<Request>)
         }
 
         getType<TContext = ContextType>(): TContext {
-            console.error('Method \'getType\' doesn\'t implemented');
-            return undefined;
+            return 'http' as any;
         }
 
         switchToRpc(): RpcArgumentsHost {
