@@ -2,6 +2,8 @@
 
 The [NestJS](https://docs.nestjs.com/) module to protect your endpoints via [google recaptcha](https://www.google.com/recaptcha/about/).
 
+Supported for HTTP and GraphQL nestJS applications
+
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [Usage](#usage)
@@ -19,11 +21,6 @@ Usage example [here](https://github.com/chvarkov/google-recaptcha-example)
 $ npm i @nestlab/google-recaptcha
 ```
 
-For using application type GraphQL `ApplicationType.GraphQL` you need to install `@nestjs/graphql`.
-```
-$ npm i @nestjs/graphql
-```
-
 ## Configuration
 
 **Configuration for REST application**
@@ -36,7 +33,6 @@ $ npm i @nestjs/graphql
             response: req => req.headers.recaptcha,
             skipIf: process.env.NODE_ENV !== 'production',
             network: GoogleRecaptchaNetwork.Recaptcha,
-            agent: null
         })
     ],
 })
@@ -53,7 +49,6 @@ export class AppModule {
             secretKey: process.env.GOOGLE_RECAPTCHA_SECRET_KEY,
             response: (req: IncomingMessage) => (req.headers.recaptcha || '').toString(),
             skipIf: process.env.NODE_ENV !== 'production',
-            agent: null,
             actions: ['SignUp', 'SignIn'],
             score: 0.8,
         })
@@ -62,26 +57,6 @@ export class AppModule {
 export class AppModule {
 }
 ```
-
-**Configuration for GraphQL application**
-
-```typescript
-@Module({
-    imports: [
-        GoogleRecaptchaModule.forRoot({
-            secretKey: process.env.GOOGLE_RECAPTCHA_SECRET_KEY,
-            response: (req: IncomingMessage) => (req.headers.recaptcha || '').toString(),
-            skipIf: process.env.NODE_ENV !== 'production',
-            network: GoogleRecaptchaNetwork.Recaptcha,
-            applicationType: ApplicationType.GraphQL,
-            agent: null
-        })
-    ],
-})
-export class AppModule {
-}
-```
-
 
 **Tip: header names transforming to lower case.**
 
@@ -95,7 +70,7 @@ export class AppModule {
 | `response`        | **Required.**<br> Type: `(request) => string`<br> Function that returns response (recaptcha token) by request |
 | `skipIf`          | Optional.<br> Type: `boolean` \| `(request) => boolean \| Promise<boolean>` <br> Function that returns true if you allow the request to skip the recaptcha verification. Useful for involing other check methods (e.g. custom privileged API key) or for development or testing |
 | `network`         | Optional.<br> Type: `GoogleRecaptchaNetwork` \| `boolean`<br> Default: `GoogleRecaptchaNetwork.Google` <br> If your server has trouble connecting to https://google.com then you can set networks:<br> `GoogleRecaptchaNetwork.Google` = 'https://www.google.com/recaptcha/api/siteverify'<br>`GoogleRecaptchaNetwork.Recaptcha` = 'https://recaptcha.net/recaptcha/api/siteverify'<br> or set any api url |
-| `applicationType` | Optional.<br> Type: `ApplicationType` <br> Default: `ApplicationType.Rest` <br> Application type affect on type of request argument on `response` provider function <br> Request types:<br> `ApplicationType.Rest` - `(req: express.Request \| fastify.Request) => string \| Promise<string>` <br> `ApplicationType.GraphQL` - `(req: http.IncommingMessage) => string \| Promise<string>` |
+| `applicationType` | **Deprecated.** Module detects it automatically from execution context. Optional.<br> Type: `ApplicationType` <br> Application type affect on type of request argument on `response` provider function <br> Context types:<br> `http` - `(req: express.Request \| fastify.Request) => string \| Promise<string>` <br> `graphql` - `(req: http.IncommingMessage) => string \| Promise<string>` |
 | `agent`           | **Deprecated.** Use `axiosConfig` option <br> Optional.<br> Type: `https.Agent`<br> If you need to use an agent |
 | `score`           | Optional.<br> Type: `number` \| `(score: number) => boolean`<br> Score validator for reCAPTCHA v3. <br> `number` - minimum available score. <br> `(score: number) => boolean` - function with custom validation rules. |
 | `actions`         | Optional.<br> Type: `string[]`<br> Available action list for reCAPTCHA v3. <br> You can make this check stricter by passing the action property parameter to `@Recaptcha(...)` decorator. |

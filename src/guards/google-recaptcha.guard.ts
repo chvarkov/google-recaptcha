@@ -5,7 +5,6 @@ import { RECAPTCHA_OPTIONS, RECAPTCHA_VALIDATION_OPTIONS } from '../provider.dec
 import { GoogleRecaptchaException } from '../exceptions/google-recaptcha.exception';
 import { Reflector } from '@nestjs/core';
 import { RecaptchaRequestResolver } from '../services/recaptcha-request.resolver';
-import { ApplicationType } from '../enums/application-type';
 import { VerifyResponseDecoratorOptions } from '../interfaces/verify-response-decorator-options';
 
 @Injectable()
@@ -17,7 +16,9 @@ export class GoogleRecaptchaGuard implements CanActivate {
     }
 
     async canActivate(context: ExecutionContext): Promise<true | never> {
-        const request = this.requestResolver.resolve(context, this.options.applicationType || ApplicationType.Rest);
+        const request = this.options.applicationType
+            ? this.requestResolver.resolveByApplicationType(context, this.options.applicationType)
+            : this.requestResolver.resolve(context);
 
         const skip = typeof this.options.skipIf === 'function'
             ? await this.options.skipIf(request)
