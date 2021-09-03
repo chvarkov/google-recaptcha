@@ -2,7 +2,7 @@
 
 The [NestJS](https://docs.nestjs.com/) module to protect your endpoints via [google recaptcha](https://www.google.com/recaptcha/about/).
 
-Supported for HTTP and GraphQL nestJS applications
+Supported for HTTP and GraphQL [NestJS](https://docs.nestjs.com/) applications.
 
 - [Installation](#installation)
 - [Configuration](#configuration)
