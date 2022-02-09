@@ -14,7 +14,7 @@ export class RecaptchaRequestResolver {
 
             case 'graphql':
                 const graphqlModule = loadModule('@nestjs/graphql', true);
-                return graphqlModule.GqlExecutionContext.create(context).getContext().req?.connection?._httpMessage?.req;
+                return graphqlModule.GqlExecutionContext.create(context).getContext().req?.socket?._httpMessage?.req;
             default:
                 throw new Error(`Unsupported request type '${contextType}'.`);
         }
@@ -30,7 +30,7 @@ export class RecaptchaRequestResolver {
 
             case ApplicationType.GraphQL:
                 const graphqlModule = loadModule('@nestjs/graphql', true);
-                return graphqlModule.GqlExecutionContext.create(context).getContext().req?.connection?._httpMessage?.req;
+                return graphqlModule.GqlExecutionContext.create(context).getContext().req?.socket?._httpMessage?.req;
             default:
                 throw new Error(`Unsupported request type '${type}'.`);
         }
