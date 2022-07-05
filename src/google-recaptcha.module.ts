@@ -10,8 +10,14 @@ import { RecaptchaRequestResolver } from './services/recaptcha-request.resolver'
 import { loadModule } from './helpers/load-module';
 import { Reflector } from '@nestjs/core';
 import * as axios from 'axios';
+import { Agent } from 'https';
 
 export class GoogleRecaptchaModule {
+    private static axiosDefaultConfig: axios.AxiosRequestConfig = {
+        timeout: 60_000,
+        httpsAgent: new Agent({keepAlive: true}),
+    };
+
     static forRoot(options: GoogleRecaptchaModuleOptions): DynamicModule {
         const providers: Provider[] = [
             GoogleRecaptchaGuard,
@@ -73,7 +79,10 @@ export class GoogleRecaptchaModule {
             {
                 provide: RECAPTCHA_AXIOS_INSTANCE,
                 useFactory: (options: GoogleRecaptchaModuleOptions) => {
-                    const transformedAxiosConfig = this.transformAxiosConfig(options.axiosConfig);
+                    const transformedAxiosConfig = this.transformAxiosConfig({
+                        ...this.axiosDefaultConfig,
+                        ...options.axiosConfig,
+                    });
                     return axios.default.create(transformedAxiosConfig);
                 },
                 inject: [
