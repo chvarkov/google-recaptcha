@@ -16,9 +16,7 @@ export class GoogleRecaptchaGuard implements CanActivate {
     }
 
     async canActivate(context: ExecutionContext): Promise<true | never> {
-        const request = this.options.applicationType
-            ? this.requestResolver.resolveByApplicationType(context, this.options.applicationType)
-            : this.requestResolver.resolve(context);
+        const request = this.requestResolver.resolve(context);
 
         const skip = typeof this.options.skipIf === 'function'
             ? await this.options.skipIf(request)

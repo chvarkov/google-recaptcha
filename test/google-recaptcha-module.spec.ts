@@ -17,7 +17,6 @@ describe('Google recaptcha module', () => {
                     response: req => req.headers.authorization,
                     skipIf: () => process.env.NODE_ENV !== 'production',
                     network: customNetwork,
-                    agent: new Agent({maxFreeSockets: 10}),
                 }),
             ],
         }).compile();
@@ -42,8 +41,5 @@ describe('Google recaptcha module', () => {
 
         expect(options).toBeDefined();
         expect(options.network).toBe(customNetwork);
-        expect(options.agent).toBeDefined();
-        expect(options.agent).toBeInstanceOf(Agent);
-        expect(options.agent.maxFreeSockets).toBe(10);
     });
 });

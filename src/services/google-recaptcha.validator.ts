@@ -53,10 +53,6 @@ export class GoogleRecaptchaValidator {
             headers: this.headers,
         };
 
-        if (this.options.agent) {
-            config.httpsAgent = this.options.agent;
-        }
-
         return this.http.post(url, data, config)
             .toPromise()
             .then(res => res.data)

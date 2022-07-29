@@ -42,7 +42,11 @@ export class GoogleRecaptchaModule {
             },
             {
                 provide: RECAPTCHA_AXIOS_INSTANCE,
-                useFactory: () => axios.default.create(this.transformAxiosConfig(options.axiosConfig)),
+                useFactory: () => axios.default.create(this.transformAxiosConfig({
+                    ...this.axiosDefaultConfig,
+                    ...options.axiosConfig,
+                    headers: null,
+                })),
             },
         ];
 
