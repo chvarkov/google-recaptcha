@@ -1,4 +1,5 @@
 import { GoogleRecaptchaModuleOptions, GoogleRecaptchaNetwork } from '../../src';
+import * as https from 'https';
 
 export class TestConfigService {
     getGoogleRecaptchaOptions(): GoogleRecaptchaModuleOptions {
@@ -7,7 +8,11 @@ export class TestConfigService {
             response: req => req.body.recaptcha,
             skipIf: () => true,
             network: GoogleRecaptchaNetwork.Google,
-            agent: null
+            axiosConfig: {
+                httpsAgent: new https.Agent({
+                    timeout: 15_000,
+                }),
+            }
         };
     }
 }

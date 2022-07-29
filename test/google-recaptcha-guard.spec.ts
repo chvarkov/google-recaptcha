@@ -97,24 +97,4 @@ describe('Google recaptcha guard', () => {
 
         expect(canActivate).toBeTruthy();
     });
-
-    test('Valid + AppType', async () => {
-        network.setResult({
-            success: true,
-        })
-        const validator = createGoogleRecaptchaValidator({
-            ...validatorOptions,
-            network: network.url,
-        });
-        const guard = new GoogleRecaptchaGuard(validator, new Reflector(), new RecaptchaRequestResolver(), {
-            ...guardOptions,
-            applicationType: ApplicationType.Rest,
-        });
-
-        const context = createExecutionContext(controller.submit, {body: {recaptcha: 'RECAPTCHA_TOKEN'}});
-
-        const canActivate = await guard.canActivate(context);
-
-        expect(canActivate).toBeTruthy();
-    });
 });
