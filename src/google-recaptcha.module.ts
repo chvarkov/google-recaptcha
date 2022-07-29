@@ -20,6 +20,7 @@ export class GoogleRecaptchaModule {
 
     static forRoot(options: GoogleRecaptchaModuleOptions): DynamicModule {
         const providers: Provider[] = [
+            Reflector,
             GoogleRecaptchaGuard,
             GoogleRecaptchaValidator,
             RecaptchaRequestResolver,
@@ -32,7 +33,6 @@ export class GoogleRecaptchaModule {
         const httpModule = this.resolveHttpModule();
 
         const internalProviders: Provider[] = [
-            Reflector,
             {
                 provide: RECAPTCHA_HTTP_SERVICE,
                 useFactory: (axiosInstance: axios.AxiosInstance) => new httpModule.HttpService(axiosInstance),
@@ -54,11 +54,12 @@ export class GoogleRecaptchaModule {
             ],
             providers: providers.concat(internalProviders),
             exports: providers,
-        }
+        };
     }
 
     static forRootAsync(options: GoogleRecaptchaModuleAsyncOptions): DynamicModule {
         const providers: Provider[] = [
+            Reflector,
             GoogleRecaptchaGuard,
             GoogleRecaptchaValidator,
             RecaptchaRequestResolver,
@@ -68,7 +69,6 @@ export class GoogleRecaptchaModule {
         const httpModule = this.resolveHttpModule();
 
         const internalProviders: Provider[] = [
-            Reflector,
             {
                 provide: RECAPTCHA_HTTP_SERVICE,
                 useFactory: (axiosInstance: axios.AxiosInstance) => new httpModule.HttpService(axiosInstance),
@@ -82,6 +82,7 @@ export class GoogleRecaptchaModule {
                     const transformedAxiosConfig = this.transformAxiosConfig({
                         ...this.axiosDefaultConfig,
                         ...options.axiosConfig,
+                        headers: null,
                     });
                     return axios.default.create(transformedAxiosConfig);
                 },
@@ -100,7 +101,7 @@ export class GoogleRecaptchaModule {
             ],
             providers: providers.concat(internalProviders),
             exports: providers,
-        }
+        };
     }
 
     private static resolveHttpModule(): any {

@@ -4,7 +4,7 @@ import { GoogleRecaptchaModule, GoogleRecaptchaModuleOptions } from '../src';
 import { TestConfigModule } from './assets/test-config-module';
 import { TestConfigService } from './assets/test-config-service';
 import { GoogleRecaptchaModuleOptionsFactory } from './assets/test-recaptcha-options-factory';
-import { HttpModule, HttpService } from '@nestjs/common';
+import { HttpModule, HttpService } from '@nestjs/axios';
 import { RECAPTCHA_AXIOS_INSTANCE, RECAPTCHA_OPTIONS } from '../src/provider.declarations';
 import { AxiosInstance, AxiosProxyConfig, AxiosRequestConfig } from 'axios';
 
@@ -38,7 +38,7 @@ describe('Google recaptcha async module', () => {
                     ],
                     useFactory: (config: TestConfigService, http: HttpService) => ({
                         ...config.getGoogleRecaptchaOptions(),
-                        axiosConfig: http.axiosRef.defaults,
+                        axiosConfig: {...http.axiosRef.defaults, headers: {}},
                     }),
                     inject: [
                         TestConfigService,
@@ -57,7 +57,7 @@ describe('Google recaptcha async module', () => {
 
         const axiosInstance: AxiosInstance = app.get(RECAPTCHA_AXIOS_INSTANCE);
 
-        checkDefaultConfigs(axiosInstance.defaults);
+        checkDefaultConfigs({...axiosInstance.defaults, headers: {}});
 
         expect(axiosInstance.defaults.data).toBeUndefined();
 
