@@ -1,4 +1,4 @@
-import { HttpService, Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { GoogleRecaptchaValidatorOptions } from '../interfaces/google-recaptcha-validator-options';
 import { RECAPTCHA_HTTP_SERVICE, RECAPTCHA_OPTIONS } from '../provider.declarations';
 import * as qs from 'querystring';
@@ -10,6 +10,7 @@ import { VerifyResponseOptions } from '../interfaces/verify-response-decorator-o
 import { VerifyResponseV2, VerifyResponseV3 } from '../interfaces/verify-response';
 import { ErrorCode } from '../enums/error-code';
 import { GoogleRecaptchaNetworkException } from '../exceptions/google-recaptcha-network.exception';
+import { HttpService } from "@nestjs/axios";
 
 @Injectable()
 export class GoogleRecaptchaValidator {
