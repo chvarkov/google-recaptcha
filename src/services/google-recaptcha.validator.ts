@@ -1,6 +1,5 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { GoogleRecaptchaValidatorOptions } from '../interfaces/google-recaptcha-validator-options';
-import { RECAPTCHA_HTTP_SERVICE, RECAPTCHA_OPTIONS } from '../provider.declarations';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import { RECAPTCHA_HTTP_SERVICE, RECAPTCHA_LOGGER, RECAPTCHA_OPTIONS } from '../provider.declarations';
 import * as qs from 'querystring';
 import * as axios from 'axios';
 import { GoogleRecaptchaValidationResult } from '../interfaces/google-recaptcha-validation-result';
@@ -11,6 +10,8 @@ import { VerifyResponseV2, VerifyResponseV3 } from '../interfaces/verify-respons
 import { ErrorCode } from '../enums/error-code';
 import { GoogleRecaptchaNetworkException } from '../exceptions/google-recaptcha-network.exception';
 import { HttpService } from "@nestjs/axios";
+import { RECAPTCHA_LOG_CONTEXT } from '../constants';
+import { GoogleRecaptchaModuleOptions } from '../interfaces/google-recaptcha-module-options';
 
 @Injectable()
 export class GoogleRecaptchaValidator {
@@ -18,7 +19,8 @@ export class GoogleRecaptchaValidator {
     private readonly headers = {'Content-Type': 'application/x-www-form-urlencoded'};
 
     constructor(@Inject(RECAPTCHA_HTTP_SERVICE) private readonly http: HttpService,
-                @Inject(RECAPTCHA_OPTIONS) private readonly options: GoogleRecaptchaValidatorOptions) {
+                @Inject(RECAPTCHA_LOGGER) private readonly logger: Logger,
+                @Inject(RECAPTCHA_OPTIONS) private readonly options: GoogleRecaptchaModuleOptions) {
     }
 
     /**
@@ -46,16 +48,27 @@ export class GoogleRecaptchaValidator {
     }
 
     private verifyResponse<T extends VerifyResponseV2>(response: string): Promise<T> {
-        const data = qs.stringify({secret: this.options.secretKey, response});
+        const body = qs.stringify({secret: this.options.secretKey, response});
         const url = this.options.network || this.defaultNetwork;
 
         const config: axios.AxiosRequestConfig = {
             headers: this.headers,
         };
 
-        return this.http.post(url, data, config)
+        if (this.options.debug) {
+            this.logger.debug({body}, `${RECAPTCHA_LOG_CONTEXT}.request`);
+        }
+
+        return this.http.post(url, body, config)
             .toPromise()
             .then(res => res.data)
+            .then(data => {
+                if (this.options.debug) {
+                    this.logger.debug(data, `${RECAPTCHA_LOG_CONTEXT}.response`);
+                }
+
+                return data;
+            })
             .then(result => ({
                 ...result,
                 errors: result['error-codes'] || [],
@@ -65,6 +78,13 @@ export class GoogleRecaptchaValidator {
                 return result;
             })
             .catch((err: axios.AxiosError) => {
+                if (this.options.debug) {
+                    this.logger.debug(
+                        err?.response?.data || err.code || {error: `${err?.name}: ${err?.message}`, stack: err?.stack},
+                        `${RECAPTCHA_LOG_CONTEXT}.error`,
+                    );
+                }
+
                 const networkErrorCode = err.isAxiosError && err.code;
 
                 if (networkErrorCode) {
