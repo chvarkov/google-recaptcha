@@ -68,6 +68,8 @@ export class AppModule {
 |-------------------|-------------|
 | `secretKey`       | **Required.**<br> Type: `string`<br> Google recaptcha secret key |
 | `response`        | **Required.**<br> Type: `(request) => string`<br> Function that returns response (recaptcha token) by request |
+| `debug`           | Optional.<br> Type: `boolean` <br> Enables logging requests, responses, errors and transformed results |
+| `logger`          | Optional.<br> Type: `Logger` <br> Instance of custom logger that extended from Logger (@nestjs/common) |
 | `skipIf`          | Optional.<br> Type: `boolean` \| `(request) => boolean \| Promise<boolean>` <br> Function that returns true if you allow the request to skip the recaptcha verification. Useful for involing other check methods (e.g. custom privileged API key) or for development or testing |
 | `network`         | Optional.<br> Type: `GoogleRecaptchaNetwork` \| `string`<br> Default: `GoogleRecaptchaNetwork.Google` <br> If your server has trouble connecting to https://google.com then you can set networks:<br> `GoogleRecaptchaNetwork.Google` = 'https://www.google.com/recaptcha/api/siteverify'<br>`GoogleRecaptchaNetwork.Recaptcha` = 'https://recaptcha.net/recaptcha/api/siteverify'<br> or set any api url |
 | `score`           | Optional.<br> Type: `number` \| `(score: number) => boolean`<br> Score validator for reCAPTCHA v3. <br> `number` - minimum available score. <br> `(score: number) => boolean` - function with custom validation rules. |
