@@ -1,11 +1,16 @@
-import { DynamicModule, Provider } from '@nestjs/common';
+import { DynamicModule, Logger, Provider } from '@nestjs/common';
 import { GoogleRecaptchaGuard } from './guards/google-recaptcha.guard';
 import { GoogleRecaptchaValidator } from './services/google-recaptcha.validator';
 import {
     GoogleRecaptchaModuleAsyncOptions,
     GoogleRecaptchaModuleOptions, GoogleRecaptchaOptionsFactory
 } from './interfaces/google-recaptcha-module-options';
-import { RECAPTCHA_AXIOS_INSTANCE, RECAPTCHA_HTTP_SERVICE, RECAPTCHA_OPTIONS } from './provider.declarations';
+import {
+    RECAPTCHA_AXIOS_INSTANCE,
+    RECAPTCHA_HTTP_SERVICE,
+    RECAPTCHA_LOGGER,
+    RECAPTCHA_OPTIONS,
+} from './provider.declarations';
 import { RecaptchaRequestResolver } from './services/recaptcha-request.resolver';
 import { loadModule } from './helpers/load-module';
 import { Reflector } from '@nestjs/core';
@@ -27,6 +32,10 @@ export class GoogleRecaptchaModule {
             {
                 provide: RECAPTCHA_OPTIONS,
                 useValue: options,
+            },
+            {
+                provide: RECAPTCHA_LOGGER,
+                useFactory: () => options.logger || new Logger(),
             },
         ];
 
@@ -64,6 +73,13 @@ export class GoogleRecaptchaModule {
     static forRootAsync(options: GoogleRecaptchaModuleAsyncOptions): DynamicModule {
         const providers: Provider[] = [
             Reflector,
+            {
+                provide: RECAPTCHA_LOGGER,
+                useFactory: (options: GoogleRecaptchaModuleOptions) => options.logger || new Logger(),
+                inject: [
+                    RECAPTCHA_OPTIONS,
+                ],
+            },
             GoogleRecaptchaGuard,
             GoogleRecaptchaValidator,
             RecaptchaRequestResolver,

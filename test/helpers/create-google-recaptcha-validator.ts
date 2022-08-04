@@ -1,7 +1,8 @@
 import { GoogleRecaptchaValidator } from '../../src/services/google-recaptcha.validator';
 import { HttpService } from '@nestjs/axios';
-import { GoogleRecaptchaValidatorOptions } from '../../src/interfaces/google-recaptcha-validator-options';
+import { Logger } from '@nestjs/common';
+import { GoogleRecaptchaModuleOptions } from '../../src';
 
-export function createGoogleRecaptchaValidator(options: GoogleRecaptchaValidatorOptions): GoogleRecaptchaValidator {
-    return new GoogleRecaptchaValidator(new HttpService(), options);
+export function createGoogleRecaptchaValidator(options: GoogleRecaptchaModuleOptions): GoogleRecaptchaValidator {
+    return new GoogleRecaptchaValidator(new HttpService(), new Logger(), options);
 }
