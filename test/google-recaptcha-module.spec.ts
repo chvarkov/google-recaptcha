@@ -1,6 +1,6 @@
 import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import { GoogleRecaptchaValidator } from '../src/services/google-recaptcha.validator';
+import { GoogleRecaptchaValidator } from '../src/services/validators/google-recaptcha.validator';
 import { GoogleRecaptchaGuard, GoogleRecaptchaModuleOptions, GoogleRecaptchaModule } from '../src';
 import { Agent } from 'https';
 import { RECAPTCHA_OPTIONS } from '../src/provider.declarations';
@@ -13,7 +13,7 @@ describe('Google recaptcha module', () => {
         const testingModule = await Test.createTestingModule({
             imports: [
                 GoogleRecaptchaModule.forRoot({
-                    secretKey: process.env.GOOGLE_RECAPTCHA_SECRET_KEY,
+                    secretKey: 'secret key',
                     response: req => req.headers.authorization,
                     skipIf: () => process.env.NODE_ENV !== 'production',
                     network: customNetwork,

@@ -10,4 +10,7 @@ export enum ErrorCode {
 	LowScore = 'low-score',
 	InvalidKeys = 'invalid-keys',
     NetworkError = 'network-error',
+	// enterprise
+	SiteMismatch = 'site-mismatch',
+	BrowserError = 'browser-error',
 }

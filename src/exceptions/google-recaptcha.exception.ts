@@ -33,7 +33,13 @@ export class GoogleRecaptchaException extends HttpException {
 			case ErrorCode.ForbiddenAction:
 				return 'Forbidden recaptcha action.'
 
-            case ErrorCode.UnknownError:
+			case ErrorCode.SiteMismatch:
+				return 'The user verification token did not match the provided site key.';
+
+			case ErrorCode.BrowserError:
+				return 'Retriable error (such as network failure) occurred on the browser.';
+
+			case ErrorCode.UnknownError:
 			case ErrorCode.BadRequest:
 			default:
 				return 'Unexpected error. Please submit issue to @nestlab/google-recaptcha.';

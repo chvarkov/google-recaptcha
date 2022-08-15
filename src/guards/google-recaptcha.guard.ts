@@ -1,18 +1,20 @@
 import { CanActivate, ExecutionContext, Inject, Injectable, Logger } from '@nestjs/common';
-import { GoogleRecaptchaValidator } from '../services/google-recaptcha.validator';
 import { RECAPTCHA_LOGGER, RECAPTCHA_OPTIONS, RECAPTCHA_VALIDATION_OPTIONS } from '../provider.declarations';
 import { GoogleRecaptchaException } from '../exceptions/google-recaptcha.exception';
 import { Reflector } from '@nestjs/core';
 import { RecaptchaRequestResolver } from '../services/recaptcha-request.resolver';
 import { VerifyResponseDecoratorOptions } from '../interfaces/verify-response-decorator-options';
-import { RECAPTCHA_LOG_CONTEXT } from '../constants';
 import { GoogleRecaptchaModuleOptions } from '../interfaces/google-recaptcha-module-options';
+import { RecaptchaValidatorResolver } from '../services/recaptcha-validator.resolver';
+import { GoogleRecaptchaContext } from '../enums/google-recaptcha-context';
+import { AbstractGoogleRecaptchaValidator } from '../services/validators/abstract-google-recaptcha-validator';
+import { GoogleRecaptchaEnterpriseValidator } from '../services/validators/google-recaptcha-enterprise.validator';
 
 @Injectable()
 export class GoogleRecaptchaGuard implements CanActivate {
-    constructor(private readonly validator: GoogleRecaptchaValidator,
-                private readonly reflector: Reflector,
+    constructor(private readonly reflector: Reflector,
                 private readonly requestResolver: RecaptchaRequestResolver,
+                private readonly validatorResolver: RecaptchaValidatorResolver,
                 @Inject(RECAPTCHA_LOGGER) private readonly logger: Logger,
                 @Inject(RECAPTCHA_OPTIONS) private readonly options: GoogleRecaptchaModuleOptions) {
     }
@@ -37,10 +39,13 @@ export class GoogleRecaptchaGuard implements CanActivate {
         const score = options?.score || this.options.score;
         const action = options?.action;
 
-        request.recaptchaValidationResult = await this.validator.validate({response, score, action});
+        const validator = this.validatorResolver.resolve();
+
+        request.recaptchaValidationResult = await validator.validate({response, score, action});
 
         if (this.options.debug) {
-            this.logger.debug(request.recaptchaValidationResult, `${RECAPTCHA_LOG_CONTEXT}.result`);
+            const loggerCtx = this.resolveLogContext(validator);
+            this.logger.debug(request.recaptchaValidationResult, `${loggerCtx}.result`);
         }
 
         if (request.recaptchaValidationResult.success) {
@@ -48,5 +53,11 @@ export class GoogleRecaptchaGuard implements CanActivate {
         }
 
         throw new GoogleRecaptchaException(request.recaptchaValidationResult.errors);
+    }
+
+    private resolveLogContext(validator: AbstractGoogleRecaptchaValidator): GoogleRecaptchaContext {
+        return validator instanceof GoogleRecaptchaEnterpriseValidator
+            ? GoogleRecaptchaContext.GoogleRecaptchaEnterprise
+            : GoogleRecaptchaContext.GoogleRecaptcha;
     }
 }

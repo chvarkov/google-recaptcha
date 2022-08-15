@@ -1,6 +1,6 @@
 import { Test } from '@nestjs/testing';
 import { ErrorCode, GoogleRecaptchaModule } from '../src';
-import { GoogleRecaptchaValidator } from '../src/services/google-recaptcha.validator';
+import { GoogleRecaptchaValidator } from '../src/services/validators/google-recaptcha.validator';
 import { GoogleRecaptchaNetworkException } from '../src/exceptions/google-recaptcha-network.exception';
 
 describe('Google recaptcha validator', () => {

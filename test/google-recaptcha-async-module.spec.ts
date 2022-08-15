@@ -1,5 +1,5 @@
 import { Test } from '@nestjs/testing';
-import { GoogleRecaptchaValidator } from '../src/services/google-recaptcha.validator';
+import { GoogleRecaptchaValidator } from '../src/services/validators/google-recaptcha.validator';
 import { GoogleRecaptchaModule, GoogleRecaptchaModuleOptions } from '../src';
 import { TestConfigModule } from './assets/test-config-module';
 import { TestConfigService } from './assets/test-config-service';

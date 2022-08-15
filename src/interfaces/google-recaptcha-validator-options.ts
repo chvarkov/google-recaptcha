@@ -1,9 +1,10 @@
 import { GoogleRecaptchaNetwork } from '../enums/google-recaptcha-network';
 import { ScoreValidator } from '../types';
 import { AxiosRequestConfig } from 'axios';
+import { GoogleRecaptchaEnterpriseOptions } from './google-recaptcha-enterprise-options';
 
 export interface GoogleRecaptchaValidatorOptions {
-    secretKey: string;
+    secretKey?: string;
     actions?: string[];
     score?: ScoreValidator;
 
@@ -16,4 +17,6 @@ export interface GoogleRecaptchaValidatorOptions {
     network?: GoogleRecaptchaNetwork | string;
 
     axiosConfig?: AxiosRequestConfig;
+
+    enterprise?: GoogleRecaptchaEnterpriseOptions;
 }

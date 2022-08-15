@@ -8,3 +8,7 @@ export { ErrorCode } from './enums/error-code';
 export { GoogleRecaptchaNetwork } from './enums/google-recaptcha-network'
 export { GoogleRecaptchaException } from './exceptions/google-recaptcha.exception';
 export { GoogleRecaptchaNetworkException } from './exceptions/google-recaptcha-network.exception';
+export { GoogleRecaptchaValidator } from './services/validators/google-recaptcha.validator'
+export { GoogleRecaptchaEnterpriseValidator } from './services/validators/google-recaptcha-enterprise.validator'
+export { RecaptchaVerificationResult } from './models/recaptcha-verification-result';
+export { ClassificationReason } from './enums/classification-reason';

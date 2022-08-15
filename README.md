@@ -8,6 +8,7 @@ Supported for HTTP and GraphQL [NestJS](https://docs.nestjs.com/) applications.
 - [Configuration](#configuration)
 - [Usage](#usage)
     -  [Validate in service](#validate-in-service)
+    -  [Validate in service (enterprise)](#validate-in-service-enterprise)
     -  [Guard](#guard)
     -  [GraphQL guard](#graphql-guard)
 - [Error handling](#error-handling)
@@ -58,23 +59,54 @@ export class AppModule {
 }
 ```
 
+**Configuration for reCAPTCHA Enterprise**
+
+```typescript
+@Module({
+    imports: [
+        GoogleRecaptchaModule.forRoot({
+            response: (req: IncomingMessage) => (req.headers.recaptcha || '').toString(),
+            skipIf: process.env.NODE_ENV !== 'production',
+            actions: ['SignUp', 'SignIn'],
+            score: 0.8,
+            enterprise: { 
+                projectId: process.env.RECAPTCHA_ENTERPRISE_PROJECT_ID, 
+                siteKey: process.env.RECAPTCHA_ENTERPRISE_SITE_KEY, 
+                apiKey: process.env.RECAPTCHA_ENTERPRISE_API_KEY, 
+            },
+        })
+    ],
+})
+export class AppModule {
+}
+```
+
 **Tip: header names transforming to lower case.**
 
 **For example:** If you send 'Recaptcha' header then use `(req) => req.headers.recaptcha`
 
-**Configuration options**
+#### Configuration options
 
 | Property          | Description |
 |-------------------|-------------|
-| `secretKey`       | **Required.**<br> Type: `string`<br> Google recaptcha secret key |
 | `response`        | **Required.**<br> Type: `(request) => string`<br> Function that returns response (recaptcha token) by request |
+| `secretKey`       | Optional.<br> Type: `string`<br> Google recaptcha secret key. Must be set if you don't use reCAPTCHA Enterprise |
 | `debug`           | Optional.<br> Type: `boolean` <br> Default: `false` <br> Enables logging requests, responses, errors and transformed results |
 | `logger`          | Optional.<br> Type: `Logger` <br> Default: `new Logger()` <br> Instance of custom logger that extended from Logger (@nestjs/common) |
 | `skipIf`          | Optional.<br> Type: `boolean` \| `(request) => boolean \| Promise<boolean>` <br> Function that returns true if you allow the request to skip the recaptcha verification. Useful for involing other check methods (e.g. custom privileged API key) or for development or testing |
+| `enterprise`      | Optional.<br> Type: [`GoogleRecaptchaEnterpriseOptions`](#GoogleRecaptchaEnterpriseOptions) <br>  |
 | `network`         | Optional.<br> Type: `GoogleRecaptchaNetwork` \| `string`<br> Default: `GoogleRecaptchaNetwork.Google` <br> If your server has trouble connecting to https://google.com then you can set networks:<br> `GoogleRecaptchaNetwork.Google` = 'https://www.google.com/recaptcha/api/siteverify'<br>`GoogleRecaptchaNetwork.Recaptcha` = 'https://recaptcha.net/recaptcha/api/siteverify'<br> or set any api url |
 | `score`           | Optional.<br> Type: `number` \| `(score: number) => boolean`<br> Score validator for reCAPTCHA v3. <br> `number` - minimum available score. <br> `(score: number) => boolean` - function with custom validation rules. |
 | `actions`         | Optional.<br> Type: `string[]`<br> Available action list for reCAPTCHA v3. <br> You can make this check stricter by passing the action property parameter to `@Recaptcha(...)` decorator. |
 | `axiosConfig`     | Optional.<br> Type: `AxiosRequestConfig`<br> Allows to setup proxy, response timeout, https agent etc... |
+
+#### GoogleRecaptchaEnterpriseOptions
+
+| Property        | Description |
+|-----------------|-------------|
+| `projectId`     | **Required.**<br> Type: `string`<br> Google Cloud project ID |
+| `siteKey`       | **Required.**<br> Type: `string`<br> [reCAPTCHA key](https://cloud.google.com/recaptcha-enterprise/docs/keys) associated with the site/app. For more information, see reCAPTCHA keys. |
+| `apiKey`        | **Required.**<br> Type: `string`<br> API key associated with the current project. <br>Must have permission `reCAPTCHA Enterprise API`. <br> You can manage credentials [here](https://console.cloud.google.com/apis/credentials). |
 
 If you want import configs from your [ConfigService](https://docs.nestjs.com/techniques/configuration#getting-started) via [custom getter function](https://docs.nestjs.com/techniques/configuration#custom-getter-functions) that will return `GoogleRecaptchaModuleOptions` object.
 
@@ -112,6 +144,32 @@ export class SomeService {
         if (!result.success) {
             throw new GoogleRecaptchaException(result.errors);
         }
+        // TODO: Your implemetation
+    }
+}
+```
+
+### Validate in service (Enterprise)
+
+```typescript
+@Injectable()
+export class SomeService {
+    constructor(private readonly recaptchaEnterpriseValidator: GoogleRecaptchaEnterpriseValidator) {
+    }
+
+    async someAction(recaptchaToken: string): Promise<void> {
+        const result = await this.recaptchaEnterpriseValidator.validate({
+            response: recaptchaToken,
+            score: 0.8,
+            action: 'SomeAction',
+        });
+        
+        if (!result.success) {
+            throw new GoogleRecaptchaException(result.errors);
+        }
+        
+        const riskAnalytics = result.getEnterpriseRiskAnalytics();
+        
         // TODO: Your implemetation
     }
 }
