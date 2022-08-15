@@ -1,34 +1,37 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { RECAPTCHA_HTTP_SERVICE, RECAPTCHA_LOGGER, RECAPTCHA_OPTIONS } from '../provider.declarations';
+import { RECAPTCHA_HTTP_SERVICE, RECAPTCHA_LOGGER, RECAPTCHA_OPTIONS } from '../../provider.declarations';
 import * as qs from 'querystring';
 import * as axios from 'axios';
-import { GoogleRecaptchaValidationResult } from '../interfaces/google-recaptcha-validation-result';
-import { GoogleRecaptchaNetwork } from '../enums/google-recaptcha-network';
-import { ScoreValidator } from '../types';
-import { VerifyResponseOptions } from '../interfaces/verify-response-decorator-options';
-import { VerifyResponseV2, VerifyResponseV3 } from '../interfaces/verify-response';
-import { ErrorCode } from '../enums/error-code';
-import { GoogleRecaptchaNetworkException } from '../exceptions/google-recaptcha-network.exception';
+import { GoogleRecaptchaNetwork } from '../../enums/google-recaptcha-network';
+import { VerifyResponseOptions } from '../../interfaces/verify-response-decorator-options';
+import { VerifyResponseV2, VerifyResponseV3 } from '../../interfaces/verify-response';
+import { ErrorCode } from '../../enums/error-code';
+import { GoogleRecaptchaNetworkException } from '../../exceptions/google-recaptcha-network.exception';
 import { HttpService } from "@nestjs/axios";
-import { RECAPTCHA_LOG_CONTEXT } from '../constants';
-import { GoogleRecaptchaModuleOptions } from '../interfaces/google-recaptcha-module-options';
+import { GoogleRecaptchaModuleOptions } from '../../interfaces/google-recaptcha-module-options';
+import { AbstractGoogleRecaptchaValidator } from './abstract-google-recaptcha-validator';
+import { RecaptchaVerificationResult } from '../../models/recaptcha-verification-result';
+import { GoogleRecaptchaContext } from '../../enums/google-recaptcha-context';
 
 @Injectable()
-export class GoogleRecaptchaValidator {
+export class GoogleRecaptchaValidator extends AbstractGoogleRecaptchaValidator {
     private readonly defaultNetwork = GoogleRecaptchaNetwork.Google;
     private readonly headers = {'Content-Type': 'application/x-www-form-urlencoded'};
 
     constructor(@Inject(RECAPTCHA_HTTP_SERVICE) private readonly http: HttpService,
                 @Inject(RECAPTCHA_LOGGER) private readonly logger: Logger,
-                @Inject(RECAPTCHA_OPTIONS) private readonly options: GoogleRecaptchaModuleOptions) {
+                @Inject(RECAPTCHA_OPTIONS) options: GoogleRecaptchaModuleOptions) {
+        super(options);
     }
 
     /**
      * @throws GoogleRecaptchaNetworkException
      * @param {VerifyResponseOptions} options
      */
-    async validate(options: VerifyResponseOptions): Promise<GoogleRecaptchaValidationResult> {
+    async validate(options: VerifyResponseOptions): Promise<RecaptchaVerificationResult<VerifyResponseV3>> {
         const result = await this.verifyResponse<VerifyResponseV3>(options.response);
+
+        const nativeResponse = {...result};
 
         if (!this.isUseV3(result)) {
             return result;
@@ -44,7 +47,14 @@ export class GoogleRecaptchaValidator {
             result.errors.push(ErrorCode.LowScore);
         }
 
-        return result;
+        return new RecaptchaVerificationResult({
+            nativeResponse: nativeResponse,
+            score: result.score,
+            errors: result.errors,
+            success: result.success,
+            action: result.action,
+            hostname: result.hostname,
+        });
     }
 
     private verifyResponse<T extends VerifyResponseV2>(response: string): Promise<T> {
@@ -56,7 +66,7 @@ export class GoogleRecaptchaValidator {
         };
 
         if (this.options.debug) {
-            this.logger.debug({body}, `${RECAPTCHA_LOG_CONTEXT}.request`);
+            this.logger.debug({body}, `${GoogleRecaptchaContext.GoogleRecaptcha}.request`);
         }
 
         return this.http.post(url, body, config)
@@ -64,7 +74,7 @@ export class GoogleRecaptchaValidator {
             .then(res => res.data)
             .then(data => {
                 if (this.options.debug) {
-                    this.logger.debug(data, `${RECAPTCHA_LOG_CONTEXT}.response`);
+                    this.logger.debug(data, `${GoogleRecaptchaContext.GoogleRecaptcha}.response`);
                 }
 
                 return data;
@@ -81,7 +91,7 @@ export class GoogleRecaptchaValidator {
                 if (this.options.debug) {
                     this.logger.debug(
                         err?.response?.data || err.code || {error: `${err?.name}: ${err?.message}`, stack: err?.stack},
-                        `${RECAPTCHA_LOG_CONTEXT}.error`,
+                        `${GoogleRecaptchaContext.GoogleRecaptcha}.error`,
                     );
                 }
 
@@ -95,31 +105,7 @@ export class GoogleRecaptchaValidator {
                     success: false,
                     errors: [ErrorCode.UnknownError],
                 }
-            })
-    }
-
-    private isValidAction(action: string, options?: VerifyResponseOptions): boolean {
-        if (options.action) {
-            return options.action === action;
-        }
-
-        return this.options.actions
-            ? this.options.actions.includes(action)
-            : true;
-    }
-
-    private isValidScore(score: number, validator?: ScoreValidator): boolean {
-        const finalValidator = validator || this.options.score;
-
-        if (finalValidator) {
-            if (typeof finalValidator === 'function') {
-                return finalValidator(score);
-            }
-
-            return score >= finalValidator;
-        }
-
-        return true;
+            });
     }
 
     private isUseV3(v: VerifyResponseV2): v is VerifyResponseV3 {

@@ -1,6 +1,7 @@
 import { DynamicModule, Logger, Provider } from '@nestjs/common';
 import { GoogleRecaptchaGuard } from './guards/google-recaptcha.guard';
-import { GoogleRecaptchaValidator } from './services/google-recaptcha.validator';
+import { GoogleRecaptchaValidator } from './services/validators/google-recaptcha.validator';
+import { GoogleRecaptchaEnterpriseValidator } from './services/validators/google-recaptcha-enterprise.validator';
 import {
     GoogleRecaptchaModuleAsyncOptions,
     GoogleRecaptchaModuleOptions, GoogleRecaptchaOptionsFactory
@@ -16,6 +17,9 @@ import { loadModule } from './helpers/load-module';
 import { Reflector } from '@nestjs/core';
 import * as axios from 'axios';
 import { Agent } from 'https';
+import { RecaptchaValidatorResolver } from './services/recaptcha-validator.resolver';
+import { EnterpriseReasonTransformer } from './services/enterprise-reason.transformer';
+import { xor } from './helpers/xor';
 
 export class GoogleRecaptchaModule {
     private static axiosDefaultConfig: axios.AxiosRequestConfig = {
@@ -28,7 +32,10 @@ export class GoogleRecaptchaModule {
             Reflector,
             GoogleRecaptchaGuard,
             GoogleRecaptchaValidator,
+            GoogleRecaptchaEnterpriseValidator,
             RecaptchaRequestResolver,
+            RecaptchaValidatorResolver,
+            EnterpriseReasonTransformer,
             {
                 provide: RECAPTCHA_OPTIONS,
                 useValue: options,
@@ -38,6 +45,8 @@ export class GoogleRecaptchaModule {
                 useFactory: () => options.logger || new Logger(),
             },
         ];
+
+        this.validateOptions(options);
 
         const httpModule = this.resolveHttpModule();
 
@@ -82,7 +91,10 @@ export class GoogleRecaptchaModule {
             },
             GoogleRecaptchaGuard,
             GoogleRecaptchaValidator,
+            GoogleRecaptchaEnterpriseValidator,
             RecaptchaRequestResolver,
+            RecaptchaValidatorResolver,
+            EnterpriseReasonTransformer,
             ...this.createAsyncProviders(options)
         ];
 
@@ -99,6 +111,8 @@ export class GoogleRecaptchaModule {
             {
                 provide: RECAPTCHA_AXIOS_INSTANCE,
                 useFactory: (options: GoogleRecaptchaModuleOptions) => {
+                    this.validateOptions(options);
+
                     const transformedAxiosConfig = this.transformAxiosConfig({
                         ...this.axiosDefaultConfig,
                         ...options.axiosConfig,
@@ -182,6 +196,13 @@ export class GoogleRecaptchaModule {
             },
             inject: [options.useExisting! || options.useClass!],
         };
+    }
+
+    private static validateOptions(options: GoogleRecaptchaModuleOptions): void | never {
+        const hasEnterpriseOptions = !!Object.keys(options.enterprise || {}).length;
+        if (!xor(!!options.secretKey, hasEnterpriseOptions)) {
+            throw new Error('Google recaptcha options must be contains "secretKey" xor "enterprise".');
+        }
     }
 
     private static isGoogleRecaptchaFactory(object: any): object is GoogleRecaptchaOptionsFactory {
