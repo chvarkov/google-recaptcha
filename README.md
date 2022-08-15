@@ -94,7 +94,7 @@ export class AppModule {
 | `debug`           | Optional.<br> Type: `boolean` <br> Default: `false` <br> Enables logging requests, responses, errors and transformed results |
 | `logger`          | Optional.<br> Type: `Logger` <br> Default: `new Logger()` <br> Instance of custom logger that extended from Logger (@nestjs/common) |
 | `skipIf`          | Optional.<br> Type: `boolean` \| `(request) => boolean \| Promise<boolean>` <br> Function that returns true if you allow the request to skip the recaptcha verification. Useful for involing other check methods (e.g. custom privileged API key) or for development or testing |
-| `enterprise`      | Optional.<br> Type: [`GoogleRecaptchaEnterpriseOptions`](#GoogleRecaptchaEnterpriseOptions) <br>  |
+| `enterprise`      | Optional.<br> Type: [`GoogleRecaptchaEnterpriseOptions`](#GoogleRecaptchaEnterpriseOptions) <br> Options for using recCAPTCHA Enterprise API. Cannot using with `secretKey` option.  |
 | `network`         | Optional.<br> Type: `GoogleRecaptchaNetwork` \| `string`<br> Default: `GoogleRecaptchaNetwork.Google` <br> If your server has trouble connecting to https://google.com then you can set networks:<br> `GoogleRecaptchaNetwork.Google` = 'https://www.google.com/recaptcha/api/siteverify'<br>`GoogleRecaptchaNetwork.Recaptcha` = 'https://recaptcha.net/recaptcha/api/siteverify'<br> or set any api url |
 | `score`           | Optional.<br> Type: `number` \| `(score: number) => boolean`<br> Score validator for reCAPTCHA v3. <br> `number` - minimum available score. <br> `(score: number) => boolean` - function with custom validation rules. |
 | `actions`         | Optional.<br> Type: `string[]`<br> Available action list for reCAPTCHA v3. <br> You can make this check stricter by passing the action property parameter to `@Recaptcha(...)` decorator. |
@@ -105,7 +105,7 @@ export class AppModule {
 | Property        | Description |
 |-----------------|-------------|
 | `projectId`     | **Required.**<br> Type: `string`<br> Google Cloud project ID |
-| `siteKey`       | **Required.**<br> Type: `string`<br> [reCAPTCHA key](https://cloud.google.com/recaptcha-enterprise/docs/keys) associated with the site/app. For more information, see reCAPTCHA keys. |
+| `siteKey`       | **Required.**<br> Type: `string`<br> [reCAPTCHA key](https://cloud.google.com/recaptcha-enterprise/docs/keys) associated with the site/app. |
 | `apiKey`        | **Required.**<br> Type: `string`<br> API key associated with the current project. <br>Must have permission `reCAPTCHA Enterprise API`. <br> You can manage credentials [here](https://console.cloud.google.com/apis/credentials). |
 
 If you want import configs from your [ConfigService](https://docs.nestjs.com/techniques/configuration#getting-started) via [custom getter function](https://docs.nestjs.com/techniques/configuration#custom-getter-functions) that will return `GoogleRecaptchaModuleOptions` object.
