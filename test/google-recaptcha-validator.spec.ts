@@ -9,11 +9,11 @@ describe('Google recaptcha validator', () => {
         const module = await Test.createTestingModule({
             imports: [
                 GoogleRecaptchaModule.forRoot({
-                    response: (req) => 'TEST_TOKEN',
+                    response: () => 'TEST_TOKEN',
                     secretKey: 'TEST_SECRET',
-                })
+                }),
             ],
-        }).compile()
+        }).compile();
 
         const app = module.createNestApplication();
 
@@ -34,17 +34,17 @@ describe('Google recaptcha validator', () => {
         const module = await Test.createTestingModule({
             imports: [
                 GoogleRecaptchaModule.forRoot({
-                    response: (req) => 'TEST_TOKEN',
+                    response: () => 'TEST_TOKEN',
                     secretKey: 'TEST_SECRET',
                     axiosConfig: {
                         proxy: {
                             port: 5555,
-                            host: 'invalidhost'
-                        }
-                    }
-                })
+                            host: 'invalidhost',
+                        },
+                    },
+                }),
             ],
-        }).compile()
+        }).compile();
 
         const app = module.createNestApplication();
 

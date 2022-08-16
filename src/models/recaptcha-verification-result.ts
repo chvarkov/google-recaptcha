@@ -1,8 +1,8 @@
-
 import { ErrorCode } from '../enums/error-code';
 import { VerifyResponseEnterprise } from '../interfaces/verify-response-enterprise';
+import { LiteralObject } from '@nestjs/common';
 
-export interface RecaptchaVerificationResultOptions<Res = any> {
+export interface RecaptchaVerificationResultOptions<Res> {
     success: boolean;
     nativeResponse: Res;
     hostname: string;
@@ -11,15 +11,20 @@ export interface RecaptchaVerificationResultOptions<Res = any> {
     errors: ErrorCode[];
 }
 
-export class RecaptchaVerificationResult<Res = any> {
+export class RecaptchaVerificationResult<Res = LiteralObject> {
     readonly success: boolean;
+
     readonly hostname: string;
+
     readonly action: string | undefined;
+
     readonly score: number | undefined;
+
     readonly nativeResponse: Res;
+
     readonly errors: ErrorCode[];
 
-    constructor(private readonly options: RecaptchaVerificationResultOptions) {
+    constructor(private readonly options: RecaptchaVerificationResultOptions<Res>) {
         this.success = options.success;
         this.hostname = options.hostname;
         this.action = options.action;
@@ -35,8 +40,6 @@ export class RecaptchaVerificationResult<Res = any> {
     getEnterpriseRiskAnalytics(): VerifyResponseEnterprise | null {
         const res = this.getResponse();
 
-        return res.hasOwnProperty('riskAnalysis')
-            ? res['riskAnalysis']
-            : null;
+        return res['riskAnalysis'] || null;
     }
 }

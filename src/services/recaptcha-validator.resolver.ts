@@ -12,7 +12,7 @@ export class RecaptchaValidatorResolver {
                 protected readonly googleRecaptchaEnterpriseValidator: GoogleRecaptchaEnterpriseValidator) {
     }
 
-    resolve(): AbstractGoogleRecaptchaValidator {
+    resolve(): AbstractGoogleRecaptchaValidator<unknown> {
         if (this.options.secretKey) {
             return this.googleRecaptchaValidator;
         }

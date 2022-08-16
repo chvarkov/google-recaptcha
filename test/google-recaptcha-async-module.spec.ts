@@ -8,9 +8,11 @@ import { HttpModule, HttpService } from '@nestjs/axios';
 import { RECAPTCHA_AXIOS_INSTANCE, RECAPTCHA_HTTP_SERVICE, RECAPTCHA_OPTIONS } from '../src/provider.declarations';
 import { AxiosInstance, AxiosProxyConfig, AxiosRequestConfig } from 'axios';
 import * as https from 'https';
+import { Type } from '@nestjs/common';
+import { GoogleRecaptchaOptionsFactory } from '../src/interfaces/google-recaptcha-module-options';
 
 describe('Google recaptcha async module', () => {
-    const checkDefaultConfigs = (defaults: AxiosRequestConfig) => {
+    const checkDefaultConfigs = (defaults: AxiosRequestConfig): void => {
         expect(defaults).toBeDefined();
         expect(defaults.proxy).toBeDefined();
 
@@ -118,7 +120,7 @@ describe('Google recaptcha async module', () => {
         await Test.createTestingModule({
             imports: [
                 GoogleRecaptchaModule.forRootAsync({
-                    useClass: TestConfigModule as any,
+                    useClass: TestConfigModule as Type<GoogleRecaptchaOptionsFactory>,
                 }),
             ],
         }).compile()

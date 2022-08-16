@@ -1,16 +1,16 @@
-import { Controller, INestApplication, Module, Post } from '@nestjs/common';
+import { Controller, INestApplication, LiteralObject, Module, Post } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 
 @Controller('api')
 class TestSiteVerifyController {
-    private value: any;
+    private value: LiteralObject;
 
     @Post('siteverify')
-    verify(): any {
+    verify(): LiteralObject {
         return this.value;
     }
 
-    setResult(value: any): void {
+    setResult(value: LiteralObject): void {
         this.value = value;
     }
 }
@@ -30,7 +30,7 @@ export class TestRecaptchaNetwork {
         return `http://localhost:${this.port}/api/siteverify`;
     }
 
-    setResult(value: any): void {
+    setResult(value: LiteralObject): void {
         this.app.get(TestSiteVerifyController).setResult(value);
     }
 

@@ -2,6 +2,8 @@ import { GoogleRecaptchaGuardOptions } from './google-recaptcha-guard-options';
 import { GoogleRecaptchaValidatorOptions } from './google-recaptcha-validator-options';
 import { ModuleMetadata, Type } from '@nestjs/common/interfaces';
 import { Logger } from '@nestjs/common';
+import { InjectionToken } from '@nestjs/common/interfaces/modules/injection-token.interface';
+import { OptionalFactoryDependency } from '@nestjs/common/interfaces/modules/optional-factory-dependency.interface';
 
 export interface GoogleRecaptchaModuleOptions extends GoogleRecaptchaValidatorOptions, GoogleRecaptchaGuardOptions {
     debug?: boolean;
@@ -13,8 +15,8 @@ export interface GoogleRecaptchaOptionsFactory {
 }
 
 export interface GoogleRecaptchaModuleAsyncOptions extends Pick<ModuleMetadata, 'imports'> {
-    inject?: any[];
+    inject?:  Array<InjectionToken | OptionalFactoryDependency>;
     useClass?: Type<GoogleRecaptchaOptionsFactory>;
     useExisting?: Type<GoogleRecaptchaOptionsFactory>;
-    useFactory?: (...args: any[]) => Promise<GoogleRecaptchaModuleOptions> | GoogleRecaptchaModuleOptions;
+    useFactory?: (...args: unknown[]) => Promise<GoogleRecaptchaModuleOptions> | GoogleRecaptchaModuleOptions;
 }

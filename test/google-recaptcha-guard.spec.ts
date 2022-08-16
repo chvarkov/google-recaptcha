@@ -58,7 +58,7 @@ describe('Google recaptcha guard', () => {
 
         const guard = new GoogleRecaptchaGuard(new Reflector(), new RecaptchaRequestResolver(), validatorResolver, new Logger(), {
             ...options,
-            skipIf: req => true,
+            skipIf: (): boolean => true,
         });
 
         const context = createExecutionContext(controller.submitOverridden.prototype, {body: {recaptcha: 'RECAPTCHA_TOKEN'}});
@@ -80,7 +80,7 @@ describe('Google recaptcha guard', () => {
 
         await guard.canActivate(context)
             .then(() => expect(true).toBeFalsy())
-            .catch(e => expect(e).toBeInstanceOf(GoogleRecaptchaException))
+            .catch(e => expect(e).toBeInstanceOf(GoogleRecaptchaException));
     });
 
     test('Invalid network', async () => {
@@ -103,13 +103,13 @@ describe('Google recaptcha guard', () => {
 
         await guard.canActivate(context)
             .then(() => expect(true).toBeFalsy())
-            .catch(e => expect(e).toBeInstanceOf(GoogleRecaptchaException))
+            .catch(e => expect(e).toBeInstanceOf(GoogleRecaptchaException));
     });
 
     test('Valid', async () => {
         network.setResult({
             success: true,
-        })
+        });
         const options = {
             ...validatorOptions,
             ...guardOptions,

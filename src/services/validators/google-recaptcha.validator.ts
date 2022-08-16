@@ -14,8 +14,9 @@ import { RecaptchaVerificationResult } from '../../models/recaptcha-verification
 import { GoogleRecaptchaContext } from '../../enums/google-recaptcha-context';
 
 @Injectable()
-export class GoogleRecaptchaValidator extends AbstractGoogleRecaptchaValidator {
+export class GoogleRecaptchaValidator extends AbstractGoogleRecaptchaValidator<VerifyResponseV3> {
     private readonly defaultNetwork = GoogleRecaptchaNetwork.Google;
+
     private readonly headers = {'Content-Type': 'application/x-www-form-urlencoded'};
 
     constructor(@Inject(RECAPTCHA_HTTP_SERVICE) private readonly http: HttpService,
@@ -104,7 +105,7 @@ export class GoogleRecaptchaValidator extends AbstractGoogleRecaptchaValidator {
                 return {
                     success: false,
                     errors: [ErrorCode.UnknownError],
-                }
+                };
             });
     }
 

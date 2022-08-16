@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, LiteralObject, Logger } from '@nestjs/common';
 import { RECAPTCHA_HTTP_SERVICE, RECAPTCHA_LOGGER, RECAPTCHA_OPTIONS } from '../../provider.declarations';
 import { HttpService } from '@nestjs/axios';
 import { GoogleRecaptchaModuleOptions } from '../../interfaces/google-recaptcha-module-options';
@@ -11,9 +11,12 @@ import { GoogleRecaptchaNetworkException } from '../../exceptions/google-recaptc
 import { GoogleRecaptchaContext } from '../../enums/google-recaptcha-context';
 import { VerifyResponseEnterprise, VerifyTokenEnterpriseEvent } from '../../interfaces/verify-response-enterprise';
 import { EnterpriseReasonTransformer } from '../enterprise-reason.transformer';
+import { firstValueFrom } from 'rxjs';
+
+type VerifyResponse = [VerifyResponseEnterprise, LiteralObject];
 
 @Injectable()
-export class GoogleRecaptchaEnterpriseValidator extends AbstractGoogleRecaptchaValidator {
+export class GoogleRecaptchaEnterpriseValidator extends AbstractGoogleRecaptchaValidator<VerifyResponseEnterprise> {
     private readonly headers = {'Content-Type': 'application/json'};
 
     constructor(@Inject(RECAPTCHA_HTTP_SERVICE) private readonly http: HttpService,
@@ -23,7 +26,7 @@ export class GoogleRecaptchaEnterpriseValidator extends AbstractGoogleRecaptchaV
         super(options);
     }
 
-    async validate(options: VerifyResponseOptions): Promise<RecaptchaVerificationResult> {
+    async validate(options: VerifyResponseOptions): Promise<RecaptchaVerificationResult<VerifyResponseEnterprise>> {
         const [result, errorDetails] = await this.verifyResponse(options.response, options.action);
 
         const errors: ErrorCode[] = [];
@@ -52,14 +55,14 @@ export class GoogleRecaptchaEnterpriseValidator extends AbstractGoogleRecaptchaV
         return new RecaptchaVerificationResult({
             success,
             errors,
-            nativeResponse: result || errorDetails,
+            nativeResponse: result,
             score: result?.riskAnalysis?.score,
             action: result?.tokenProperties?.action,
             hostname: result?.tokenProperties?.hostname || '',
         });
     }
 
-    private verifyResponse(response: string, expectedAction: string): Promise<[VerifyResponseEnterprise | null, any]> {
+    private verifyResponse(response: string, expectedAction: string): Promise<VerifyResponse> {
         const projectId = this.options.enterprise.projectId;
         const body: {event: VerifyTokenEnterpriseEvent} = {
             event: {
@@ -82,17 +85,16 @@ export class GoogleRecaptchaEnterpriseValidator extends AbstractGoogleRecaptchaV
             this.logger.debug({body}, `${GoogleRecaptchaContext.GoogleRecaptchaEnterprise}.request`);
         }
 
-        return this.http.post<VerifyResponseEnterprise>(url, body, config)
-            .toPromise()
+        return firstValueFrom(this.http.post<VerifyResponseEnterprise>(url, body, config))
             .then(res => res.data)
-            .then(data => {
+            .then((data): VerifyResponse => {
                 if (this.options.debug) {
                     this.logger.debug(data, `${GoogleRecaptchaContext.GoogleRecaptchaEnterprise}.response`);
                 }
 
                 return [data, null];
             })
-            .catch((err: axios.AxiosError) => {
+            .catch((err: axios.AxiosError): VerifyResponse => {
                 if (this.options.debug) {
                     this.logger.debug(
                         err?.response?.data || err.code || {error: `${err?.name}: ${err?.message}`, stack: err?.stack},
@@ -106,9 +108,9 @@ export class GoogleRecaptchaEnterpriseValidator extends AbstractGoogleRecaptchaV
                     throw new GoogleRecaptchaNetworkException(networkErrorCode);
                 }
 
-                const errData = err.response?.data;
+                const errData: LiteralObject = err.response?.data;
 
-                return [null, errData] as any;
+                return [null, errData];
             });
     }
 }

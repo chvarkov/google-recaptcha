@@ -1,6 +1,6 @@
-import { Logger } from '@nestjs/common';
+import { LiteralObject, Logger } from '@nestjs/common';
 
-export function loadModule(moduleName: string, logError = false): any {
+export function loadModule(moduleName: string, logError = false): LiteralObject {
     try {
         return require(moduleName);
     } catch (e) {
