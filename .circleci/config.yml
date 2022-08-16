@@ -24,6 +24,12 @@ jobs:
       - persist_to_workspace:
           root: ~/repo
           paths: .
+      - run:
+          name: Eslint
+          command: npm run lint:fix
+      - run:
+          name: Tests
+          command: npm run test:cov
   publish:
     <<: *defaults
     steps:
