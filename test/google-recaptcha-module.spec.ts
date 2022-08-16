@@ -2,7 +2,6 @@ import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import { GoogleRecaptchaValidator } from '../src/services/validators/google-recaptcha.validator';
 import { GoogleRecaptchaGuard, GoogleRecaptchaModuleOptions, GoogleRecaptchaModule } from '../src';
-import { Agent } from 'https';
 import { RECAPTCHA_OPTIONS } from '../src/provider.declarations';
 
 describe('Google recaptcha module', () => {

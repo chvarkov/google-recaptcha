@@ -1,10 +1,10 @@
-import { DynamicModule, Logger, Provider } from '@nestjs/common';
+import { DynamicModule, LiteralObject, Logger, Provider } from '@nestjs/common';
 import { GoogleRecaptchaGuard } from './guards/google-recaptcha.guard';
 import { GoogleRecaptchaValidator } from './services/validators/google-recaptcha.validator';
 import { GoogleRecaptchaEnterpriseValidator } from './services/validators/google-recaptcha-enterprise.validator';
 import {
     GoogleRecaptchaModuleAsyncOptions,
-    GoogleRecaptchaModuleOptions, GoogleRecaptchaOptionsFactory
+    GoogleRecaptchaModuleOptions, GoogleRecaptchaOptionsFactory,
 } from './interfaces/google-recaptcha-module-options';
 import {
     RECAPTCHA_AXIOS_INSTANCE,
@@ -95,7 +95,7 @@ export class GoogleRecaptchaModule {
             RecaptchaRequestResolver,
             RecaptchaValidatorResolver,
             EnterpriseReasonTransformer,
-            ...this.createAsyncProviders(options)
+            ...this.createAsyncProviders(options),
         ];
 
         const httpModule = this.resolveHttpModule();
@@ -110,7 +110,7 @@ export class GoogleRecaptchaModule {
             },
             {
                 provide: RECAPTCHA_AXIOS_INSTANCE,
-                useFactory: (options: GoogleRecaptchaModuleOptions) => {
+                useFactory: (options: GoogleRecaptchaModuleOptions): axios.AxiosInstance => {
                     this.validateOptions(options);
 
                     const transformedAxiosConfig = this.transformAxiosConfig({
@@ -127,7 +127,7 @@ export class GoogleRecaptchaModule {
         ];
 
         return {
-	        global: true,
+            global: true,
             module: GoogleRecaptchaModule,
             imports: [
                 ...options.imports || [],
@@ -138,7 +138,7 @@ export class GoogleRecaptchaModule {
         };
     }
 
-    private static resolveHttpModule(): any {
+    private static resolveHttpModule(): LiteralObject {
         try {
             return loadModule('@nestjs/axios');
         } catch (e) {
@@ -147,19 +147,22 @@ export class GoogleRecaptchaModule {
     }
 
     private static transformAxiosConfig(axiosConfig?: axios.AxiosRequestConfig): axios.AxiosRequestConfig {
-        const {
-            baseURL,
-            url,
-            responseType,
-            method,
-            transformRequest,
-            transformResponse,
-            paramsSerializer,
-            validateStatus,
-            data,
-            adapter,
-            ...config
-        } = axiosConfig || {};
+        if (!axiosConfig) {
+            return {};
+        }
+
+        const config = {...axiosConfig};
+
+        delete config.baseURL;
+        delete config.url;
+        delete config.responseType;
+        delete config.method;
+        delete config.transformRequest;
+        delete config.transformResponse;
+        delete config.paramsSerializer;
+        delete config.validateStatus;
+        delete config.data;
+        delete config.adapter;
 
         return config;
     }
@@ -188,13 +191,13 @@ export class GoogleRecaptchaModule {
 
         return {
             provide: RECAPTCHA_OPTIONS,
-            useFactory: (optionsFactory: GoogleRecaptchaOptionsFactory) => {
+            useFactory: async (optionsFactory: GoogleRecaptchaOptionsFactory): Promise<GoogleRecaptchaModuleOptions> => {
                 if (!this.isGoogleRecaptchaFactory(optionsFactory)) {
-                    throw new Error('Factory must be implement \'GoogleRecaptchaOptionsFactory\' interface.')
+                    throw new Error('Factory must be implement \'GoogleRecaptchaOptionsFactory\' interface.');
                 }
                 return optionsFactory.createGoogleRecaptchaOptions();
             },
-            inject: [options.useExisting! || options.useClass!],
+            inject: [options.useExisting || options.useClass],
         };
     }
 
@@ -205,7 +208,7 @@ export class GoogleRecaptchaModule {
         }
     }
 
-    private static isGoogleRecaptchaFactory(object: any): object is GoogleRecaptchaOptionsFactory {
+    private static isGoogleRecaptchaFactory(object?: GoogleRecaptchaOptionsFactory): object is GoogleRecaptchaOptionsFactory {
         return !!object && typeof object.createGoogleRecaptchaOptions === 'function';
     }
 }

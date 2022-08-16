@@ -4,26 +4,25 @@ import { Request } from 'express';
 
 function createArgumentHost(req: Partial<Request>): HttpArgumentsHost {
     return new class implements HttpArgumentsHost {
-        getRequest<T = any>(): T {
+        getRequest<T>(): T {
             return req as T;
         }
 
-        getNext<T = any>(): T {
+        getNext<T>(): T {
             console.error('Method \'getNext\' doesn\'t implemented');
             return undefined;
         }
 
-
-        getResponse<T = any>(): T {
+        getResponse<T>(): T {
             console.error('Method \'getResponse\' doesn\'t implemented');
             return undefined;
         }
-    }
+    };
 }
 
-export function createExecutionContext(handler: Function, req: Partial<Request>): ExecutionContext {
+export function createExecutionContext(handler: () => void, req: Partial<Request>): ExecutionContext {
     return new class implements ExecutionContext {
-        getHandler(): Function {
+        getHandler(): () => void {
             return handler;
         }
 
@@ -31,23 +30,23 @@ export function createExecutionContext(handler: Function, req: Partial<Request>)
             return createArgumentHost(req);
         }
 
-        getArgByIndex<T = any>(index: number): T {
-            console.error('Method \'getArgByIndex\' doesn\'t implemented');
+        getArgByIndex<T>(index: number): T {
+            console.error(`Method 'getArgByIndex(${index})' doesn't implemented`);
             return undefined;
         }
 
-        getArgs<T = any[]>(): T {
+        getArgs<T = []>(): T {
             console.error('Method \'getArgs\' doesn\'t implemented');
             return undefined;
         }
 
-        getClass<T = any>(): Type<T> {
+        getClass<T>(): Type<T> {
             console.error('Method \'getClass\' doesn\'t implemented');
             return undefined;
         }
 
         getType<TContext = ContextType>(): TContext {
-            return 'http' as any;
+            return 'http' as unknown as TContext;
         }
 
         switchToRpc(): RpcArgumentsHost {
@@ -59,5 +58,5 @@ export function createExecutionContext(handler: Function, req: Partial<Request>)
             console.error('Method \'switchToWs\' doesn\'t implemented');
             return undefined;
         }
-    }
+    };
 }

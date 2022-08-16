@@ -12,7 +12,7 @@ export class TestConfigService {
                 httpsAgent: new https.Agent({
                     timeout: 15_000,
                 }),
-            }
+            },
         };
     }
 }

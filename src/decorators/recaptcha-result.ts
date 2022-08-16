@@ -6,8 +6,10 @@ export const RecaptchaResult = createParamDecorator((data, context: ExecutionCon
         case 'http':
             return context.switchToHttp().getRequest().recaptchaValidationResult;
         case 'graphql':
-            const graphqlModule = loadModule('@nestjs/graphql', true);
-            return graphqlModule.GqlExecutionContext.create(context).getContext().req?.connection?._httpMessage?.req?.recaptchaValidationResult;
+            return loadModule('@nestjs/graphql', true)
+                .GqlExecutionContext
+                .create(context)
+                .getContext().req?.connection?._httpMessage?.req?.recaptchaValidationResult;
         default:
             return null;
     }

@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, Inject, Injectable, Logger } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Inject, Injectable, LiteralObject, Logger } from '@nestjs/common';
 import { RECAPTCHA_LOGGER, RECAPTCHA_OPTIONS, RECAPTCHA_VALIDATION_OPTIONS } from '../provider.declarations';
 import { GoogleRecaptchaException } from '../exceptions/google-recaptcha.exception';
 import { Reflector } from '@nestjs/core';
@@ -20,7 +20,7 @@ export class GoogleRecaptchaGuard implements CanActivate {
     }
 
     async canActivate(context: ExecutionContext): Promise<true | never> {
-        const request = this.requestResolver.resolve(context);
+        const request: LiteralObject = this.requestResolver.resolve(context);
 
         const skip = typeof this.options.skipIf === 'function'
             ? await this.options.skipIf(request)
@@ -55,7 +55,7 @@ export class GoogleRecaptchaGuard implements CanActivate {
         throw new GoogleRecaptchaException(request.recaptchaValidationResult.errors);
     }
 
-    private resolveLogContext(validator: AbstractGoogleRecaptchaValidator): GoogleRecaptchaContext {
+    private resolveLogContext(validator: AbstractGoogleRecaptchaValidator<unknown>): GoogleRecaptchaContext {
         return validator instanceof GoogleRecaptchaEnterpriseValidator
             ? GoogleRecaptchaContext.GoogleRecaptchaEnterprise
             : GoogleRecaptchaContext.GoogleRecaptcha;

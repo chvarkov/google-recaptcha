@@ -1,6 +1,6 @@
 import {
     GoogleRecaptchaModuleOptions,
-    GoogleRecaptchaOptionsFactory
+    GoogleRecaptchaOptionsFactory,
 } from '../../src/interfaces/google-recaptcha-module-options';
 import { TestConfigService } from './test-config-service';
 

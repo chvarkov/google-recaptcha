@@ -3,7 +3,7 @@ import { ScoreValidator } from '../../types';
 import { GoogleRecaptchaModuleOptions } from '../../interfaces/google-recaptcha-module-options';
 import { RecaptchaVerificationResult } from '../../models/recaptcha-verification-result';
 
-export abstract class AbstractGoogleRecaptchaValidator<Res = any> {
+export abstract class AbstractGoogleRecaptchaValidator<Res> {
     protected constructor(protected readonly options: GoogleRecaptchaModuleOptions) {
     }
 

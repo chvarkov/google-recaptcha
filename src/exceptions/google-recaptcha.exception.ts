@@ -28,10 +28,10 @@ export class GoogleRecaptchaException extends HttpException {
 				return 'Recaptcha token was signed by invalid api key.';
 
 			case ErrorCode.LowScore:
-				return 'Low recaptcha score.'
+				return 'Low recaptcha score.';
 
 			case ErrorCode.ForbiddenAction:
-				return 'Forbidden recaptcha action.'
+				return 'Forbidden recaptcha action.';
 
 			case ErrorCode.SiteMismatch:
 				return 'The user verification token did not match the provided site key.';
