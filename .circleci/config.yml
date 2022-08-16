@@ -51,12 +51,14 @@ jobs:
 #      - persist_to_workspace:
 #          root: ~/repo
 #          paths: ./dist
-      - run:
-          name: Authentication
-          command: npx npm-cli-login -u ${NPM_USER} -p ${NPM_PASS} -e ${NPM_EMAIL}
-      - run:
-          name: Publish
-          command: cd dist && npm publish --access public
+
+# TODO: fix publishing in CI
+#      - run:
+#          name: Authentication
+#          command: npx npm-cli-login -u ${NPM_USER} -p ${NPM_PASS} -e ${NPM_EMAIL}
+#      - run:
+#          name: Publish
+#          command: cd dist && npm publish --access public
 workflows:
   version: 2
   test-publish:
