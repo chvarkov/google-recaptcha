@@ -3,7 +3,7 @@ version: 2.1
 defaults: &defaults
   working_directory: ~/repo
   docker:
-    - image: circleci/node:8.9.1
+    - image: cimg/node:16.16.0
 
 jobs:
   test:
@@ -16,7 +16,7 @@ jobs:
             - v1-dependencies-
       - run:
           name: Install dependencies
-          command: npm i
+          command: npm ci
       - save_cache:
           paths:
             - node_modules
@@ -24,6 +24,12 @@ jobs:
       - persist_to_workspace:
           root: ~/repo
           paths: .
+      - run:
+          name: Eslint
+          command: npm run lint:fix
+      - run:
+          name: Tests
+          command: npm run test:cov
   publish:
     <<: *defaults
     steps:
@@ -51,12 +57,14 @@ jobs:
 #      - persist_to_workspace:
 #          root: ~/repo
 #          paths: ./dist
-      - run:
-          name: Authentication
-          command: npx npm-cli-login -u ${NPM_USER} -p ${NPM_PASS} -e ${NPM_EMAIL}
-      - run:
-          name: Publish
-          command: cd dist && npm publish --access public
+
+# TODO: fix publishing in CI
+#      - run:
+#          name: Authentication
+#          command: npx npm-cli-login -u ${NPM_USER} -p ${NPM_PASS} -e ${NPM_EMAIL}
+#      - run:
+#          name: Publish
+#          command: cd dist && npm publish --access public
 workflows:
   version: 2
   test-publish:

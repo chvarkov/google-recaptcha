@@ -41,15 +41,21 @@ We love pull requests. Here’s a quick guide:
   npm test
   ```
 
-6. If everything looks good, push to your fork:
+6. Fix your changes by eslint rules:
+
+  ```bash
+  npm run lint:fix
+  ```
+
+7. If everything looks good, push to your fork:
 
   ```bash
   git push origin fix-for-that-thing
   ```
 
-7. [Submit a pull request.](https://help.github.com/articles/creating-a-pull-request)
+8. [Submit a pull request.](https://help.github.com/articles/creating-a-pull-request)
 
-8. Enjoy being the wonderful person you are
+9. Enjoy being the wonderful person you are
 
   After you’ve opened your pull request, [you should email me](mailto:chvarkov.alexey@gmail.com) your mailing address so I can mail you a personal thank you note. Seriously!
 
