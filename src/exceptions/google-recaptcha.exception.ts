@@ -51,6 +51,8 @@ export class GoogleRecaptchaException extends HttpException {
 			errorCode === ErrorCode.MissingInputResponse ||
 			errorCode === ErrorCode.TimeoutOrDuplicate ||
 			errorCode === ErrorCode.ForbiddenAction ||
+			errorCode === ErrorCode.SiteMismatch ||
+			errorCode === ErrorCode.BrowserError ||
 			errorCode === ErrorCode.LowScore ||
 			errorCode === ErrorCode.InvalidKeys
 		? HttpStatus.BAD_REQUEST
