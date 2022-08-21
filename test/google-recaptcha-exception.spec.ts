@@ -32,6 +32,21 @@ describe('Google recaptcha exception', () => {
         expect(exception.getStatus()).toBe(HttpStatus.INTERNAL_SERVER_ERROR);
     });
 
+    test('Test error code SiteMismatch', () => {
+        const exception = new GoogleRecaptchaException([ErrorCode.SiteMismatch]);
+        expect(exception.getStatus()).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    test('Test error code BrowserError', () => {
+        const exception = new GoogleRecaptchaException([ErrorCode.BrowserError]);
+        expect(exception.getStatus()).toBe(HttpStatus.BAD_REQUEST);
+    });
+
+    test('Test error code IncorrectCaptchaSol', () => {
+        const exception = new GoogleRecaptchaException([ErrorCode.IncorrectCaptchaSol]);
+        expect(exception.getStatus()).toBe(HttpStatus.BAD_REQUEST);
+    });
+
     test('Test error code UnknownError', () => {
         const exception = new GoogleRecaptchaException([ErrorCode.UnknownError]);
         expect(exception.getStatus()).toBe(HttpStatus.INTERNAL_SERVER_ERROR);
