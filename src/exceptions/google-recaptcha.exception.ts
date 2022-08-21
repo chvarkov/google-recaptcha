@@ -39,6 +39,9 @@ export class GoogleRecaptchaException extends HttpException {
 			case ErrorCode.BrowserError:
 				return 'Retriable error (such as network failure) occurred on the browser.';
 
+			case ErrorCode.IncorrectCaptchaSol:
+				return 'incorrect-captcha-sol';
+
 			case ErrorCode.UnknownError:
 			case ErrorCode.BadRequest:
 			default:
@@ -51,6 +54,9 @@ export class GoogleRecaptchaException extends HttpException {
 			errorCode === ErrorCode.MissingInputResponse ||
 			errorCode === ErrorCode.TimeoutOrDuplicate ||
 			errorCode === ErrorCode.ForbiddenAction ||
+			errorCode === ErrorCode.SiteMismatch ||
+			errorCode === ErrorCode.BrowserError ||
+			errorCode === ErrorCode.IncorrectCaptchaSol ||
 			errorCode === ErrorCode.LowScore ||
 			errorCode === ErrorCode.InvalidKeys
 		? HttpStatus.BAD_REQUEST
