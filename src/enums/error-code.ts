@@ -9,7 +9,8 @@ export enum ErrorCode {
 	ForbiddenAction = 'forbidden-action',
 	LowScore = 'low-score',
 	InvalidKeys = 'invalid-keys',
-    NetworkError = 'network-error',
+	IncorrectCaptchaSol = 'incorrect-captcha-sol',
+	NetworkError = 'network-error',
 	// enterprise
 	SiteMismatch = 'site-mismatch',
 	BrowserError = 'browser-error',
