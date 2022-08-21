@@ -12,6 +12,7 @@ import { GoogleRecaptchaModuleOptions } from '../../interfaces/google-recaptcha-
 import { AbstractGoogleRecaptchaValidator } from './abstract-google-recaptcha-validator';
 import { RecaptchaVerificationResult } from '../../models/recaptcha-verification-result';
 import { GoogleRecaptchaContext } from '../../enums/google-recaptcha-context';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class GoogleRecaptchaValidator extends AbstractGoogleRecaptchaValidator<VerifyResponseV3> {
@@ -70,8 +71,7 @@ export class GoogleRecaptchaValidator extends AbstractGoogleRecaptchaValidator<V
             this.logger.debug({body}, `${GoogleRecaptchaContext.GoogleRecaptcha}.request`);
         }
 
-        return this.http.post(url, body, config)
-            .toPromise()
+        return firstValueFrom(this.http.post(url, body, config))
             .then(res => res.data)
             .then(data => {
                 if (this.options.debug) {

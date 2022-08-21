@@ -17,7 +17,7 @@ export class RecaptchaValidatorResolver {
             return this.googleRecaptchaValidator;
         }
 
-        if (Object.keys(this.options.enterprise || {})?.length) {
+        if (Object.keys(this.options.enterprise || {}).length) {
             return this.googleRecaptchaEnterpriseValidator;
         }
 
