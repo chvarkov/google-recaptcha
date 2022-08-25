@@ -1,5 +1,5 @@
 import { ErrorCode } from '../enums/error-code';
-import { VerifyResponseEnterprise } from '../interfaces/verify-response-enterprise';
+import { VerifyResponseEnterpriseRiskAnalysis } from '../interfaces/verify-response-enterprise';
 import { LiteralObject } from '@nestjs/common';
 
 export interface RecaptchaVerificationResultOptions<Res> {
@@ -37,7 +37,7 @@ export class RecaptchaVerificationResult<Res = LiteralObject> {
         return this.nativeResponse;
     }
 
-    getEnterpriseRiskAnalytics(): VerifyResponseEnterprise | null {
+    getEnterpriseRiskAnalytics(): VerifyResponseEnterpriseRiskAnalysis | null {
         const res = this.getResponse();
 
         return res['riskAnalysis'] || null;
