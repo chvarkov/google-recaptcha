@@ -17,7 +17,7 @@ import { VerifyResponseEnterprise } from '../../src/interfaces/verify-response-e
 
 @Controller('test')
 class TestController {
-    @Recaptcha()
+    @Recaptcha({response: (req) => req.headers.recaptcha, action: 'Submit', score: 0.7})
     @Post('submit')
     testAction(@RecaptchaResult() result: RecaptchaVerificationResult): LiteralObject {
         expect(result).toBeInstanceOf(RecaptchaVerificationResult);
@@ -49,14 +49,14 @@ describe('HTTP Recaptcha Enterprise', () => {
             imports: [
                 GoogleRecaptchaModule.forRoot({
                     debug: true,
-                    response: (req: Request): string => req.headers.recaptcha?.toString(),
+                    response: (req: Request): string => req.headers.recaptcha_should_be_overwritten?.toString(),
                     enterprise: {
                         projectId: 'enterprise_projectId',
                         apiKey: 'enterprise_apiKey',
                         siteKey: 'enterprise_siteKey',
                     },
                     score: 0.6,
-                    actions: ['Submit'],
+                    actions: ['ShouldBeOverwritten'],
                 }),
             ],
             controllers: [

@@ -1,0 +1,15 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Feedback {
+  title: String!
+}
+
+type Query {
+  sayHello(name: String!): String!
+}
+
+type Mutation {
+  submitFeedback(title: String!): Feedback!
+}

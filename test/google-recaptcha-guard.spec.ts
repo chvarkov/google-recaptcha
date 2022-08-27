@@ -1,4 +1,4 @@
-import { GoogleRecaptchaException, GoogleRecaptchaGuard } from '../src';
+import { GoogleRecaptchaException, GoogleRecaptchaGuard, GoogleRecaptchaModuleOptions } from '../src';
 import { Reflector } from '@nestjs/core';
 import { GoogleRecaptchaGuardOptions } from '../src/interfaces/google-recaptcha-guard-options';
 import { createGoogleRecaptchaValidator } from './helpers/create-google-recaptcha-validator';
@@ -127,5 +127,21 @@ describe('Google recaptcha guard', () => {
         const canActivate = await guard.canActivate(context);
 
         expect(canActivate).toBeTruthy();
+    });
+
+    test('Unsupported request type', async () => {
+        const options = {} as GoogleRecaptchaModuleOptions;
+
+        const validator = createGoogleRecaptchaValidator(options);
+        const enterpriseValidator = createGoogleRecaptchaEnterpriseValidator(options);
+        const validatorResolver = new RecaptchaValidatorResolver(options, validator, enterpriseValidator);
+
+        const guard = new GoogleRecaptchaGuard(new Reflector(), new RecaptchaRequestResolver(), validatorResolver, new Logger(), options);
+
+        const context = createExecutionContext(controller.submit, {body: {recaptcha: 'RECAPTCHA_TOKEN'}});
+
+        Object.assign(context, {getType: () => 'unknown'});
+
+        await expect(guard.canActivate(context)).rejects.toThrowError('Unsupported request type');
     });
 });
