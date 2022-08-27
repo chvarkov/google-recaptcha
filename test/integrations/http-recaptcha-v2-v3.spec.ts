@@ -67,6 +67,8 @@ describe('HTTP Recaptcha V2 V3', () => {
         http = new TestHttp(app.getHttpServer());
     });
 
+    afterAll(() => app.close());
+
     test('V2 OK',  async () => {
         mockedRecaptchaApi.addResponse<VerifyResponseV2>('test_v2_ok', {
             success: true,

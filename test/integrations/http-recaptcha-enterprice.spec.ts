@@ -76,6 +76,8 @@ describe('HTTP Recaptcha Enterprise', () => {
         http = new TestHttp(app.getHttpServer());
     });
 
+    afterAll(() => app.close());
+
     test('Enterprise OK',  async () => {
         mockedRecaptchaApi.addResponse<VerifyResponseEnterprise>('test_enterprise_ok', {
             name: 'name',
