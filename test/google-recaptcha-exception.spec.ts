@@ -17,6 +17,11 @@ describe('Google recaptcha exception', () => {
         expect(exception.getStatus()).toBe(HttpStatus.BAD_REQUEST);
     });
 
+    test('Test error code InvalidKeys', () => {
+        const exception = new GoogleRecaptchaException([ErrorCode.InvalidKeys]);
+        expect(exception.getStatus()).toBe(HttpStatus.BAD_REQUEST);
+    });
+
     test('Test error code InvalidInputSecret', () => {
         const exception = new GoogleRecaptchaException([ErrorCode.InvalidInputSecret]);
         expect(exception.getStatus()).toBe(HttpStatus.INTERNAL_SERVER_ERROR);
