@@ -33,7 +33,7 @@ export class GoogleRecaptchaGuard implements CanActivate {
         const options: VerifyResponseDecoratorOptions = this.reflector.get(RECAPTCHA_VALIDATION_OPTIONS, context.getHandler());
 
         const response = options?.response
-            ? await options?.response(request)
+            ? await options.response(request)
             : await this.options.response(request);
 
         const score = options?.score || this.options.score;

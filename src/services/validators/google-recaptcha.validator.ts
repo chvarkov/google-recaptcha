@@ -13,6 +13,7 @@ import { AbstractGoogleRecaptchaValidator } from './abstract-google-recaptcha-va
 import { RecaptchaVerificationResult } from '../../models/recaptcha-verification-result';
 import { GoogleRecaptchaContext } from '../../enums/google-recaptcha-context';
 import { firstValueFrom } from 'rxjs';
+import { getErrorInfo } from '../../helpers/get-error-info';
 
 @Injectable()
 export class GoogleRecaptchaValidator extends AbstractGoogleRecaptchaValidator<VerifyResponseV3> {
@@ -98,10 +99,7 @@ export class GoogleRecaptchaValidator extends AbstractGoogleRecaptchaValidator<V
             })
             .catch((err: axios.AxiosError) => {
                 if (this.options.debug) {
-                    this.logger.debug(
-                        err?.response?.data || err.code || {error: `${err?.name}: ${err?.message}`, stack: err?.stack},
-                        `${GoogleRecaptchaContext.GoogleRecaptcha}.error`,
-                    );
+                    this.logger.debug(getErrorInfo(err), `${GoogleRecaptchaContext.GoogleRecaptcha}.error`);
                 }
 
                 const networkErrorCode = err.isAxiosError && err.code;

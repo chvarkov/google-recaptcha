@@ -12,6 +12,7 @@ import { GoogleRecaptchaContext } from '../../enums/google-recaptcha-context';
 import { VerifyResponseEnterprise, VerifyTokenEnterpriseEvent } from '../../interfaces/verify-response-enterprise';
 import { EnterpriseReasonTransformer } from '../enterprise-reason.transformer';
 import { firstValueFrom } from 'rxjs';
+import { getErrorInfo } from '../../helpers/get-error-info';
 
 type VerifyResponse = [VerifyResponseEnterprise, LiteralObject];
 
@@ -96,10 +97,7 @@ export class GoogleRecaptchaEnterpriseValidator extends AbstractGoogleRecaptchaV
             })
             .catch((err: axios.AxiosError): VerifyResponse => {
                 if (this.options.debug) {
-                    this.logger.debug(
-                        err?.response?.data || err.code || {error: `${err?.name}: ${err?.message}`, stack: err?.stack},
-                        `${GoogleRecaptchaContext.GoogleRecaptchaEnterprise}.error`,
-                    );
+                    this.logger.debug(getErrorInfo(err), `${GoogleRecaptchaContext.GoogleRecaptchaEnterprise}.error`);
                 }
 
                 const networkErrorCode = err.isAxiosError && err.code;

@@ -10,7 +10,5 @@ export const RecaptchaResult = createParamDecorator((data, context: ExecutionCon
                 .GqlExecutionContext
                 .create(context)
                 .getContext().req?.connection?._httpMessage?.req?.recaptchaValidationResult;
-        default:
-            return null;
     }
 });
