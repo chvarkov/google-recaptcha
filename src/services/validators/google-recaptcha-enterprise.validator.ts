@@ -30,17 +30,17 @@ export class GoogleRecaptchaEnterpriseValidator extends AbstractGoogleRecaptchaV
         const [result, errorDetails] = await this.verifyResponse(options.response, options.action);
 
         const errors: ErrorCode[] = [];
-        let success = result.tokenProperties.valid;
-
-        if (result.tokenProperties.invalidReason) {
-            errors.push(this.enterpriseReasonTransformer.transform(result.tokenProperties.invalidReason));
-        }
+        let success = result?.tokenProperties.valid || false;
 
         if (errorDetails) {
             errors.push(ErrorCode.UnknownError);
         }
 
-        if (!result) {
+        if (result) {
+            if (result.tokenProperties.invalidReason) {
+                errors.push(this.enterpriseReasonTransformer.transform(result.tokenProperties.invalidReason));
+            }
+
             if (!this.isValidAction(result.tokenProperties.action, options)) {
                 success = false;
                 errors.push(ErrorCode.ForbiddenAction);

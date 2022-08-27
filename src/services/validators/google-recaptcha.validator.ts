@@ -33,10 +33,16 @@ export class GoogleRecaptchaValidator extends AbstractGoogleRecaptchaValidator<V
     async validate(options: VerifyResponseOptions): Promise<RecaptchaVerificationResult<VerifyResponseV3>> {
         const result = await this.verifyResponse<VerifyResponseV3>(options.response);
 
-        const nativeResponse = {...result};
-
         if (!this.isUseV3(result)) {
-            return result;
+            const resV2: VerifyResponseV2 = result;
+            return new RecaptchaVerificationResult({
+                nativeResponse: resV2 as VerifyResponseV3,
+                score: undefined,
+                action: undefined,
+                errors: resV2.errors,
+                success: resV2.success,
+                hostname: resV2.hostname,
+            });
         }
 
         if (!this.isValidAction(result.action, options)) {
@@ -48,6 +54,8 @@ export class GoogleRecaptchaValidator extends AbstractGoogleRecaptchaValidator<V
             result.success = false;
             result.errors.push(ErrorCode.LowScore);
         }
+
+        const nativeResponse = {...result};
 
         return new RecaptchaVerificationResult({
             nativeResponse: nativeResponse,
