@@ -6,21 +6,26 @@ import { RECAPTCHA_OPTIONS } from '../src/provider.declarations';
 
 describe('Google recaptcha module', () => {
     const customNetwork = 'CUSTOM_URL';
-    let app: INestApplication;
 
-    beforeAll(async () => {
+    const createApp = async (options: GoogleRecaptchaModuleOptions): Promise<INestApplication> => {
         const testingModule = await Test.createTestingModule({
             imports: [
-                GoogleRecaptchaModule.forRoot({
-                    secretKey: 'secret key',
-                    response: req => req.headers.authorization,
-                    skipIf: () => process.env.NODE_ENV !== 'production',
-                    network: customNetwork,
-                }),
+                GoogleRecaptchaModule.forRoot(options),
             ],
         }).compile();
 
-        app = testingModule.createNestApplication();
+        return testingModule.createNestApplication();
+    }
+
+    let app: INestApplication;
+
+    beforeAll(async () => {
+        app = await createApp({
+            secretKey: 'secret key',
+            response: req => req.headers.authorization,
+            skipIf: () => process.env.NODE_ENV !== 'production',
+            network: customNetwork,
+        });
     });
 
     test('Test validator provider', () => {
@@ -41,4 +46,10 @@ describe('Google recaptcha module', () => {
         expect(options).toBeDefined();
         expect(options.network).toBe(customNetwork);
     });
+
+    test('Test invalid config', async () => {
+        await expect(createApp({response: () => ''}))
+            .rejects
+            .toThrowError('must be contains "secretKey" xor "enterprise"');
+    })
 });
