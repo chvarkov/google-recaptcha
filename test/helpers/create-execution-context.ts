@@ -20,7 +20,9 @@ function createArgumentHost(req: Partial<Request>): HttpArgumentsHost {
     };
 }
 
-export function createExecutionContext(handler: () => void, req: Partial<Request>): ExecutionContext {
+export function createExecutionContext(handler: () => void,
+                                       req: Partial<Request>,
+                                       type: string = 'http'): ExecutionContext {
     return new class implements ExecutionContext {
         getHandler(): () => void {
             return handler;
@@ -46,7 +48,7 @@ export function createExecutionContext(handler: () => void, req: Partial<Request
         }
 
         getType<TContext = ContextType>(): TContext {
-            return 'http' as unknown as TContext;
+            return type as unknown as TContext;
         }
 
         switchToRpc(): RpcArgumentsHost {

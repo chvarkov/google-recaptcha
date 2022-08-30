@@ -106,7 +106,10 @@ export class GoogleRecaptchaEnterpriseValidator extends AbstractGoogleRecaptchaV
                     throw new GoogleRecaptchaNetworkException(networkErrorCode);
                 }
 
-                const errData: LiteralObject = err.response?.data;
+                const errData: LiteralObject = {
+                    status: err.response.status,
+                    data: err.response.data,
+                };
 
                 return [null, errData];
             });

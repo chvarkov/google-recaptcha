@@ -14,6 +14,7 @@ import { MockedRecaptchaApi } from '../utils/mocked-recaptcha-api';
 import { VerifyResponseV2 } from '../../src/interfaces/verify-response';
 import { TestHttp } from '../utils/test-http';
 import { VerifyResponseEnterprise } from '../../src/interfaces/verify-response-enterprise';
+import { GoogleRecaptchaEnterpriseReason } from '../../src/enums/google-recaptcha-enterprise-reason';
 
 @Controller('test')
 class TestController {
@@ -137,6 +138,39 @@ describe('HTTP Recaptcha Enterprise', () => {
         });
 
         expect(res.statusCode).toBe(500);
+    });
+
+    test('Enterprise Expired token', async () => {
+        mockedRecaptchaApi.addResponse<VerifyResponseEnterprise>('test_enterprise_expired_token', {
+            name: 'name',
+            event: {
+                userIpAddress: '0.0.0.0',
+                siteKey: 'siteKey',
+                userAgent: 'UA',
+                token: 'token',
+                hashedAccountId: '',
+                expectedAction: 'InvalidAction',
+            },
+            tokenProperties: {
+                createTime: new Date().toISOString(),
+                valid: true,
+                action: 'InvalidAction',
+                hostname: 'localhost',
+                invalidReason: GoogleRecaptchaEnterpriseReason.Expired,
+            },
+            riskAnalysis: {
+                reasons: [ClassificationReason.LOW_CONFIDENCE_SCORE],
+                score: 0.8,
+            },
+        });
+
+        const res: request.Response = await http.post('/test/submit', {}, {
+            headers: {
+                'Recaptcha': 'test_enterprise_expired_token',
+            },
+        });
+
+        expect(res.statusCode).toBe(400);
     });
 
     test('Enterprise Invalid action', async () => {

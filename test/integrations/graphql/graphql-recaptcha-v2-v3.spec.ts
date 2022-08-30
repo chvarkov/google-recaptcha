@@ -98,7 +98,7 @@ describe('HTTP Recaptcha V2 V3', () => {
                     debug: true,
                     response: (req: IncomingMessage): string => req.headers.recaptcha?.toString(),
                     secretKey: 'secret_key',
-                    score: 0.6,
+                    score: (score: number) => score >= 0.6,
                     actions: ['Submit'],
                 }),
             ],

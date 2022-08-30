@@ -146,11 +146,7 @@ export class GoogleRecaptchaModule {
         }
     }
 
-    private static transformAxiosConfig(axiosConfig?: axios.AxiosRequestConfig): axios.AxiosRequestConfig {
-        if (!axiosConfig) {
-            return {};
-        }
-
+    private static transformAxiosConfig(axiosConfig: axios.AxiosRequestConfig): axios.AxiosRequestConfig {
         const config = {...axiosConfig};
 
         delete config.baseURL;
