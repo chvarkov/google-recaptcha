@@ -4,19 +4,19 @@ import { SetRecaptchaOptions } from '../../src/decorators/set-recaptcha-options'
 
 @Controller('test')
 export class TestController {
-    @Recaptcha()
-    submit(): void {
-        return;
-    }
+	@Recaptcha()
+	submit(): void {
+		return;
+	}
 
-    @Recaptcha({response: req => req.body.customRecaptchaField})
-    submitOverridden(): void {
-        return;
-    }
+	@Recaptcha({ response: (req) => req.body.customRecaptchaField })
+	submitOverridden(): void {
+		return;
+	}
 
-    @SetRecaptchaOptions({action: 'TestOptions', score: 0.5})
-    @UseGuards(GoogleRecaptchaGuard)
-    submitWithSetRecaptchaOptionsDecorator(): void {
-        return;
-    }
+	@SetRecaptchaOptions({ action: 'TestOptions', score: 0.5 })
+	@UseGuards(GoogleRecaptchaGuard)
+	submitWithSetRecaptchaOptionsDecorator(): void {
+		return;
+	}
 }

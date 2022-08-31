@@ -4,8 +4,5 @@ import { VerifyResponseDecoratorOptions } from '../interfaces/verify-response-de
 import { SetRecaptchaOptions } from './set-recaptcha-options';
 
 export function Recaptcha(options?: VerifyResponseDecoratorOptions): MethodDecorator & ClassDecorator {
-    return applyDecorators(
-        SetRecaptchaOptions(options),
-        UseGuards(GoogleRecaptchaGuard),
-    );
+	return applyDecorators(SetRecaptchaOptions(options), UseGuards(GoogleRecaptchaGuard));
 }

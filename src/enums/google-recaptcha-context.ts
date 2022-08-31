@@ -1,4 +1,4 @@
 export enum GoogleRecaptchaContext {
-    GoogleRecaptcha = 'GoogleRecaptcha',
-    GoogleRecaptchaEnterprise = 'GoogleRecaptchaEnterprise',
+	GoogleRecaptcha = 'GoogleRecaptcha',
+	GoogleRecaptchaEnterprise = 'GoogleRecaptchaEnterprise',
 }

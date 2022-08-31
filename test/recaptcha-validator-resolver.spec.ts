@@ -2,50 +2,47 @@ import { GoogleRecaptchaEnterpriseValidator, GoogleRecaptchaModuleOptions, Googl
 import { RecaptchaValidatorResolver } from '../src/services/recaptcha-validator.resolver';
 
 describe('RecaptchaValidatorResolver', () => {
-    const validator = new GoogleRecaptchaValidator(null, null, null);
-    const enterpriseValidator = new GoogleRecaptchaEnterpriseValidator(null, null, null, null);
+	const validator = new GoogleRecaptchaValidator(null, null, null);
+	const enterpriseValidator = new GoogleRecaptchaEnterpriseValidator(null, null, null, null);
 
-    const createResolver = (options: GoogleRecaptchaModuleOptions) => new RecaptchaValidatorResolver(
-        options,
-        validator,
-        enterpriseValidator,
-    );
+	const createResolver = (options: GoogleRecaptchaModuleOptions) =>
+		new RecaptchaValidatorResolver(options, validator, enterpriseValidator);
 
-    test('resolve', () => {
-        const moduleOptions: GoogleRecaptchaModuleOptions = {
-            response: (): string => 'token',
-            secretKey: 'Secret',
-        };
+	test('resolve', () => {
+		const moduleOptions: GoogleRecaptchaModuleOptions = {
+			response: (): string => 'token',
+			secretKey: 'Secret',
+		};
 
-        const resolver = createResolver(moduleOptions);
+		const resolver = createResolver(moduleOptions);
 
-        const resolvedValidator = resolver.resolve();
+		const resolvedValidator = resolver.resolve();
 
-        expect(resolvedValidator).toBeInstanceOf(GoogleRecaptchaValidator);
-    });
+		expect(resolvedValidator).toBeInstanceOf(GoogleRecaptchaValidator);
+	});
 
-    test('resolve enterprise', () => {
-        const moduleOptions: GoogleRecaptchaModuleOptions = {
-            response: (): string => 'token',
-            enterprise: {
-                apiKey: 'enterprise_apiKey',
-                siteKey: 'enterprise_siteKey',
-                projectId: 'enterprise_projectId',
-            },
-        };
+	test('resolve enterprise', () => {
+		const moduleOptions: GoogleRecaptchaModuleOptions = {
+			response: (): string => 'token',
+			enterprise: {
+				apiKey: 'enterprise_apiKey',
+				siteKey: 'enterprise_siteKey',
+				projectId: 'enterprise_projectId',
+			},
+		};
 
-        const resolver = createResolver(moduleOptions);
-        const resolvedValidator = resolver.resolve();
+		const resolver = createResolver(moduleOptions);
+		const resolvedValidator = resolver.resolve();
 
-        expect(resolvedValidator).toBeInstanceOf(GoogleRecaptchaEnterpriseValidator);
-    });
+		expect(resolvedValidator).toBeInstanceOf(GoogleRecaptchaEnterpriseValidator);
+	});
 
-    test('resolve error', () => {
-        const moduleOptions: GoogleRecaptchaModuleOptions = {
-            response: (): string => 'token',
-        };
+	test('resolve error', () => {
+		const moduleOptions: GoogleRecaptchaModuleOptions = {
+			response: (): string => 'token',
+		};
 
-        const resolver = createResolver(moduleOptions);
-        expect(() => resolver.resolve()).toThrowError('Cannot resolve');
-    });
+		const resolver = createResolver(moduleOptions);
+		expect(() => resolver.resolve()).toThrowError('Cannot resolve');
+	});
 });

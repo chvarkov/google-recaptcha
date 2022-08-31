@@ -3,5 +3,5 @@ import { VerifyResponseDecoratorOptions } from '../interfaces/verify-response-de
 import { RECAPTCHA_VALIDATION_OPTIONS } from '../provider.declarations';
 
 export function SetRecaptchaOptions(options?: VerifyResponseDecoratorOptions): MethodDecorator & ClassDecorator {
-    return SetMetadata(RECAPTCHA_VALIDATION_OPTIONS, options);
+	return SetMetadata(RECAPTCHA_VALIDATION_OPTIONS, options);
 }

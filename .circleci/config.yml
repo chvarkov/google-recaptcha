@@ -26,7 +26,7 @@ jobs:
           paths: .
       - run:
           name: Eslint
-          command: npm run lint:fix
+          command: npm run lint:check
       - run:
           name: Tests
           command: npm run test:coveralls

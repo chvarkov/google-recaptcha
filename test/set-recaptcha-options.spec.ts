@@ -5,22 +5,22 @@ import { RECAPTCHA_VALIDATION_OPTIONS } from '../src/provider.declarations';
 import { VerifyResponseDecoratorOptions } from '../src/interfaces/verify-response-decorator-options';
 
 describe('Set recaptcha options decorator', () => {
-    let controller: TestController;
-    let reflector: Reflector;
+	let controller: TestController;
+	let reflector: Reflector;
 
-    beforeAll(async () => {
-        controller = new TestController();
-        reflector = new Reflector();
-    });
+	beforeAll(async () => {
+		controller = new TestController();
+		reflector = new Reflector();
+	});
 
-    test('Test options', () => {
-        const executionContext = createExecutionContext(controller.submitWithSetRecaptchaOptionsDecorator, {});
-        const handler = executionContext.getHandler();
+	test('Test options', () => {
+		const executionContext = createExecutionContext(controller.submitWithSetRecaptchaOptionsDecorator, {});
+		const handler = executionContext.getHandler();
 
-        const options: VerifyResponseDecoratorOptions = reflector.get(RECAPTCHA_VALIDATION_OPTIONS, handler);
+		const options: VerifyResponseDecoratorOptions = reflector.get(RECAPTCHA_VALIDATION_OPTIONS, handler);
 
-        expect(options.response).toBeUndefined();
-        expect(options.action).toBe('TestOptions');
-        expect(options.score).toBe(0.5);
-    });
+		expect(options.response).toBeUndefined();
+		expect(options.action).toBe('TestOptions');
+		expect(options.score).toBe(0.5);
+	});
 });

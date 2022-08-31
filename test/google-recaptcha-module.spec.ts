@@ -5,51 +5,47 @@ import { GoogleRecaptchaGuard, GoogleRecaptchaModuleOptions, GoogleRecaptchaModu
 import { RECAPTCHA_OPTIONS } from '../src/provider.declarations';
 
 describe('Google recaptcha module', () => {
-    const customNetwork = 'CUSTOM_URL';
+	const customNetwork = 'CUSTOM_URL';
 
-    const createApp = async (options: GoogleRecaptchaModuleOptions): Promise<INestApplication> => {
-        const testingModule = await Test.createTestingModule({
-            imports: [
-                GoogleRecaptchaModule.forRoot(options),
-            ],
-        }).compile();
+	const createApp = async (options: GoogleRecaptchaModuleOptions): Promise<INestApplication> => {
+		const testingModule = await Test.createTestingModule({
+			imports: [GoogleRecaptchaModule.forRoot(options)],
+		}).compile();
 
-        return testingModule.createNestApplication();
-    }
+		return testingModule.createNestApplication();
+	};
 
-    let app: INestApplication;
+	let app: INestApplication;
 
-    beforeAll(async () => {
-        app = await createApp({
-            secretKey: 'secret key',
-            response: req => req.headers.authorization,
-            skipIf: () => process.env.NODE_ENV !== 'production',
-            network: customNetwork,
-        });
-    });
+	beforeAll(async () => {
+		app = await createApp({
+			secretKey: 'secret key',
+			response: (req) => req.headers.authorization,
+			skipIf: () => process.env.NODE_ENV !== 'production',
+			network: customNetwork,
+		});
+	});
 
-    test('Test validator provider', () => {
-        const guard = app.get(GoogleRecaptchaValidator);
+	test('Test validator provider', () => {
+		const guard = app.get(GoogleRecaptchaValidator);
 
-        expect(guard).toBeInstanceOf(GoogleRecaptchaValidator);
-    });
+		expect(guard).toBeInstanceOf(GoogleRecaptchaValidator);
+	});
 
-    test('Test guard provider', () => {
-        const guard = app.get(GoogleRecaptchaGuard);
+	test('Test guard provider', () => {
+		const guard = app.get(GoogleRecaptchaGuard);
 
-        expect(guard).toBeInstanceOf(GoogleRecaptchaGuard);
-    });
+		expect(guard).toBeInstanceOf(GoogleRecaptchaGuard);
+	});
 
-    test('Test use recaptcha net options',  async () => {
-        const options: GoogleRecaptchaModuleOptions = app.get(RECAPTCHA_OPTIONS);
+	test('Test use recaptcha net options', async () => {
+		const options: GoogleRecaptchaModuleOptions = app.get(RECAPTCHA_OPTIONS);
 
-        expect(options).toBeDefined();
-        expect(options.network).toBe(customNetwork);
-    });
+		expect(options).toBeDefined();
+		expect(options.network).toBe(customNetwork);
+	});
 
-    test('Test invalid config', async () => {
-        await expect(createApp({response: () => ''}))
-            .rejects
-            .toThrowError('must be contains "secretKey" xor "enterprise"');
-    })
+	test('Test invalid config', async () => {
+		await expect(createApp({ response: () => '' })).rejects.toThrowError('must be contains "secretKey" xor "enterprise"');
+	});
 });
