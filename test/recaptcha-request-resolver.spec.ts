@@ -2,10 +2,9 @@ import { RecaptchaRequestResolver } from '../src/services/recaptcha-request.reso
 import { createExecutionContext } from './helpers/create-execution-context';
 
 describe('RecaptchaRequestResolver', () => {
-    const resolver = new RecaptchaRequestResolver();
+	const resolver = new RecaptchaRequestResolver();
 
-    test('Negative', () => {
-        expect(() => resolver.resolve(createExecutionContext(() => null, null, 'unsupported')))
-            .toThrowError('Unsupported request type');
-    });
+	test('Negative', () => {
+		expect(() => resolver.resolve(createExecutionContext(() => null, null, 'unsupported'))).toThrowError('Unsupported request type');
+	});
 });

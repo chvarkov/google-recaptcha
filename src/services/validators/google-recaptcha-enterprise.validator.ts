@@ -18,100 +18,102 @@ type VerifyResponse = [VerifyResponseEnterprise, LiteralObject];
 
 @Injectable()
 export class GoogleRecaptchaEnterpriseValidator extends AbstractGoogleRecaptchaValidator<VerifyResponseEnterprise> {
-    private readonly headers = {'Content-Type': 'application/json'};
+	private readonly headers = { 'Content-Type': 'application/json' };
 
-    constructor(@Inject(RECAPTCHA_HTTP_SERVICE) private readonly http: HttpService,
-                @Inject(RECAPTCHA_LOGGER) private readonly logger: Logger,
-                @Inject(RECAPTCHA_OPTIONS) options: GoogleRecaptchaModuleOptions,
-                private readonly enterpriseReasonTransformer: EnterpriseReasonTransformer) {
-        super(options);
-    }
+	constructor(
+		@Inject(RECAPTCHA_HTTP_SERVICE) private readonly http: HttpService,
+		@Inject(RECAPTCHA_LOGGER) private readonly logger: Logger,
+		@Inject(RECAPTCHA_OPTIONS) options: GoogleRecaptchaModuleOptions,
+		private readonly enterpriseReasonTransformer: EnterpriseReasonTransformer
+	) {
+		super(options);
+	}
 
-    async validate(options: VerifyResponseOptions): Promise<RecaptchaVerificationResult<VerifyResponseEnterprise>> {
-        const [result, errorDetails] = await this.verifyResponse(options.response, options.action);
+	async validate(options: VerifyResponseOptions): Promise<RecaptchaVerificationResult<VerifyResponseEnterprise>> {
+		const [result, errorDetails] = await this.verifyResponse(options.response, options.action);
 
-        const errors: ErrorCode[] = [];
-        let success = result?.tokenProperties.valid || false;
+		const errors: ErrorCode[] = [];
+		let success = result?.tokenProperties.valid || false;
 
-        if (errorDetails) {
-            errors.push(ErrorCode.UnknownError);
-        }
+		if (errorDetails) {
+			errors.push(ErrorCode.UnknownError);
+		}
 
-        if (result) {
-            if (result.tokenProperties.invalidReason) {
-                errors.push(this.enterpriseReasonTransformer.transform(result.tokenProperties.invalidReason));
-            }
+		if (result) {
+			if (result.tokenProperties.invalidReason) {
+				errors.push(this.enterpriseReasonTransformer.transform(result.tokenProperties.invalidReason));
+			}
 
-            if (!this.isValidAction(result.tokenProperties.action, options)) {
-                success = false;
-                errors.push(ErrorCode.ForbiddenAction);
-            }
+			if (!this.isValidAction(result.tokenProperties.action, options)) {
+				success = false;
+				errors.push(ErrorCode.ForbiddenAction);
+			}
 
-            if (!this.isValidScore(result.riskAnalysis.score, options.score)) {
-                success = false;
-                errors.push(ErrorCode.LowScore);
-            }
-        }
+			if (!this.isValidScore(result.riskAnalysis.score, options.score)) {
+				success = false;
+				errors.push(ErrorCode.LowScore);
+			}
+		}
 
-        return new RecaptchaVerificationResult({
-            success,
-            errors,
-            nativeResponse: result,
-            score: result?.riskAnalysis?.score,
-            action: result?.tokenProperties?.action,
-            hostname: result?.tokenProperties?.hostname || '',
-        });
-    }
+		return new RecaptchaVerificationResult({
+			success,
+			errors,
+			nativeResponse: result,
+			score: result?.riskAnalysis?.score,
+			action: result?.tokenProperties?.action,
+			hostname: result?.tokenProperties?.hostname || '',
+		});
+	}
 
-    private verifyResponse(response: string, expectedAction: string): Promise<VerifyResponse> {
-        const projectId = this.options.enterprise.projectId;
-        const body: {event: VerifyTokenEnterpriseEvent} = {
-            event: {
-                expectedAction,
-                siteKey: this.options.enterprise.siteKey,
-                token: response,
-            },
-        };
+	private verifyResponse(response: string, expectedAction: string): Promise<VerifyResponse> {
+		const projectId = this.options.enterprise.projectId;
+		const body: { event: VerifyTokenEnterpriseEvent } = {
+			event: {
+				expectedAction,
+				siteKey: this.options.enterprise.siteKey,
+				token: response,
+			},
+		};
 
-        const url = `https://recaptchaenterprise.googleapis.com/v1/projects/${projectId}/assessments`;
+		const url = `https://recaptchaenterprise.googleapis.com/v1/projects/${projectId}/assessments`;
 
-        const config: axios.AxiosRequestConfig = {
-            headers: this.headers,
-            params: {
-                key: this.options.enterprise.apiKey,
-            },
-        };
+		const config: axios.AxiosRequestConfig = {
+			headers: this.headers,
+			params: {
+				key: this.options.enterprise.apiKey,
+			},
+		};
 
-        if (this.options.debug) {
-            this.logger.debug({body}, `${GoogleRecaptchaContext.GoogleRecaptchaEnterprise}.request`);
-        }
+		if (this.options.debug) {
+			this.logger.debug({ body }, `${GoogleRecaptchaContext.GoogleRecaptchaEnterprise}.request`);
+		}
 
-        return firstValueFrom(this.http.post<VerifyResponseEnterprise>(url, body, config))
-            .then(res => res.data)
-            .then((data): VerifyResponse => {
-                if (this.options.debug) {
-                    this.logger.debug(data, `${GoogleRecaptchaContext.GoogleRecaptchaEnterprise}.response`);
-                }
+		return firstValueFrom(this.http.post<VerifyResponseEnterprise>(url, body, config))
+			.then((res) => res.data)
+			.then((data): VerifyResponse => {
+				if (this.options.debug) {
+					this.logger.debug(data, `${GoogleRecaptchaContext.GoogleRecaptchaEnterprise}.response`);
+				}
 
-                return [data, null];
-            })
-            .catch((err: axios.AxiosError): VerifyResponse => {
-                if (this.options.debug) {
-                    this.logger.debug(getErrorInfo(err), `${GoogleRecaptchaContext.GoogleRecaptchaEnterprise}.error`);
-                }
+				return [data, null];
+			})
+			.catch((err: axios.AxiosError): VerifyResponse => {
+				if (this.options.debug) {
+					this.logger.debug(getErrorInfo(err), `${GoogleRecaptchaContext.GoogleRecaptchaEnterprise}.error`);
+				}
 
-                const networkErrorCode = err.isAxiosError && err.code;
+				const networkErrorCode = err.isAxiosError && err.code;
 
-                if (networkErrorCode) {
-                    throw new GoogleRecaptchaNetworkException(networkErrorCode);
-                }
+				if (networkErrorCode) {
+					throw new GoogleRecaptchaNetworkException(networkErrorCode);
+				}
 
-                const errData: LiteralObject = {
-                    status: err.response.status,
-                    data: err.response.data,
-                };
+				const errData: LiteralObject = {
+					status: err.response.status,
+					data: err.response.data,
+				};
 
-                return [null, errData];
-            });
-    }
+				return [null, errData];
+			});
+	}
 }

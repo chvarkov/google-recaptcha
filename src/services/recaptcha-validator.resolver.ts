@@ -7,20 +7,21 @@ import { GoogleRecaptchaEnterpriseValidator } from './validators/google-recaptch
 
 @Injectable()
 export class RecaptchaValidatorResolver {
-    constructor(@Inject(RECAPTCHA_OPTIONS) private readonly options: GoogleRecaptchaModuleOptions,
-                protected readonly googleRecaptchaValidator: GoogleRecaptchaValidator,
-                protected readonly googleRecaptchaEnterpriseValidator: GoogleRecaptchaEnterpriseValidator) {
-    }
+	constructor(
+		@Inject(RECAPTCHA_OPTIONS) private readonly options: GoogleRecaptchaModuleOptions,
+		protected readonly googleRecaptchaValidator: GoogleRecaptchaValidator,
+		protected readonly googleRecaptchaEnterpriseValidator: GoogleRecaptchaEnterpriseValidator
+	) {}
 
-    resolve(): AbstractGoogleRecaptchaValidator<unknown> {
-        if (this.options.secretKey) {
-            return this.googleRecaptchaValidator;
-        }
+	resolve(): AbstractGoogleRecaptchaValidator<unknown> {
+		if (this.options.secretKey) {
+			return this.googleRecaptchaValidator;
+		}
 
-        if (Object.keys(this.options.enterprise || {}).length) {
-            return this.googleRecaptchaEnterpriseValidator;
-        }
+		if (Object.keys(this.options.enterprise || {}).length) {
+			return this.googleRecaptchaEnterpriseValidator;
+		}
 
-        throw new Error('Cannot resolve google recaptcha validator');
-    }
+		throw new Error('Cannot resolve google recaptcha validator');
+	}
 }

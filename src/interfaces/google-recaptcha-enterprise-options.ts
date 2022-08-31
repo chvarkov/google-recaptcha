@@ -1,5 +1,5 @@
 export interface GoogleRecaptchaEnterpriseOptions {
-    projectId: string;
-    siteKey: string;
-    apiKey: string;
+	projectId: string;
+	siteKey: string;
+	apiKey: string;
 }

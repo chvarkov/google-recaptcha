@@ -4,20 +4,17 @@ import { RecaptchaContextType } from '../types';
 
 @Injectable()
 export class RecaptchaRequestResolver {
-    resolve<T>(context: ExecutionContext): T {
-        const contextType: RecaptchaContextType = context.getType();
+	resolve<T>(context: ExecutionContext): T {
+		const contextType: RecaptchaContextType = context.getType();
 
-        switch (contextType) {
-            case 'http':
-                return context.switchToHttp().getRequest();
+		switch (contextType) {
+			case 'http':
+				return context.switchToHttp().getRequest();
 
-            case 'graphql':
-                return loadModule('@nestjs/graphql', true)
-                    .GqlExecutionContext
-                    .create(context)
-                    .getContext().req?.socket?._httpMessage?.req;
-            default:
-                throw new Error(`Unsupported request type '${contextType}'.`);
-        }
-    }
+			case 'graphql':
+				return loadModule('@nestjs/graphql', true).GqlExecutionContext.create(context).getContext().req?.socket?._httpMessage?.req;
+			default:
+				throw new Error(`Unsupported request type '${contextType}'.`);
+		}
+	}
 }

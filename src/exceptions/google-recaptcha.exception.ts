@@ -1,13 +1,12 @@
-import {HttpException, HttpStatus} from '@nestjs/common';
-import {ErrorCode} from '../enums/error-code';
+import { HttpException, HttpStatus } from '@nestjs/common';
+import { ErrorCode } from '../enums/error-code';
 
 export class GoogleRecaptchaException extends HttpException {
-	constructor(public readonly errorCodes: ErrorCode[],
-                errorMessage?: string) {
-        super(
-            errorMessage || GoogleRecaptchaException.getErrorMessage(errorCodes[0]),
-            GoogleRecaptchaException.getErrorStatus(errorCodes[0]),
-        );
+	constructor(public readonly errorCodes: ErrorCode[], errorMessage?: string) {
+		super(
+			errorMessage || GoogleRecaptchaException.getErrorMessage(errorCodes[0]),
+			GoogleRecaptchaException.getErrorStatus(errorCodes[0])
+		);
 	}
 
 	private static getErrorMessage(errorCode: ErrorCode): string {
@@ -59,7 +58,7 @@ export class GoogleRecaptchaException extends HttpException {
 			errorCode === ErrorCode.IncorrectCaptchaSol ||
 			errorCode === ErrorCode.LowScore ||
 			errorCode === ErrorCode.InvalidKeys
-		? HttpStatus.BAD_REQUEST
-		: HttpStatus.INTERNAL_SERVER_ERROR;
+			? HttpStatus.BAD_REQUEST
+			: HttpStatus.INTERNAL_SERVER_ERROR;
 	}
 }

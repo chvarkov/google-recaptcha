@@ -4,5 +4,5 @@ import { Logger } from '@nestjs/common';
 import { GoogleRecaptchaModuleOptions } from '../../src';
 
 export function createGoogleRecaptchaValidator(options: GoogleRecaptchaModuleOptions): GoogleRecaptchaValidator {
-    return new GoogleRecaptchaValidator(new HttpService(), new Logger(), options);
+	return new GoogleRecaptchaValidator(new HttpService(), new Logger(), options);
 }

@@ -3,15 +3,7 @@ import { TestConfigService } from './test-config-service';
 import { GoogleRecaptchaModuleOptionsFactory } from './test-recaptcha-options-factory';
 
 @Module({
-    providers: [
-        TestConfigService,
-        GoogleRecaptchaModuleOptionsFactory,
-    ],
-    exports: [
-        TestConfigService,
-        GoogleRecaptchaModuleOptionsFactory,
-    ],
+	providers: [TestConfigService, GoogleRecaptchaModuleOptionsFactory],
+	exports: [TestConfigService, GoogleRecaptchaModuleOptionsFactory],
 })
-export class TestConfigModule {
-
-}
+export class TestConfigModule {}

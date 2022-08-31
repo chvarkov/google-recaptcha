@@ -12,6 +12,7 @@
 	"main": "index.js",
 	"scripts": {
 		"build": "rimraf dist && tsc && cp package.json dist && cp README.md dist && cp LICENSE dist && cp CONTRIBUTING.md dist",
+		"format": "prettier \"**/*.ts\" \"**/*.json\" --ignore-path --write",
 		"lint:fix": "eslint . --fix",
 		"lint:check": "eslint . --max-warnings=0",
 		"test": "jest --silent=false",
