@@ -1,4 +1,4 @@
-import { DynamicModule, LiteralObject, Logger, Provider } from '@nestjs/common';
+import { DynamicModule, Logger, Provider } from '@nestjs/common';
 import { GoogleRecaptchaGuard } from './guards/google-recaptcha.guard';
 import { GoogleRecaptchaValidator } from './services/validators/google-recaptcha.validator';
 import { GoogleRecaptchaEnterpriseValidator } from './services/validators/google-recaptcha-enterprise.validator';
@@ -13,13 +13,13 @@ import {
     RECAPTCHA_OPTIONS,
 } from './provider.declarations';
 import { RecaptchaRequestResolver } from './services/recaptcha-request.resolver';
-import { loadModule } from './helpers/load-module';
 import { Reflector } from '@nestjs/core';
 import * as axios from 'axios';
 import { Agent } from 'https';
 import { RecaptchaValidatorResolver } from './services/recaptcha-validator.resolver';
 import { EnterpriseReasonTransformer } from './services/enterprise-reason.transformer';
 import { xor } from './helpers/xor';
+import { HttpService } from '@nestjs/axios';
 
 export class GoogleRecaptchaModule {
     private static axiosDefaultConfig: axios.AxiosRequestConfig = {
@@ -48,12 +48,10 @@ export class GoogleRecaptchaModule {
 
         this.validateOptions(options);
 
-        const httpModule = this.resolveHttpModule();
-
         const internalProviders: Provider[] = [
             {
                 provide: RECAPTCHA_HTTP_SERVICE,
-                useFactory: (axiosInstance: axios.AxiosInstance) => new httpModule.HttpService(axiosInstance),
+                useFactory: (axiosInstance: axios.AxiosInstance) => new HttpService(axiosInstance),
                 inject: [
                     RECAPTCHA_AXIOS_INSTANCE,
                 ],
@@ -71,9 +69,9 @@ export class GoogleRecaptchaModule {
         return {
             global: true,
             module: GoogleRecaptchaModule,
-            imports: [
-                httpModule.HttpModule,
-            ],
+            // imports: [
+            //     HttpModule,
+            // ],
             providers: providers.concat(internalProviders),
             exports: providers,
         };
@@ -98,12 +96,10 @@ export class GoogleRecaptchaModule {
             ...this.createAsyncProviders(options),
         ];
 
-        const httpModule = this.resolveHttpModule();
-
         const internalProviders: Provider[] = [
             {
                 provide: RECAPTCHA_HTTP_SERVICE,
-                useFactory: (axiosInstance: axios.AxiosInstance) => new httpModule.HttpService(axiosInstance),
+                useFactory: (axiosInstance: axios.AxiosInstance) => new HttpService(axiosInstance),
                 inject: [
                     RECAPTCHA_AXIOS_INSTANCE,
                 ],
@@ -129,21 +125,10 @@ export class GoogleRecaptchaModule {
         return {
             global: true,
             module: GoogleRecaptchaModule,
-            imports: [
-                ...options.imports || [],
-                httpModule.HttpModule,
-            ],
+            imports: options.imports,
             providers: providers.concat(internalProviders),
             exports: providers,
         };
-    }
-
-    private static resolveHttpModule(): LiteralObject {
-        try {
-            return loadModule('@nestjs/axios');
-        } catch (e) {
-            return loadModule('@nestjs/common');
-        }
     }
 
     private static transformAxiosConfig(axiosConfig: axios.AxiosRequestConfig): axios.AxiosRequestConfig {
