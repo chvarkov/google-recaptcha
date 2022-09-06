@@ -2,8 +2,8 @@ import { GoogleRecaptchaEnterpriseReason } from '../enums/google-recaptcha-enter
 import { ClassificationReason } from '../enums/classification-reason';
 
 export interface VerifyResponseEnterprise {
-	tokenProperties: VerifyResponseEnterpriseTokenProperties;
-	riskAnalysis: VerifyResponseEnterpriseRiskAnalysis;
+	tokenProperties?: VerifyResponseEnterpriseTokenProperties;
+	riskAnalysis?: VerifyResponseEnterpriseRiskAnalysis;
 	event: VerifyTokenEnterpriseResponseEvent;
 	name: string;
 }

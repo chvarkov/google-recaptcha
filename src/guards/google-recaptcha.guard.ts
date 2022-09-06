@@ -42,7 +42,7 @@ export class GoogleRecaptchaGuard implements CanActivate {
 
 		if (this.options.debug) {
 			const loggerCtx = this.resolveLogContext(validator);
-			this.logger.debug(request.recaptchaValidationResult, `${loggerCtx}.result`);
+			this.logger.debug(JSON.stringify(request.recaptchaValidationResult, null, 4), `${loggerCtx}.result`);
 		}
 
 		if (request.recaptchaValidationResult.success) {

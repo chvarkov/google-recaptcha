@@ -108,6 +108,32 @@ describe('HTTP Recaptcha Enterprise', () => {
 		expect(res.body.success).toBe(true);
 	});
 
+	test('Enterprise without token properties', async () => {
+		mockedRecaptchaApi.addResponse<VerifyResponseEnterprise>('test_enterprise_without_token_props', {
+			name: 'name',
+			event: {
+				userIpAddress: '0.0.0.0',
+				siteKey: 'siteKey',
+				userAgent: 'UA',
+				token: '',
+				hashedAccountId: '',
+				expectedAction: 'Submit',
+			},
+		});
+
+		const res: request.Response = await http.post(
+			'/test/submit',
+			{},
+			{
+				headers: {
+					Recaptcha: 'test_enterprise_without_token_props',
+				},
+			}
+		);
+
+		expect(res.statusCode).toBe(400);
+	});
+
 	test('Enterprise API error', async () => {
 		mockedRecaptchaApi.addError<VerifyResponseV2>('test_enterprise_api_err', {
 			statusCode: 400,

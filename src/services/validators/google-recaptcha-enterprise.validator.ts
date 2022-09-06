@@ -33,13 +33,17 @@ export class GoogleRecaptchaEnterpriseValidator extends AbstractGoogleRecaptchaV
 		const [result, errorDetails] = await this.verifyResponse(options.response, options.action);
 
 		const errors: ErrorCode[] = [];
-		let success = result?.tokenProperties.valid || false;
+		let success = result?.tokenProperties?.valid || false;
+
+		if (!success) {
+			errors.push(ErrorCode.InvalidInputResponse);
+		}
 
 		if (errorDetails) {
 			errors.push(ErrorCode.UnknownError);
 		}
 
-		if (result) {
+		if (result?.tokenProperties) {
 			if (result.tokenProperties.invalidReason) {
 				errors.push(this.enterpriseReasonTransformer.transform(result.tokenProperties.invalidReason));
 			}
@@ -48,11 +52,11 @@ export class GoogleRecaptchaEnterpriseValidator extends AbstractGoogleRecaptchaV
 				success = false;
 				errors.push(ErrorCode.ForbiddenAction);
 			}
+		}
 
-			if (!this.isValidScore(result.riskAnalysis.score, options.score)) {
-				success = false;
-				errors.push(ErrorCode.LowScore);
-			}
+		if (result.riskAnalysis && !this.isValidScore(result.riskAnalysis.score, options.score)) {
+			success = false;
+			errors.push(ErrorCode.LowScore);
 		}
 
 		return new RecaptchaVerificationResult({
