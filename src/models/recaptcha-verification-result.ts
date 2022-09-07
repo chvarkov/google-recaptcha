@@ -33,6 +33,17 @@ export class RecaptchaVerificationResult<Res = LiteralObject> {
 		this.nativeResponse = options.nativeResponse;
 	}
 
+	toObject(): LiteralObject {
+		return {
+			success: this.success,
+			hostname: this.hostname,
+			action: this.action,
+			score: this.score,
+			errors: this.errors,
+			nativeResponse: this.nativeResponse,
+		};
+	}
+
 	getResponse(): Res {
 		return this.nativeResponse;
 	}
