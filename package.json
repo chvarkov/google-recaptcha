@@ -17,7 +17,8 @@
 		"lint:check": "eslint . --max-warnings=0",
 		"test": "jest --silent=false",
 		"test:cov": "jest --coverage",
-		"test:coveralls": "jest --runInBand --coverage && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage"
+		"test:coveralls": "jest --runInBand --coverage && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage",
+		"publish-package": "cd dist && npm publish --access public"
 	},
 	"repository": {
 		"type": "git",
