@@ -154,7 +154,7 @@ export class GoogleRecaptchaModule {
 			return {
 				provide: RECAPTCHA_OPTIONS,
 				useFactory: options.useFactory,
-				inject: options.inject || [],
+				inject: options.inject,
 			};
 		}
 

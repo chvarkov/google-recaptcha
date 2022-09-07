@@ -4,13 +4,10 @@ import { ErrorCode } from '../enums/error-code';
 
 @Injectable()
 export class EnterpriseReasonTransformer {
-	transform(errCode: GoogleRecaptchaEnterpriseReason): ErrorCode {
+	transform(errCode: GoogleRecaptchaEnterpriseReason): ErrorCode | null {
 		switch (errCode) {
 			case GoogleRecaptchaEnterpriseReason.BrowserError:
 				return ErrorCode.BrowserError;
-
-			case GoogleRecaptchaEnterpriseReason.UnknownInvalidReason:
-				return ErrorCode.UnknownError;
 
 			case GoogleRecaptchaEnterpriseReason.SiteMismatch:
 				return ErrorCode.SiteMismatch;
@@ -19,6 +16,7 @@ export class EnterpriseReasonTransformer {
 			case GoogleRecaptchaEnterpriseReason.Dupe:
 				return ErrorCode.TimeoutOrDuplicate;
 
+			case GoogleRecaptchaEnterpriseReason.UnknownInvalidReason:
 			case GoogleRecaptchaEnterpriseReason.Malformed:
 				return ErrorCode.InvalidInputResponse;
 
@@ -26,7 +24,7 @@ export class EnterpriseReasonTransformer {
 				return ErrorCode.MissingInputResponse;
 
 			case GoogleRecaptchaEnterpriseReason.InvalidReasonUnspecified:
-				return ErrorCode.UnknownError;
+				return null;
 
 			default:
 				return ErrorCode.UnknownError;

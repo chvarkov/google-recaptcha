@@ -7,11 +7,9 @@ import { MockedRecaptchaApi } from '../../utils/mocked-recaptcha-api';
 import { VerifyResponseV3 } from '../../../src/interfaces/verify-response';
 import { TestHttp } from '../../utils/test-http';
 import { IncomingMessage } from 'http';
-import { Args, Field, GraphQLModule, InputType, Mutation, ObjectType, Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import { Args, Field, GraphQLModule, InputType, Mutation, ObjectType, Query, Resolver } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import * as path from 'path';
-import { GraphQLSchemaBuilder } from '@nestjs/graphql/dist/graphql-schema.builder';
-import { GraphQLSchema } from 'graphql';
 
 @InputType()
 export class FeedbackInput {

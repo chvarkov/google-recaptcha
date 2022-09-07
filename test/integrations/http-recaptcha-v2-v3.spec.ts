@@ -1,5 +1,5 @@
 import { Controller, INestApplication, LiteralObject, Post } from '@nestjs/common';
-import { GoogleRecaptchaModule, Recaptcha, RecaptchaResult, RecaptchaVerificationResult } from '../../src';
+import { ErrorCode, GoogleRecaptchaModule, Recaptcha, RecaptchaResult, RecaptchaVerificationResult } from '../../src';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Request } from 'express';
 import { RECAPTCHA_HTTP_SERVICE } from '../../src/provider.declarations';
@@ -7,6 +7,7 @@ import * as request from 'supertest';
 import { MockedRecaptchaApi } from '../utils/mocked-recaptcha-api';
 import { VerifyResponseV2, VerifyResponseV3 } from '../../src/interfaces/verify-response';
 import { TestHttp } from '../utils/test-http';
+import { TestErrorFilter } from '../assets/test-error-filter';
 
 @Controller('test')
 class TestController {
@@ -55,6 +56,8 @@ describe('HTTP Recaptcha V2 V3', () => {
 
 		app = module.createNestApplication();
 
+		app.useGlobalFilters(new TestErrorFilter());
+
 		await app.init();
 
 		http = new TestHttp(app.getHttpServer());
@@ -100,6 +103,9 @@ describe('HTTP Recaptcha V2 V3', () => {
 		);
 
 		expect(res.statusCode).toBe(500);
+		expect(res.body.errorCodes).toBeDefined();
+		expect(res.body.errorCodes.length).toBe(1);
+		expect(res.body.errorCodes[0]).toBe(ErrorCode.UnknownError);
 	});
 
 	test('V2 Network error', async () => {
@@ -165,6 +171,9 @@ describe('HTTP Recaptcha V2 V3', () => {
 		);
 
 		expect(res.statusCode).toBe(400);
+		expect(res.body.errorCodes).toBeDefined();
+		expect(res.body.errorCodes.length).toBe(1);
+		expect(res.body.errorCodes[0]).toBe(ErrorCode.ForbiddenAction);
 	});
 
 	test('V3 Low score', async () => {
@@ -188,5 +197,8 @@ describe('HTTP Recaptcha V2 V3', () => {
 		);
 
 		expect(res.statusCode).toBe(400);
+		expect(res.body.errorCodes).toBeDefined();
+		expect(res.body.errorCodes.length).toBe(1);
+		expect(res.body.errorCodes[0]).toBe(ErrorCode.LowScore);
 	});
 });
