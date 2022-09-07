@@ -6,8 +6,8 @@ describe('EnterpriseReasonTransformer', () => {
 	const transformer = new EnterpriseReasonTransformer();
 
 	const expectedMap: Map<GoogleRecaptchaEnterpriseReason, ErrorCode> = new Map<GoogleRecaptchaEnterpriseReason, ErrorCode>([
-		[GoogleRecaptchaEnterpriseReason.InvalidReasonUnspecified, ErrorCode.UnknownError],
-		[GoogleRecaptchaEnterpriseReason.UnknownInvalidReason, ErrorCode.UnknownError],
+		[GoogleRecaptchaEnterpriseReason.InvalidReasonUnspecified, null],
+		[GoogleRecaptchaEnterpriseReason.UnknownInvalidReason, ErrorCode.InvalidInputResponse],
 		[GoogleRecaptchaEnterpriseReason.Malformed, ErrorCode.InvalidInputResponse],
 		[GoogleRecaptchaEnterpriseReason.Expired, ErrorCode.TimeoutOrDuplicate],
 		[GoogleRecaptchaEnterpriseReason.Dupe, ErrorCode.TimeoutOrDuplicate],

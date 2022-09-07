@@ -35,28 +35,30 @@ export class GoogleRecaptchaEnterpriseValidator extends AbstractGoogleRecaptchaV
 		const errors: ErrorCode[] = [];
 		let success = result?.tokenProperties?.valid || false;
 
-		if (!success) {
-			errors.push(ErrorCode.InvalidInputResponse);
-		}
+		if (!errorDetails) {
+			if (result.tokenProperties) {
+				if (result.tokenProperties.invalidReason) {
+					const invalidReasonCode = this.enterpriseReasonTransformer.transform(result.tokenProperties.invalidReason);
 
-		if (errorDetails) {
-			errors.push(ErrorCode.UnknownError);
-		}
+					if (invalidReasonCode) {
+						errors.push(invalidReasonCode);
+					}
+				}
 
-		if (result?.tokenProperties) {
-			if (result.tokenProperties.invalidReason) {
-				errors.push(this.enterpriseReasonTransformer.transform(result.tokenProperties.invalidReason));
+				if (success && !this.isValidAction(result.tokenProperties.action, options)) {
+					success = false;
+					errors.push(ErrorCode.ForbiddenAction);
+				}
 			}
 
-			if (!this.isValidAction(result.tokenProperties.action, options)) {
+			if (result.riskAnalysis && !this.isValidScore(result.riskAnalysis.score, options.score)) {
 				success = false;
-				errors.push(ErrorCode.ForbiddenAction);
+				errors.push(ErrorCode.LowScore);
 			}
 		}
 
-		if (result.riskAnalysis && !this.isValidScore(result.riskAnalysis.score, options.score)) {
-			success = false;
-			errors.push(ErrorCode.LowScore);
+		if (!success && !errors.length) {
+			errorDetails ? errors.push(ErrorCode.UnknownError) : errors.push(ErrorCode.InvalidInputResponse);
 		}
 
 		return new RecaptchaVerificationResult({

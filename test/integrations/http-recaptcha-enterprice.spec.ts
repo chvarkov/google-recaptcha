@@ -1,5 +1,5 @@
 import { Controller, INestApplication, LiteralObject, Post } from '@nestjs/common';
-import { ClassificationReason, GoogleRecaptchaModule, Recaptcha, RecaptchaResult, RecaptchaVerificationResult } from '../../src';
+import { ClassificationReason, ErrorCode, GoogleRecaptchaModule, Recaptcha, RecaptchaResult, RecaptchaVerificationResult } from '../../src';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Request } from 'express';
 import { RECAPTCHA_HTTP_SERVICE } from '../../src/provider.declarations';
@@ -9,6 +9,7 @@ import { VerifyResponseV2 } from '../../src/interfaces/verify-response';
 import { TestHttp } from '../utils/test-http';
 import { VerifyResponseEnterprise } from '../../src/interfaces/verify-response-enterprise';
 import { GoogleRecaptchaEnterpriseReason } from '../../src/enums/google-recaptcha-enterprise-reason';
+import { TestErrorFilter } from '../assets/test-error-filter';
 
 @Controller('test')
 class TestController {
@@ -64,6 +65,8 @@ describe('HTTP Recaptcha Enterprise', () => {
 
 		app = module.createNestApplication();
 
+		app.useGlobalFilters(new TestErrorFilter());
+
 		await app.init();
 
 		http = new TestHttp(app.getHttpServer());
@@ -108,6 +111,42 @@ describe('HTTP Recaptcha Enterprise', () => {
 		expect(res.body.success).toBe(true);
 	});
 
+	test('Enterprise token malformed', async () => {
+		mockedRecaptchaApi.addResponse<VerifyResponseEnterprise>('test_enterprise_token_malformed', {
+			name: 'name',
+			event: {
+				userIpAddress: '0.0.0.0',
+				siteKey: 'siteKey',
+				userAgent: 'UA',
+				token: '',
+				hashedAccountId: '',
+				expectedAction: 'Submit',
+			},
+			tokenProperties: {
+				valid: false,
+				invalidReason: GoogleRecaptchaEnterpriseReason.Malformed,
+				hostname: '',
+				action: '',
+				createTime: '1970-01-01T00:00:00Z',
+			},
+		});
+
+		const res: request.Response = await http.post(
+			'/test/submit',
+			{},
+			{
+				headers: {
+					Recaptcha: 'test_enterprise_token_malformed',
+				},
+			}
+		);
+
+		expect(res.statusCode).toBe(400);
+		expect(res.body.errorCodes).toBeDefined();
+		expect(res.body.errorCodes.length).toBe(1);
+		expect(res.body.errorCodes[0]).toBe(ErrorCode.InvalidInputResponse);
+	});
+
 	test('Enterprise without token properties', async () => {
 		mockedRecaptchaApi.addResponse<VerifyResponseEnterprise>('test_enterprise_without_token_props', {
 			name: 'name',
@@ -132,6 +171,10 @@ describe('HTTP Recaptcha Enterprise', () => {
 		);
 
 		expect(res.statusCode).toBe(400);
+
+		expect(res.body.errorCodes).toBeDefined();
+		expect(res.body.errorCodes.length).toBe(1);
+		expect(res.body.errorCodes[0]).toBe(ErrorCode.InvalidInputResponse);
 	});
 
 	test('Enterprise API error', async () => {
@@ -150,6 +193,10 @@ describe('HTTP Recaptcha Enterprise', () => {
 		);
 
 		expect(res.statusCode).toBe(500);
+
+		expect(res.body.errorCodes).toBeDefined();
+		expect(res.body.errorCodes.length).toBe(1);
+		expect(res.body.errorCodes[0]).toBe(ErrorCode.UnknownError);
 	});
 
 	test('Enterprise Network error', async () => {
@@ -168,6 +215,10 @@ describe('HTTP Recaptcha Enterprise', () => {
 		);
 
 		expect(res.statusCode).toBe(500);
+
+		expect(res.body.errorCodes).toBeDefined();
+		expect(res.body.errorCodes.length).toBe(1);
+		expect(res.body.errorCodes[0]).toBe(ErrorCode.NetworkError);
 	});
 
 	test('Enterprise Expired token', async () => {
@@ -205,6 +256,10 @@ describe('HTTP Recaptcha Enterprise', () => {
 		);
 
 		expect(res.statusCode).toBe(400);
+		expect(res.body.errorCodes).toBeDefined();
+		expect(res.body.errorCodes.length).toBe(2);
+		expect(res.body.errorCodes[0]).toBe(ErrorCode.TimeoutOrDuplicate);
+		expect(res.body.errorCodes[1]).toBe(ErrorCode.ForbiddenAction);
 	});
 
 	test('Enterprise Invalid action', async () => {
@@ -277,5 +332,48 @@ describe('HTTP Recaptcha Enterprise', () => {
 		);
 
 		expect(res.statusCode).toBe(400);
+		expect(res.body.errorCodes).toBeDefined();
+		expect(res.body.errorCodes.length).toBe(1);
+		expect(res.body.errorCodes[0]).toBe(ErrorCode.LowScore);
+	});
+
+	test('Enterprise Invalid reason unspecified + low score', async () => {
+		mockedRecaptchaApi.addResponse<VerifyResponseEnterprise>('test_enterprise_inv_reason_unspecified_low_score', {
+			name: 'name',
+			event: {
+				token: 'token',
+				siteKey: 'siteKey',
+				userAgent: '',
+				userIpAddress: '',
+				expectedAction: 'Submit',
+				hashedAccountId: '',
+			},
+			riskAnalysis: {
+				score: 0.6,
+				reasons: [],
+			},
+			tokenProperties: {
+				valid: true,
+				invalidReason: GoogleRecaptchaEnterpriseReason.InvalidReasonUnspecified,
+				hostname: 'localhost',
+				action: 'Submit',
+				createTime: '2022-09-07T19:53:55.566Z',
+			},
+		});
+
+		const res: request.Response = await http.post(
+			'/test/submit',
+			{},
+			{
+				headers: {
+					Recaptcha: 'test_enterprise_inv_reason_unspecified_low_score',
+				},
+			}
+		);
+
+		expect(res.statusCode).toBe(400);
+		expect(res.body.errorCodes).toBeDefined();
+		expect(res.body.errorCodes.length).toBe(1);
+		expect(res.body.errorCodes[0]).toBe(ErrorCode.LowScore);
 	});
 });
