@@ -18,5 +18,5 @@ export interface GoogleRecaptchaModuleAsyncOptions extends Pick<ModuleMetadata, 
 	inject?: Array<InjectionToken | OptionalFactoryDependency>;
 	useClass?: Type<GoogleRecaptchaOptionsFactory>;
 	useExisting?: Type<GoogleRecaptchaOptionsFactory>;
-	useFactory?: (...args: unknown[]) => Promise<GoogleRecaptchaModuleOptions> | GoogleRecaptchaModuleOptions;
+	useFactory?: (...args: any[]) => Promise<GoogleRecaptchaModuleOptions> | GoogleRecaptchaModuleOptions; 	// eslint-disable-line no-explicit-any
 }
