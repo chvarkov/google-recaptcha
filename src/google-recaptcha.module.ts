@@ -52,14 +52,13 @@ export class GoogleRecaptchaModule {
 			},
 			{
 				provide: RECAPTCHA_AXIOS_INSTANCE,
-				useFactory: () =>
-					axios.default.create(
-						this.transformAxiosConfig({
-							...this.axiosDefaultConfig,
-							...options.axiosConfig,
-							headers: null,
-						})
-					),
+				useFactory: (): axios.AxiosInstance => this.createAxiosInstance(
+					this.transformAxiosConfig({
+						...this.axiosDefaultConfig,
+						...options.axiosConfig,
+						headers: null,
+					}),
+				),
 			},
 		];
 
@@ -104,7 +103,7 @@ export class GoogleRecaptchaModule {
 						...options.axiosConfig,
 						headers: null,
 					});
-					return axios.default.create(transformedAxiosConfig);
+					return this.createAxiosInstance(transformedAxiosConfig);
 				},
 				inject: [RECAPTCHA_OPTIONS],
 			},
@@ -179,5 +178,9 @@ export class GoogleRecaptchaModule {
 
 	private static isGoogleRecaptchaFactory(object?: GoogleRecaptchaOptionsFactory): object is GoogleRecaptchaOptionsFactory {
 		return !!object && typeof object.createGoogleRecaptchaOptions === 'function';
+	}
+
+	private static createAxiosInstance(axiosConfig: axios.AxiosRequestConfig): axios.AxiosInstance {
+		return axios['create'](axiosConfig); // TODO: Updated when axios ts declaration will be fixed
 	}
 }

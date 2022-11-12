@@ -1,6 +1,6 @@
 {
 	"name": "@nestlab/google-recaptcha",
-	"version": "3.1.9",
+	"version": "3.2.0",
 	"description": "Google recaptcha module for NestJS.",
 	"keywords": [
 		"nestjs",
@@ -31,11 +31,11 @@
 	},
 	"homepage": "https://github.com/chvarkov/google-recaptcha",
 	"peerDependencies": {
-		"@nestjs/axios": ">=0.0.1 <1.0.0",
+		"@nestjs/axios": ">=1.0.0 <2.0.0",
 		"@nestjs/common": ">=8.0.0 <10.0.0",
 		"@nestjs/core": ">=8.0.0 <10.0.0",
 		"rxjs": ">=7.0.0 <8.0.0",
-		"axios": ">=0.21.0 <0.28.0"
+		"axios": ">=1.0.0 <2.0.0"
 	},
 	"peerDependenciesMeta": {
 		"@nestjs/graphql": {
@@ -44,7 +44,7 @@
 	},
 	"devDependencies": {
 		"@nestjs/apollo": "^10.0.22",
-		"@nestjs/axios": "^0.1.0",
+		"@nestjs/axios": "^1.0.0",
 		"@nestjs/common": "^9.0.11",
 		"@nestjs/core": "^9.0.11",
 		"@nestjs/graphql": "^10.0.22",
