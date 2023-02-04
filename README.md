@@ -235,7 +235,7 @@ Get verification result
 export class FeedbackController {
     @Recaptcha()
     @Post('send')
-    async send(@RecaptchaResult() recaptchaResult: GoogleRecaptchaValidationResult): Promise<any> {
+    async send(@RecaptchaResult() recaptchaResult: RecaptchaVerificationResult): Promise<any> {
         console.log(`Action: ${recaptchaResult.action} Score: ${recaptchaResult.score}`);
         // TODO: Your implementation.
     }
