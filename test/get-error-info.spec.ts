@@ -1,6 +1,6 @@
 import { getErrorInfo } from '../src/helpers/get-error-info';
 import { LiteralObject } from '@nestjs/common';
-import { AxiosError } from 'axios';
+import { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
 describe('getErrorInfo', () => {
 	test('Error', () => {
@@ -23,7 +23,7 @@ describe('getErrorInfo', () => {
 			response: {
 				headers: {},
 				status: 400,
-				config: {},
+				config: {} as InternalAxiosRequestConfig,
 				request: {},
 				statusText: 'Bad request',
 				data: {

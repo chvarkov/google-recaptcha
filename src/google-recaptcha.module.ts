@@ -7,18 +7,17 @@ import {
 	GoogleRecaptchaModuleOptions,
 	GoogleRecaptchaOptionsFactory,
 } from './interfaces/google-recaptcha-module-options';
-import { RECAPTCHA_AXIOS_INSTANCE, RECAPTCHA_HTTP_SERVICE, RECAPTCHA_LOGGER, RECAPTCHA_OPTIONS } from './provider.declarations';
+import { RECAPTCHA_AXIOS_INSTANCE, RECAPTCHA_LOGGER, RECAPTCHA_OPTIONS } from './provider.declarations';
 import { RecaptchaRequestResolver } from './services/recaptcha-request.resolver';
 import { Reflector } from '@nestjs/core';
-import * as axios from 'axios';
+import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import { Agent } from 'https';
 import { RecaptchaValidatorResolver } from './services/recaptcha-validator.resolver';
 import { EnterpriseReasonTransformer } from './services/enterprise-reason.transformer';
 import { xor } from './helpers/xor';
-import { HttpService } from '@nestjs/axios';
 
 export class GoogleRecaptchaModule {
-	private static axiosDefaultConfig: axios.AxiosRequestConfig = {
+	private static axiosDefaultConfig: AxiosRequestConfig = {
 		timeout: 60_000,
 		httpsAgent: new Agent({ keepAlive: true }),
 	};
@@ -46,13 +45,8 @@ export class GoogleRecaptchaModule {
 
 		const internalProviders: Provider[] = [
 			{
-				provide: RECAPTCHA_HTTP_SERVICE,
-				useFactory: (axiosInstance: axios.AxiosInstance) => new HttpService(axiosInstance),
-				inject: [RECAPTCHA_AXIOS_INSTANCE],
-			},
-			{
 				provide: RECAPTCHA_AXIOS_INSTANCE,
-				useFactory: (): axios.AxiosInstance => this.createAxiosInstance(
+				useFactory: (): AxiosInstance => axios.create(
 					this.transformAxiosConfig({
 						...this.axiosDefaultConfig,
 						...options.axiosConfig,
@@ -89,13 +83,8 @@ export class GoogleRecaptchaModule {
 
 		const internalProviders: Provider[] = [
 			{
-				provide: RECAPTCHA_HTTP_SERVICE,
-				useFactory: (axiosInstance: axios.AxiosInstance) => new HttpService(axiosInstance),
-				inject: [RECAPTCHA_AXIOS_INSTANCE],
-			},
-			{
 				provide: RECAPTCHA_AXIOS_INSTANCE,
-				useFactory: (options: GoogleRecaptchaModuleOptions): axios.AxiosInstance => {
+				useFactory: (options: GoogleRecaptchaModuleOptions): AxiosInstance => {
 					this.validateOptions(options);
 
 					const transformedAxiosConfig = this.transformAxiosConfig({
@@ -103,7 +92,7 @@ export class GoogleRecaptchaModule {
 						...options.axiosConfig,
 						headers: null,
 					});
-					return this.createAxiosInstance(transformedAxiosConfig);
+					return axios.create(transformedAxiosConfig);
 				},
 				inject: [RECAPTCHA_OPTIONS],
 			},
@@ -118,7 +107,7 @@ export class GoogleRecaptchaModule {
 		};
 	}
 
-	private static transformAxiosConfig(axiosConfig: axios.AxiosRequestConfig): axios.AxiosRequestConfig {
+	private static transformAxiosConfig(axiosConfig: AxiosRequestConfig): AxiosRequestConfig {
 		const config = { ...axiosConfig };
 
 		delete config.baseURL;
@@ -178,9 +167,5 @@ export class GoogleRecaptchaModule {
 
 	private static isGoogleRecaptchaFactory(object?: GoogleRecaptchaOptionsFactory): object is GoogleRecaptchaOptionsFactory {
 		return !!object && typeof object.createGoogleRecaptchaOptions === 'function';
-	}
-
-	private static createAxiosInstance(axiosConfig: axios.AxiosRequestConfig): axios.AxiosInstance {
-		return axios['create'](axiosConfig); // TODO: Updated when axios ts declaration will be fixed
 	}
 }

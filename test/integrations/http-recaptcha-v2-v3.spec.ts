@@ -2,12 +2,12 @@ import { Controller, INestApplication, LiteralObject, Post } from '@nestjs/commo
 import { ErrorCode, GoogleRecaptchaModule, Recaptcha, RecaptchaResult, RecaptchaVerificationResult } from '../../src';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Request } from 'express';
-import { RECAPTCHA_HTTP_SERVICE } from '../../src/provider.declarations';
 import * as request from 'supertest';
 import { MockedRecaptchaApi } from '../utils/mocked-recaptcha-api';
 import { VerifyResponseV2, VerifyResponseV3 } from '../../src/interfaces/verify-response';
 import { TestHttp } from '../utils/test-http';
 import { TestErrorFilter } from '../assets/test-error-filter';
+import { RECAPTCHA_AXIOS_INSTANCE } from '../../src/provider.declarations';
 
 @Controller('test')
 class TestController {
@@ -48,9 +48,9 @@ describe('HTTP Recaptcha V2 V3', () => {
 			],
 			controllers: [TestController],
 		})
-			.overrideProvider(RECAPTCHA_HTTP_SERVICE)
+			.overrideProvider(RECAPTCHA_AXIOS_INSTANCE)
 			.useFactory({
-				factory: () => mockedRecaptchaApi.getHttpService(),
+				factory: () => mockedRecaptchaApi.getAxios(),
 			})
 			.compile();
 
