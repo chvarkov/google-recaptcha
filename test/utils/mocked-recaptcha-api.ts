@@ -1,7 +1,6 @@
 import { LiteralObject } from '@nestjs/common';
-import { AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
-import { HttpService } from '@nestjs/axios';
-import { Observable, of, throwError } from 'rxjs';
+import axios from 'axios';
+import { AxiosRequestConfig, AxiosResponse, AxiosError, AxiosInstance, InternalAxiosRequestConfig } from "axios";
 import * as qs from 'qs';
 
 export class MockedRecaptchaApi {
@@ -11,11 +10,12 @@ export class MockedRecaptchaApi {
 		{ statusCode?: number; code?: string; payload?: LiteralObject }
 	>();
 
-	getHttpService(): HttpService {
+	getAxios(): AxiosInstance {
 		const responseMap = this.responseMap;
 		const errorMap = this.errorMap;
-		return Object.assign(new HttpService(), {
-			post<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Observable<AxiosResponse<T>> {
+		const instance = axios.create({});
+		return Object.assign(instance, {
+			post<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
 				const resolveFn = (d: any) => d?.['response'] || d?.['event']?.token || null;
 
 				const token = typeof data === 'string' ? resolveFn(qs.parse(data)) : resolveFn(data);
@@ -26,12 +26,12 @@ export class MockedRecaptchaApi {
 					const res: AxiosResponse = {
 						data: response,
 						status: 200,
-						config: {},
+						config: {} as InternalAxiosRequestConfig,
 						request: {},
 						headers: {},
 						statusText: 'OK',
 					};
-					return of(res);
+					return Promise.resolve(res);
 				}
 
 				const errData = errorMap.get(token);
@@ -40,14 +40,13 @@ export class MockedRecaptchaApi {
 					const err: AxiosError = {
 						response: {
 							data: errData.payload,
-							config: {},
 							headers: {},
 							request: {},
+							config: {} as InternalAxiosRequestConfig,
 							status: errData.statusCode,
 							statusText: 'Request was failed',
 						},
 						status: errData.statusCode,
-						config: {},
 						request: data,
 						message: 'Request was failed',
 						isAxiosError: true,
@@ -57,7 +56,7 @@ export class MockedRecaptchaApi {
 						toJSON: () => ({}),
 					};
 
-					return throwError(err);
+					return Promise.reject(err);
 				}
 
 				expect(errData).toBeDefined();

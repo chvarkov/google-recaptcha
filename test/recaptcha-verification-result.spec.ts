@@ -2,11 +2,10 @@ import { Controller, INestApplication, Module, Post } from '@nestjs/common';
 import { GoogleRecaptchaModule, Recaptcha, RecaptchaResult, RecaptchaVerificationResult } from '../src';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Request } from 'express';
-import { RECAPTCHA_HTTP_SERVICE } from '../src/provider.declarations';
-import { HttpService } from '@nestjs/axios';
-import { of } from 'rxjs';
 import { VerifyResponseV3 } from '../src/interfaces/verify-response';
 import * as request from 'supertest';
+import { RECAPTCHA_AXIOS_INSTANCE } from '../src/provider.declarations';
+import axios from 'axios';
 
 @Controller('test')
 class TestController {
@@ -37,7 +36,7 @@ describe('Recaptcha verification result decorator', () => {
 			],
 			controllers: [TestController],
 		})
-			.overrideProvider(RECAPTCHA_HTTP_SERVICE)
+			.overrideProvider(RECAPTCHA_AXIOS_INSTANCE)
 			.useFactory({
 				factory: () => {
 					const responseV3: VerifyResponseV3 = {
@@ -48,9 +47,9 @@ describe('Recaptcha verification result decorator', () => {
 						hostname: 'localhost',
 						challenge_ts: new Date().toISOString(),
 					};
-					return Object.assign(new HttpService(), {
+					return Object.assign(axios.create({}), {
 						post: () =>
-							of({
+							Promise.resolve({
 								data: responseV3,
 							}),
 					});

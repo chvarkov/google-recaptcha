@@ -1,6 +1,5 @@
 import { Inject, Injectable, LiteralObject, Logger } from '@nestjs/common';
-import { RECAPTCHA_HTTP_SERVICE, RECAPTCHA_LOGGER, RECAPTCHA_OPTIONS } from '../../provider.declarations';
-import { HttpService } from '@nestjs/axios';
+import { RECAPTCHA_AXIOS_INSTANCE, RECAPTCHA_LOGGER, RECAPTCHA_OPTIONS } from '../../provider.declarations';
 import { GoogleRecaptchaModuleOptions } from '../../interfaces/google-recaptcha-module-options';
 import { VerifyResponseOptions } from '../../interfaces/verify-response-decorator-options';
 import { AbstractGoogleRecaptchaValidator } from './abstract-google-recaptcha-validator';
@@ -11,8 +10,8 @@ import { GoogleRecaptchaNetworkException } from '../../exceptions/google-recaptc
 import { GoogleRecaptchaContext } from '../../enums/google-recaptcha-context';
 import { VerifyResponseEnterprise, VerifyTokenEnterpriseEvent } from '../../interfaces/verify-response-enterprise';
 import { EnterpriseReasonTransformer } from '../enterprise-reason.transformer';
-import { firstValueFrom } from 'rxjs';
 import { getErrorInfo } from '../../helpers/get-error-info';
+import { AxiosInstance } from 'axios';
 
 type VerifyResponse = [VerifyResponseEnterprise, LiteralObject];
 
@@ -21,7 +20,7 @@ export class GoogleRecaptchaEnterpriseValidator extends AbstractGoogleRecaptchaV
 	private readonly headers = { 'Content-Type': 'application/json' };
 
 	constructor(
-		@Inject(RECAPTCHA_HTTP_SERVICE) private readonly http: HttpService,
+		@Inject(RECAPTCHA_AXIOS_INSTANCE) private readonly axios: AxiosInstance,
 		@Inject(RECAPTCHA_LOGGER) private readonly logger: Logger,
 		@Inject(RECAPTCHA_OPTIONS) options: GoogleRecaptchaModuleOptions,
 		private readonly enterpriseReasonTransformer: EnterpriseReasonTransformer
@@ -94,7 +93,7 @@ export class GoogleRecaptchaEnterpriseValidator extends AbstractGoogleRecaptchaV
 			this.logger.debug({ body }, `${GoogleRecaptchaContext.GoogleRecaptchaEnterprise}.request`);
 		}
 
-		return firstValueFrom(this.http.post<VerifyResponseEnterprise>(url, body, config))
+		return this.axios.post<VerifyResponseEnterprise>(url, body, config)
 			.then((res) => res.data)
 			.then((data): VerifyResponse => {
 				if (this.options.debug) {

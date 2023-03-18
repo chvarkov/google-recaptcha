@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { RECAPTCHA_HTTP_SERVICE, RECAPTCHA_LOGGER, RECAPTCHA_OPTIONS } from '../../provider.declarations';
+import { RECAPTCHA_AXIOS_INSTANCE, RECAPTCHA_LOGGER, RECAPTCHA_OPTIONS } from '../../provider.declarations';
 import * as qs from 'querystring';
 import * as axios from 'axios';
 import { GoogleRecaptchaNetwork } from '../../enums/google-recaptcha-network';
@@ -7,13 +7,12 @@ import { VerifyResponseOptions } from '../../interfaces/verify-response-decorato
 import { VerifyResponseV2, VerifyResponseV3 } from '../../interfaces/verify-response';
 import { ErrorCode } from '../../enums/error-code';
 import { GoogleRecaptchaNetworkException } from '../../exceptions/google-recaptcha-network.exception';
-import { HttpService } from '@nestjs/axios';
 import { GoogleRecaptchaModuleOptions } from '../../interfaces/google-recaptcha-module-options';
 import { AbstractGoogleRecaptchaValidator } from './abstract-google-recaptcha-validator';
 import { RecaptchaVerificationResult } from '../../models/recaptcha-verification-result';
 import { GoogleRecaptchaContext } from '../../enums/google-recaptcha-context';
-import { firstValueFrom } from 'rxjs';
 import { getErrorInfo } from '../../helpers/get-error-info';
+import { AxiosInstance } from 'axios';
 
 @Injectable()
 export class GoogleRecaptchaValidator extends AbstractGoogleRecaptchaValidator<VerifyResponseV3> {
@@ -22,7 +21,7 @@ export class GoogleRecaptchaValidator extends AbstractGoogleRecaptchaValidator<V
 	private readonly headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
 
 	constructor(
-		@Inject(RECAPTCHA_HTTP_SERVICE) private readonly http: HttpService,
+		@Inject(RECAPTCHA_AXIOS_INSTANCE) private readonly axios: AxiosInstance,
 		@Inject(RECAPTCHA_LOGGER) private readonly logger: Logger,
 		@Inject(RECAPTCHA_OPTIONS) options: GoogleRecaptchaModuleOptions
 	) {
@@ -82,7 +81,7 @@ export class GoogleRecaptchaValidator extends AbstractGoogleRecaptchaValidator<V
 			this.logger.debug({ body }, `${GoogleRecaptchaContext.GoogleRecaptcha}.request`);
 		}
 
-		return firstValueFrom(this.http.post(url, body, config))
+		return this.axios.post(url, body, config)
 			.then((res) => res.data)
 			.then((data) => {
 				if (this.options.debug) {

@@ -5,7 +5,7 @@ import { TestConfigModule } from './assets/test-config-module';
 import { TestConfigService } from './assets/test-config-service';
 import { GoogleRecaptchaModuleOptionsFactory } from './assets/test-recaptcha-options-factory';
 import { HttpModule, HttpService } from '@nestjs/axios';
-import { RECAPTCHA_AXIOS_INSTANCE, RECAPTCHA_HTTP_SERVICE, RECAPTCHA_OPTIONS } from '../src/provider.declarations';
+import { RECAPTCHA_AXIOS_INSTANCE, RECAPTCHA_OPTIONS } from '../src/provider.declarations';
 import { AxiosInstance, AxiosProxyConfig, AxiosRequestConfig } from 'axios';
 import * as https from 'https';
 import { Type } from '@nestjs/common';
@@ -72,9 +72,7 @@ describe('Google recaptcha async module', () => {
 
 		expect(options.axiosConfig.data).toBe('TEST');
 
-		const httpService: HttpService = app.get(RECAPTCHA_HTTP_SERVICE);
-
-		const httpsAgent: https.Agent = httpService.axiosRef.defaults.httpsAgent;
+		const httpsAgent: https.Agent = axiosInstance.defaults.httpsAgent;
 
 		expect(httpsAgent).toBeInstanceOf(https.Agent);
 		expect(httpsAgent.options.timeout).toBe(17_000);

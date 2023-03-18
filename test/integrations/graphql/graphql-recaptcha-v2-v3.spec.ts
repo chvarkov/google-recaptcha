@@ -1,7 +1,6 @@
 import { INestApplication, Module } from '@nestjs/common';
 import { GoogleRecaptchaModule, Recaptcha, RecaptchaResult, RecaptchaVerificationResult } from '../../../src';
 import { Test, TestingModule } from '@nestjs/testing';
-import { RECAPTCHA_HTTP_SERVICE } from '../../../src/provider.declarations';
 import * as request from 'supertest';
 import { MockedRecaptchaApi } from '../../utils/mocked-recaptcha-api';
 import { VerifyResponseV3 } from '../../../src/interfaces/verify-response';
@@ -10,6 +9,7 @@ import { IncomingMessage } from 'http';
 import { Args, Field, GraphQLModule, InputType, Mutation, ObjectType, Query, Resolver } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import * as path from 'path';
+import { RECAPTCHA_AXIOS_INSTANCE } from '../../../src/provider.declarations';
 
 @InputType()
 export class FeedbackInput {
@@ -81,9 +81,9 @@ describe('HTTP Recaptcha V2 V3', () => {
 				}),
 			],
 		})
-			.overrideProvider(RECAPTCHA_HTTP_SERVICE)
+			.overrideProvider(RECAPTCHA_AXIOS_INSTANCE)
 			.useFactory({
-				factory: () => mockedRecaptchaApi.getHttpService(),
+				factory: () => mockedRecaptchaApi.getAxios(),
 			})
 			.compile();
 
