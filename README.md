@@ -26,7 +26,7 @@ This package provides protection for endpoints using [reCAPTCHA](https://www.goo
   * [REST application](#usage-in-rest-application)
   * [Graphql application](#usage-in-graphql-application)
   * [Validate in service](#validate-in-service)
-  * [Validate in service (enterprise)](#validate-in-service-enterprise)
+  * [Validate in service (Enterprise)](#validate-in-service-enterprise)
   * [Error handling](#error-handling)
 * [Contribution](#contribution)
 * [License](#license)
