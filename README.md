@@ -1,12 +1,13 @@
 # @nestlab/google-recaptcha
 
+This package provides protection for endpoints using [reCAPTCHA](https://www.google.com/recaptcha/about/) for [NestJS](https://docs.nestjs.com/) REST and GraphQL applications. By integrating with reCAPTCHA, this package helps to prevent automated abuse such as spam and bots, improving the security and reliability of your application.
+
 [![NPM Version](https://img.shields.io/npm/v/@nestlab/google-recaptcha.svg)](https://www.npmjs.com/package/@nestlab/google-recaptcha)
 [![Licence](https://img.shields.io/npm/l/@nestlab/google-recaptcha.svg)](https://github.com/chvarkov/google-recaptcha/blob/master/LICENSE)
 [![NPM Downloads](https://img.shields.io/npm/dm/@nestlab/google-recaptcha.svg)](https://www.npmjs.com/package/@nestlab/google-recaptcha)
 [![Circle CI build](https://img.shields.io/circleci/build/github/chvarkov/google-recaptcha/master)](https://github.com/chvarkov/google-recaptcha/tree/master)
 [![Coverage Status](https://coveralls.io/repos/github/chvarkov/google-recaptcha/badge.svg?branch=master)](https://coveralls.io/github/chvarkov/google-recaptcha?branch=master)
 
-The [NestJS](https://docs.nestjs.com/) module that provides endpoint protection using [reCAPTCHA](https://www.google.com/recaptcha/about/).
 ## Table of Contents
 
 * [Installation](#installation)
