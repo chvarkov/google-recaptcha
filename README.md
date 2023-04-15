@@ -290,6 +290,136 @@ export class AppModule {
 
 ## Usage
 
+### Usage in REST application
+
+To protect your REST endpoints, you can use the `@Recaptcha` decorator.<br/>Example:
+
+```typescript
+
+@Controller('feedback')
+export class FeedbackController {
+    @Recaptcha()
+    @Post('send')
+    async send(): Promise<any> {
+        // TODO: Your implementation.
+    }
+}
+
+```
+
+You can also override the default property that contains reCAPTCHA for a specific endpoint.<br/>
+
+```typescript
+
+@Controller('feedback')
+export class FeedbackController {
+    @Recaptcha({response: req => req.body.recaptha})
+    @Post('send')
+    async send(): Promise<any> {
+        // TODO: Your implementation.
+    }
+}
+
+```
+
+Additionally, you can override reCAPTCHA v3 options.<br/>
+
+```typescript
+
+@Controller('feedback')
+export class FeedbackController {
+    @Recaptcha({response: req => req.body.recaptha, action: 'Send', score: 0.8})
+    @Post('send')
+    async send(): Promise<any> {
+        // TODO: Your implementation.
+    }
+}
+
+```
+
+To get the verification result, you can use the @RecaptchaResult() decorator.<br/>
+
+```typescript
+
+@Controller('feedback')
+export class FeedbackController {
+    @Recaptcha()
+    @Post('send')
+    async send(@RecaptchaResult() recaptchaResult: RecaptchaVerificationResult): Promise<any> {
+        console.log(`Action: ${recaptchaResult.action} Score: ${recaptchaResult.score}`);
+        // TODO: Your implementation.
+    }
+}
+
+```
+
+If you want to use the Google reCAPTCHA guard in combination with other guards, you can use the `@UseGuards` decorator.<br/>
+```typescript
+
+@Controller('feedback')
+export class FeedbackController {
+    @SetRecaptchaOptions({action: 'Send', score: 0.8})
+    @UseGuards(Guard1, GoogleRecaptchaGuard, Guard2)
+    @Post('send')
+    async send(): Promise<any> {
+        // TODO: Your implementation.
+    }
+}
+
+```
+
+You can find a usage example in the following [link](https://github.com/chvarkov/google-recaptcha-example).
+
+### Usage in Graphql application
+
+To protect your resolver, use the `@Recaptcha` decorator.
+
+```typescript
+@Recaptcha()
+@Resolver(of => Recipe)
+export class RecipesResolver {
+    @Query(returns => Recipe)
+    async recipe(@Args('id') id: string): Promise<Recipe> {
+        // TODO: Your implementation.
+    }
+}
+```
+
+Obtain verification result:
+
+```typescript
+@Recaptcha()
+@Resolver(of => Recipe)
+export class RecipesResolver {
+    @Query(returns => Recipe)
+    async recipe(@Args('id') id: string,
+                 @RecaptchaResult() recaptchaResult: RecaptchaVerificationResult): Promise<Recipe> {
+        console.log(`Action: ${recaptchaResult.action} Score: ${recaptchaResult.score}`);
+        // TODO: Your implementation.
+    }
+}
+```
+
+You can override the default recaptcha property for a specific endpoint.
+
+```typescript
+@Recaptcha()
+@Resolver(of => Recipe)
+export class RecipesResolver {
+    @Query(returns => Recipe)
+    async recipe(@Args('id') id: string): Promise<Recipe> {
+        // TODO: Your implementation.
+    }
+
+    // Overridden default header. This query using X-Recaptcha header 
+    @Recaptcha({response: (req: IncomingMessage) => (req.headers['x-recaptcha'] || '').toString()})
+    @Query(returns => [Recipe])
+    recipes(@Args() recipesArgs: RecipesArgs): Promise<Recipe[]> {
+        // TODO: Your implementation.
+    }
+}
+```
+
 ### Validate in service
 
 ```typescript
@@ -335,137 +465,6 @@ export class SomeService {
         const riskAnalytics = result.getEnterpriseRiskAnalytics();
         
         // TODO: Your implemetation
-    }
-}
-```
-
-### Usage in REST application
-
-Use `@Recaptcha` decorator to protect your endpoints.
-
-```typescript
-
-@Controller('feedback')
-export class FeedbackController {
-    @Recaptcha()
-    @Post('send')
-    async send(): Promise<any> {
-        // TODO: Your implementation.
-    }
-}
-
-```
-
-You can override default property that contain recaptcha for specific endpoint.
-
-```typescript
-
-@Controller('feedback')
-export class FeedbackController {
-    @Recaptcha({response: req => req.body.recaptha})
-    @Post('send')
-    async send(): Promise<any> {
-        // TODO: Your implementation.
-    }
-}
-
-```
-
-Also you can override recaptcha v3 options.
-
-```typescript
-
-@Controller('feedback')
-export class FeedbackController {
-    @Recaptcha({response: req => req.body.recaptha, action: 'Send', score: 0.8})
-    @Post('send')
-    async send(): Promise<any> {
-        // TODO: Your implementation.
-    }
-}
-
-```
-
-Get verification result
-
-```typescript
-
-@Controller('feedback')
-export class FeedbackController {
-    @Recaptcha()
-    @Post('send')
-    async send(@RecaptchaResult() recaptchaResult: RecaptchaVerificationResult): Promise<any> {
-        console.log(`Action: ${recaptchaResult.action} Score: ${recaptchaResult.score}`);
-        // TODO: Your implementation.
-    }
-}
-
-```
-
-If you want use google recaptcha guard in combination with another guards then you can use `@UseGuards` decorator.
-
-```typescript
-
-@Controller('feedback')
-export class FeedbackController {
-    @SetRecaptchaOptions({action: 'Send', score: 0.8})
-    @UseGuards(Guard1, GoogleRecaptchaGuard, Guard2)
-    @Post('send')
-    async send(): Promise<any> {
-        // TODO: Your implementation.
-    }
-}
-
-```
-
-Usage example you can find [here](https://github.com/chvarkov/google-recaptcha-example).
-
-### Usage in Graphql application
-
-Use `@Recaptcha` decorator to protect your resolver.
-
-```typescript
-@Recaptcha()
-@Resolver(of => Recipe)
-export class RecipesResolver {
-    @Query(returns => Recipe)
-    async recipe(@Args('id') id: string): Promise<Recipe> {
-        // TODO: Your implementation.
-    }
-}
-```
-
-Get verification result
-
-```typescript
-@Recaptcha()
-@Resolver(of => Recipe)
-export class RecipesResolver {
-    @Query(returns => Recipe)
-    async recipe(@Args('id') id: string,
-                 @RecaptchaResult() recaptchaResult: RecaptchaVerificationResult): Promise<Recipe> {
-        console.log(`Action: ${recaptchaResult.action} Score: ${recaptchaResult.score}`);
-        // TODO: Your implementation.
-    }
-}
-```
-
-You can override default property that contain recaptcha for specific query, mutation or subscription.
-
-```typescript
-@Recaptcha()
-@Resolver(of => Recipe)
-export class RecipesResolver {
-    @Query(returns => Recipe)
-    async recipe(@Args('id') id: string): Promise<Recipe> {
-        // TODO: Your implementation.
-    }
-
-    // Overridden default header. This query using X-Recaptcha header 
-    @Recaptcha({response: (req: IncomingMessage) => (req.headers['x-recaptcha'] || '').toString()})
-    @Query(returns => [Recipe])
-    recipes(@Args() recipesArgs: RecipesArgs): Promise<Recipe[]> {
-        // TODO: Your implementation.
     }
 }
 ```
