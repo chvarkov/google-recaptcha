@@ -1,5 +1,9 @@
 # Changelog
 
+## v3.3.1
+- Reworked readme docs.
+- Added changelog file.
+
 ## v3.3.0
 - Reworked to use axios instead of @nestjs/axios.
 - Removed peer dependencies:
