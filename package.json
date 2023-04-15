@@ -11,7 +11,7 @@
 	"private": false,
 	"main": "index.js",
 	"scripts": {
-		"build": "rimraf dist && tsc && cp package.json dist && cp README.md dist && cp LICENSE dist && cp CONTRIBUTING.md dist",
+		"build": "rimraf dist && tsc && cp package.json dist && cp README.md dist && cp LICENSE dist && cp CONTRIBUTING.md dist && cp CHANGELOG.md dist",
 		"format": "prettier \"**/*.ts\" \"**/*.json\" --ignore-path ./.prettierignore --write",
 		"lint:fix": "eslint . --fix",
 		"lint:check": "eslint . --max-warnings=0",
