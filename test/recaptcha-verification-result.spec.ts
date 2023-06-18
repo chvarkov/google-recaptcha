@@ -1,4 +1,4 @@
-import { Controller, INestApplication, Module, Post } from '@nestjs/common';
+import { Controller, INestApplication, Post } from '@nestjs/common';
 import { GoogleRecaptchaModule, Recaptcha, RecaptchaResult, RecaptchaVerificationResult } from '../src';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Request } from 'express';

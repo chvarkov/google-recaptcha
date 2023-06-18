@@ -1,5 +1,5 @@
 import * as request from 'supertest';
-import { LiteralObject } from '@nestjs/common';
+import { LiteralObject } from '../../src/interfaces/literal-object';
 
 export interface ITestHttpRequestOptions {
 	responseType?: 'stream' | 'json' | 'blob';

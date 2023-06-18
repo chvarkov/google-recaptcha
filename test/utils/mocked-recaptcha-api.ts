@@ -1,4 +1,4 @@
-import { LiteralObject } from '@nestjs/common';
+import { LiteralObject } from '../../src/interfaces/literal-object';
 import axios from 'axios';
 import { AxiosRequestConfig, AxiosResponse, AxiosError, AxiosInstance, InternalAxiosRequestConfig } from "axios";
 import * as qs from 'qs';
