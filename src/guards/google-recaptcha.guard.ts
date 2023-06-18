@@ -1,4 +1,4 @@
-import { CanActivate, ExecutionContext, Inject, Injectable, LiteralObject, Logger } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Inject, Injectable, Logger } from '@nestjs/common';
 import { RECAPTCHA_LOGGER, RECAPTCHA_OPTIONS, RECAPTCHA_VALIDATION_OPTIONS } from '../provider.declarations';
 import { GoogleRecaptchaException } from '../exceptions/google-recaptcha.exception';
 import { Reflector } from '@nestjs/core';
@@ -9,6 +9,7 @@ import { RecaptchaValidatorResolver } from '../services/recaptcha-validator.reso
 import { GoogleRecaptchaContext } from '../enums/google-recaptcha-context';
 import { AbstractGoogleRecaptchaValidator } from '../services/validators/abstract-google-recaptcha-validator';
 import { GoogleRecaptchaEnterpriseValidator } from '../services/validators/google-recaptcha-enterprise.validator';
+import { LiteralObject } from '../interfaces/literal-object';
 
 @Injectable()
 export class GoogleRecaptchaGuard implements CanActivate {

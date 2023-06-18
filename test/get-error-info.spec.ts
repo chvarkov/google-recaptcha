@@ -1,5 +1,5 @@
 import { getErrorInfo } from '../src/helpers/get-error-info';
-import { LiteralObject } from '@nestjs/common';
+import { LiteralObject } from '../src/interfaces/literal-object';
 import { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
 describe('getErrorInfo', () => {
