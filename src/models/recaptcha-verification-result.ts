@@ -1,6 +1,6 @@
 import { ErrorCode } from '../enums/error-code';
 import { VerifyResponseEnterpriseRiskAnalysis } from '../interfaces/verify-response-enterprise';
-import { LiteralObject } from '@nestjs/common';
+import { LiteralObject } from '../interfaces/literal-object';
 
 export interface RecaptchaVerificationResultOptions<Res> {
 	success: boolean;

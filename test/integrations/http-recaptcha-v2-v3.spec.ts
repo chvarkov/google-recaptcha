@@ -1,4 +1,4 @@
-import { Controller, INestApplication, LiteralObject, Post } from '@nestjs/common';
+import { Controller, INestApplication, Post } from '@nestjs/common';
 import { ErrorCode, GoogleRecaptchaModule, Recaptcha, RecaptchaResult, RecaptchaVerificationResult } from '../../src';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Request } from 'express';
@@ -8,6 +8,7 @@ import { VerifyResponseV2, VerifyResponseV3 } from '../../src/interfaces/verify-
 import { TestHttp } from '../utils/test-http';
 import { TestErrorFilter } from '../assets/test-error-filter';
 import { RECAPTCHA_AXIOS_INSTANCE } from '../../src/provider.declarations';
+import { LiteralObject } from '../../src/interfaces/literal-object';
 
 @Controller('test')
 class TestController {

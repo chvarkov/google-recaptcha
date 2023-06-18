@@ -1,4 +1,4 @@
-import { Inject, Injectable, LiteralObject, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { RECAPTCHA_AXIOS_INSTANCE, RECAPTCHA_LOGGER, RECAPTCHA_OPTIONS } from '../../provider.declarations';
 import { GoogleRecaptchaModuleOptions } from '../../interfaces/google-recaptcha-module-options';
 import { VerifyResponseOptions } from '../../interfaces/verify-response-decorator-options';
@@ -12,6 +12,7 @@ import { VerifyResponseEnterprise, VerifyTokenEnterpriseEvent } from '../../inte
 import { EnterpriseReasonTransformer } from '../enterprise-reason.transformer';
 import { getErrorInfo } from '../../helpers/get-error-info';
 import { AxiosInstance } from 'axios';
+import { LiteralObject } from '../../interfaces/literal-object';
 
 type VerifyResponse = [VerifyResponseEnterprise, LiteralObject];
 

@@ -1,5 +1,6 @@
-import { LiteralObject } from '@nestjs/common';
+
 import * as axios from 'axios';
+import { LiteralObject } from '../interfaces/literal-object';
 
 export function isAxiosError(error: Error | axios.AxiosError): error is axios.AxiosError {
 	return (<axios.AxiosError>error).isAxiosError;

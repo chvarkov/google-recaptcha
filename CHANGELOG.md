@@ -1,5 +1,8 @@
 # Changelog
 
+## v3.4.1
+- Fixed import LiteralObject for NestJS 10
+
 ## v3.4.0
 - Upgraded peer dependencies versions:
 	- `@nestjs/common`: >=8.0.0 <11.0.0

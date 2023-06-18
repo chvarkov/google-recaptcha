@@ -67,7 +67,6 @@ describe('HTTP Recaptcha V2 V3', () => {
 				TestModule,
 				GraphQLModule.forRoot<ApolloDriverConfig>({
 					include: [TestModule],
-					debug: false,
 					playground: false,
 					driver: ApolloDriver,
 					autoSchemaFile: path.join(__dirname, 'schema.gql'),
