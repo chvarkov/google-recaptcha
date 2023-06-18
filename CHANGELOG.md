@@ -1,5 +1,10 @@
 # Changelog
 
+## v3.4.0
+- Upgraded peer dependencies versions:
+	- `@nestjs/common`: >=8.0.0 <11.0.0
+	- `@nestjs/core`: >=8.0.0 <11.0.0
+
 ## v3.3.1
 - Reworked readme docs.
 - Added changelog file.
