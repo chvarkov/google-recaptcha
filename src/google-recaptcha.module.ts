@@ -57,7 +57,7 @@ export class GoogleRecaptchaModule {
 		];
 
 		return {
-			global: true,
+			global: options.global != null ? options.global : true,
 			module: GoogleRecaptchaModule,
 			providers: providers.concat(internalProviders),
 			exports: providers,
@@ -99,7 +99,7 @@ export class GoogleRecaptchaModule {
 		];
 
 		return {
-			global: true,
+			global: options.global != null ? options.global : true,
 			module: GoogleRecaptchaModule,
 			imports: options.imports,
 			providers: providers.concat(internalProviders),

@@ -8,6 +8,7 @@ import { OptionalFactoryDependency } from '@nestjs/common/interfaces/modules/opt
 export interface GoogleRecaptchaModuleOptions extends GoogleRecaptchaValidatorOptions, GoogleRecaptchaGuardOptions {
 	debug?: boolean;
 	logger?: Logger;
+	global?: boolean;
 }
 
 export interface GoogleRecaptchaOptionsFactory {
@@ -19,5 +20,6 @@ export interface GoogleRecaptchaModuleAsyncOptions extends Pick<ModuleMetadata, 
 	useClass?: Type<GoogleRecaptchaOptionsFactory>;
 	useExisting?: Type<GoogleRecaptchaOptionsFactory>;
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	useFactory?: (...args: any[]) => Promise<GoogleRecaptchaModuleOptions> | GoogleRecaptchaModuleOptions;
+	useFactory?: (...args: any[]) => Promise<Omit<GoogleRecaptchaModuleOptions, 'global'>> | Omit<GoogleRecaptchaModuleOptions, 'global'>;
+	global?: boolean;
 }
