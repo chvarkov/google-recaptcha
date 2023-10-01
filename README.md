@@ -1,4 +1,4 @@
-# @nestlab/google-recaptcha
+# Google recaptcha module
 
 This package provides protection for endpoints using [reCAPTCHA](https://www.google.com/recaptcha/about/) for [NestJS](https://docs.nestjs.com/) REST and GraphQL applications. By integrating with reCAPTCHA, this package helps to prevent automated abuse such as spam and bots, improving the security and reliability of your application.
 
@@ -62,6 +62,7 @@ The list of changes made in the project can be found in the [CHANGELOG.md](./CHA
 | `score`           | Optional.<br> Type: `number` \| `(score: number) => boolean`<br> Score validator for reCAPTCHA v3 or enterprise. <br> `number` - minimum available score. <br> `(score: number) => boolean` - function with custom validation rules. |
 | `actions`         | Optional.<br> Type: `string[]`<br> Available action list for reCAPTCHA v3 or enterprise. <br> You can make this check stricter by passing the action property parameter to `@Recaptcha(...)` decorator. |
 | `axiosConfig`     | Optional.<br> Type: `AxiosRequestConfig`<br> Allows to setup proxy, response timeout, https agent etc... |
+| `global`     		| Optional.<br> Type: `boolean` <br> Default: `false` Defines a module in the [global scope](https://docs.nestjs.com/modules#global-modules). |
 
 **GoogleRecaptchaEnterpriseOptions**
 

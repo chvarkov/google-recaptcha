@@ -1,5 +1,8 @@
 # Changelog
 
+## v3.5.0
+- Added `global?: boolean` module option
+
 ## v3.4.1
 - Fixed import LiteralObject for NestJS 10
 

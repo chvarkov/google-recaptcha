@@ -47,6 +47,7 @@ describe('Google recaptcha async module', () => {
 						axiosConfig: { ...http.axiosRef.defaults, headers: {} },
 					}),
 					inject: [TestConfigService, HttpService],
+					global: false,
 				}),
 			],
 		}).compile();

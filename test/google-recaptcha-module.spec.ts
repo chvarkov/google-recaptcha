@@ -23,6 +23,7 @@ describe('Google recaptcha module', () => {
 			response: (req) => req.headers.authorization,
 			skipIf: () => process.env.NODE_ENV !== 'production',
 			network: customNetwork,
+			global: false,
 		});
 	});
 
