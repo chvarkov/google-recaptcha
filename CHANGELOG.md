@@ -1,5 +1,11 @@
 # Changelog
 
+## v3.6.0
+- Added `remoteIp?: (req) => string` option into:
+  - Module options
+  - Decorator options to override default
+  - Validator options
+
 ## v3.5.0
 - Added `global?: boolean` module option
 
