@@ -30,7 +30,7 @@ export class GoogleRecaptchaEnterpriseValidator extends AbstractGoogleRecaptchaV
 	}
 
 	async validate(options: VerifyResponseOptions): Promise<RecaptchaVerificationResult<VerifyResponseEnterprise>> {
-		const [result, errorDetails] = await this.verifyResponse(options.response, options.action);
+		const [result, errorDetails] = await this.verifyResponse(options.response, options.action, options.remoteIp);
 
 		const errors: ErrorCode[] = [];
 		let success = result?.tokenProperties?.valid || false;
@@ -65,19 +65,21 @@ export class GoogleRecaptchaEnterpriseValidator extends AbstractGoogleRecaptchaV
 			success,
 			errors,
 			nativeResponse: result,
+			remoteIp: options.remoteIp,
 			score: result?.riskAnalysis?.score,
 			action: result?.tokenProperties?.action,
 			hostname: result?.tokenProperties?.hostname || '',
 		});
 	}
 
-	private verifyResponse(response: string, expectedAction: string): Promise<VerifyResponse> {
+	private verifyResponse(response: string, expectedAction: string, remoteIp: string): Promise<VerifyResponse> {
 		const projectId = this.options.enterprise.projectId;
 		const body: { event: VerifyTokenEnterpriseEvent } = {
 			event: {
 				expectedAction,
 				siteKey: this.options.enterprise.siteKey,
 				token: response,
+				userIpAddress: remoteIp,
 			},
 		};
 

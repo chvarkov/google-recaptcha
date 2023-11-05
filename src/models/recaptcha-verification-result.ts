@@ -8,6 +8,7 @@ export interface RecaptchaVerificationResultOptions<Res> {
 	hostname: string;
 	action?: string;
 	score?: number;
+	remoteIp?: string;
 	errors: ErrorCode[];
 }
 
@@ -15,6 +16,8 @@ export class RecaptchaVerificationResult<Res = LiteralObject> {
 	readonly success: boolean;
 
 	readonly hostname: string;
+
+	readonly remoteIp: string | undefined;
 
 	readonly action: string | undefined;
 
@@ -28,6 +31,7 @@ export class RecaptchaVerificationResult<Res = LiteralObject> {
 		this.success = options.success;
 		this.hostname = options.hostname;
 		this.action = options.action;
+		this.remoteIp = options.remoteIp;
 		this.score = options.score;
 		this.errors = options.errors;
 		this.nativeResponse = options.nativeResponse;
@@ -39,6 +43,7 @@ export class RecaptchaVerificationResult<Res = LiteralObject> {
 			hostname: this.hostname,
 			action: this.action,
 			score: this.score,
+			remoteIp: this.remoteIp,
 			errors: this.errors,
 			nativeResponse: this.nativeResponse,
 		};

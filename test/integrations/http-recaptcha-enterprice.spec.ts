@@ -14,11 +14,13 @@ import { LiteralObject } from '../../src/interfaces/literal-object';
 
 @Controller('test')
 class TestController {
-	@Recaptcha({ response: (req) => req.headers.recaptcha, action: 'Submit', score: 0.7 })
+	@Recaptcha({ response: (req) => req.headers.recaptcha, action: 'Submit', score: 0.7, remoteIp: () => 'IP_ADDR' })
 	@Post('submit')
 	testAction(@RecaptchaResult() result: RecaptchaVerificationResult): LiteralObject {
 		expect(result).toBeInstanceOf(RecaptchaVerificationResult);
 		expect(result.success).toBeTruthy();
+
+		expect(result.remoteIp).toBe('IP_ADDR');
 
 		expect(result.getResponse()).toBeDefined();
 
@@ -54,6 +56,7 @@ describe('HTTP Recaptcha Enterprise', () => {
 					},
 					score: 0.6,
 					actions: ['ShouldBeOverwritten'],
+					remoteIp: () => 'SOME_IP',
 				}),
 			],
 			controllers: [TestController],

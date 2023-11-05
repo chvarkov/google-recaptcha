@@ -12,6 +12,7 @@ export interface VerifyTokenEnterpriseEvent {
 	token: string;
 	siteKey: string;
 	expectedAction: string;
+	userIpAddress?: string;
 }
 
 export interface VerifyTokenEnterpriseResponseEvent extends VerifyTokenEnterpriseEvent {

@@ -17,6 +17,7 @@ class TestController {
 	testAction(@RecaptchaResult() result: RecaptchaVerificationResult): LiteralObject {
 		expect(result).toBeInstanceOf(RecaptchaVerificationResult);
 		expect(result.success).toBeTruthy();
+		expect(result.remoteIp).toBe('IP_ADDR')
 
 		expect(result.getResponse()).toBeDefined();
 
@@ -45,6 +46,7 @@ describe('HTTP Recaptcha V2 V3', () => {
 					secretKey: 'secret_key',
 					score: 0.6,
 					actions: ['Submit'],
+					remoteIp: () => 'IP_ADDR',
 				}),
 			],
 			controllers: [TestController],
