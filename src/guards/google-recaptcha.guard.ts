@@ -32,14 +32,17 @@ export class GoogleRecaptchaGuard implements CanActivate {
 
 		const options: VerifyResponseDecoratorOptions = this.reflector.get(RECAPTCHA_VALIDATION_OPTIONS, context.getHandler());
 
-		const response = options?.response ? await options.response(request) : await this.options.response(request);
+		const [response, remoteIp] = await Promise.all([
+			options?.response ? await options.response(request) : await this.options.response(request),
+			options?.remoteIp ? await options.remoteIp(request) : await this.options.remoteIp && this.options.remoteIp(request),
+		]);
 
 		const score = options?.score || this.options.score;
 		const action = options?.action;
 
 		const validator = this.validatorResolver.resolve();
 
-		request.recaptchaValidationResult = await validator.validate({ response, score, action });
+		request.recaptchaValidationResult = await validator.validate({ response, remoteIp, score, action });
 
 		if (this.options.debug) {
 			const loggerCtx = this.resolveLogContext(validator);
