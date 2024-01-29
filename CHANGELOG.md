@@ -1,5 +1,8 @@
 # Changelog
 
+## v3.7.0
+- Added `RecaptchaConfigRef` for dynamic configuration
+
 ## v3.6.0
 - Added `remoteIp?: (req) => string` option into:
   - Module options
