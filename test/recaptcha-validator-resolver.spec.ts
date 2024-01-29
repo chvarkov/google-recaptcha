@@ -1,12 +1,13 @@
 import { GoogleRecaptchaEnterpriseValidator, GoogleRecaptchaModuleOptions, GoogleRecaptchaValidator } from '../src';
 import { RecaptchaValidatorResolver } from '../src/services/recaptcha-validator.resolver';
+import { RecaptchaConfigRef } from '../src/models/recaptcha-config-ref';
 
 describe('RecaptchaValidatorResolver', () => {
 	const validator = new GoogleRecaptchaValidator(null, null, null);
 	const enterpriseValidator = new GoogleRecaptchaEnterpriseValidator(null, null, null, null);
 
 	const createResolver = (options: GoogleRecaptchaModuleOptions) =>
-		new RecaptchaValidatorResolver(options, validator, enterpriseValidator);
+		new RecaptchaValidatorResolver(new RecaptchaConfigRef(options), validator, enterpriseValidator);
 
 	test('resolve', () => {
 		const moduleOptions: GoogleRecaptchaModuleOptions = {

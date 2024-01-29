@@ -27,6 +27,7 @@ This package provides protection for endpoints using [reCAPTCHA](https://www.goo
   * [Graphql application](#usage-in-graphql-application)
   * [Validate in service](#validate-in-service)
   * [Validate in service (Enterprise)](#validate-in-service-enterprise)
+  * [Dynamic Recaptcha configuration](#dynamic-recaptcha-configuration)
   * [Error handling](#error-handling)
 * [Contribution](#contribution)
 * [License](#license)
@@ -470,6 +471,57 @@ export class SomeService {
     }
 }
 ```
+
+### Dynamic Recaptcha configuration
+The `RecaptchaConfigRef` class provides a convenient way to modify Recaptcha validation parameters within your application.
+This can be particularly useful in scenarios where the administration of Recaptcha is managed dynamically, such as by an administrator.
+The class exposes methods that allow the customization of various Recaptcha options.
+
+
+**RecaptchaConfigRef API:**
+
+```typescript
+@Injectable()
+class RecaptchaConfigRef {
+  // Sets the secret key for Recaptcha validation.
+  setSecretKey(secretKey: string): this;
+
+  // Sets enterprise-specific options for Recaptcha validation
+  setEnterpriseOptions(options: GoogleRecaptchaEnterpriseOptions): this;
+
+  // Sets the score threshold for Recaptcha validation.
+  setScore(score: ScoreValidator): this;
+
+  // Sets conditions under which Recaptcha validation should be skipped.
+  setSkipIf(skipIf: SkipIfValue): this;
+}
+```
+
+**Usage example:**
+
+```typescript
+@Injectable()
+export class RecaptchaAdminService implements OnApplicationBootstrap {
+	constructor(private readonly recaptchaConfigRef: RecaptchaConfigRef) {
+	}
+
+	async onApplicationBootstrap(): Promise<void> {
+		// TODO: Pull recaptcha configs from your database 
+
+		this.recaptchaConfigRef
+			.setSecretKey('SECRET_KEY_VALUE')
+			.setScore(0.3);
+	}
+
+	async updateSecretKey(secretKey: string): Promise<void> {
+		// TODO: Save new secret key to your database
+
+		this.recaptchaConfigRef.setSecretKey(secretKey);
+	}
+}
+```
+
+After call `this.recaptchaConfigRef.setSecretKey(...)` - `@Recaptcha` guard and `GoogleRecaptchaValidator` will use new secret key.
 
 ### Error handling
 

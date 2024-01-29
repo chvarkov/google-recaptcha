@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { RECAPTCHA_AXIOS_INSTANCE, RECAPTCHA_LOGGER, RECAPTCHA_OPTIONS } from '../../provider.declarations';
+import { RECAPTCHA_AXIOS_INSTANCE, RECAPTCHA_LOGGER } from '../../provider.declarations';
 import * as qs from 'querystring';
 import * as axios from 'axios';
 import { GoogleRecaptchaNetwork } from '../../enums/google-recaptcha-network';
@@ -7,12 +7,12 @@ import { VerifyResponseOptions } from '../../interfaces/verify-response-decorato
 import { VerifyResponseV2, VerifyResponseV3 } from '../../interfaces/verify-response';
 import { ErrorCode } from '../../enums/error-code';
 import { GoogleRecaptchaNetworkException } from '../../exceptions/google-recaptcha-network.exception';
-import { GoogleRecaptchaModuleOptions } from '../../interfaces/google-recaptcha-module-options';
 import { AbstractGoogleRecaptchaValidator } from './abstract-google-recaptcha-validator';
 import { RecaptchaVerificationResult } from '../../models/recaptcha-verification-result';
 import { GoogleRecaptchaContext } from '../../enums/google-recaptcha-context';
 import { getErrorInfo } from '../../helpers/get-error-info';
 import { AxiosInstance } from 'axios';
+import { RecaptchaConfigRef } from "../../models/recaptcha-config-ref";
 
 @Injectable()
 export class GoogleRecaptchaValidator extends AbstractGoogleRecaptchaValidator<VerifyResponseV3> {
@@ -23,9 +23,9 @@ export class GoogleRecaptchaValidator extends AbstractGoogleRecaptchaValidator<V
 	constructor(
 		@Inject(RECAPTCHA_AXIOS_INSTANCE) private readonly axios: AxiosInstance,
 		@Inject(RECAPTCHA_LOGGER) private readonly logger: Logger,
-		@Inject(RECAPTCHA_OPTIONS) options: GoogleRecaptchaModuleOptions
+		configRef: RecaptchaConfigRef,
 	) {
-		super(options);
+		super(configRef);
 	}
 
 	/**
@@ -72,21 +72,21 @@ export class GoogleRecaptchaValidator extends AbstractGoogleRecaptchaValidator<V
 	}
 
 	private verifyResponse<T extends VerifyResponseV2>(response: string, remoteIp?: string): Promise<T> {
-		const body = qs.stringify({ secret: this.options.secretKey, response, remoteip: remoteIp });
-		const url = this.options.network || this.defaultNetwork;
+		const body = qs.stringify({ secret: this.options.valueOf.secretKey, response, remoteip: remoteIp });
+		const url = this.options.valueOf.network || this.defaultNetwork;
 
 		const config: axios.AxiosRequestConfig = {
 			headers: this.headers,
 		};
 
-		if (this.options.debug) {
+		if (this.options.valueOf.debug) {
 			this.logger.debug({ body }, `${GoogleRecaptchaContext.GoogleRecaptcha}.request`);
 		}
 
 		return this.axios.post(url, body, config)
 			.then((res) => res.data)
 			.then((data) => {
-				if (this.options.debug) {
+				if (this.options.valueOf.debug) {
 					this.logger.debug(data, `${GoogleRecaptchaContext.GoogleRecaptcha}.response`);
 				}
 
@@ -101,7 +101,7 @@ export class GoogleRecaptchaValidator extends AbstractGoogleRecaptchaValidator<V
 				return result;
 			})
 			.catch((err: axios.AxiosError) => {
-				if (this.options.debug) {
+				if (this.options.valueOf.debug) {
 					this.logger.debug(getErrorInfo(err), `${GoogleRecaptchaContext.GoogleRecaptcha}.error`);
 				}
 

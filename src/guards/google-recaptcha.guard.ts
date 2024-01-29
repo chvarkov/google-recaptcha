@@ -1,15 +1,15 @@
 import { CanActivate, ExecutionContext, Inject, Injectable, Logger } from '@nestjs/common';
-import { RECAPTCHA_LOGGER, RECAPTCHA_OPTIONS, RECAPTCHA_VALIDATION_OPTIONS } from '../provider.declarations';
+import { RECAPTCHA_LOGGER, RECAPTCHA_VALIDATION_OPTIONS } from '../provider.declarations';
 import { GoogleRecaptchaException } from '../exceptions/google-recaptcha.exception';
 import { Reflector } from '@nestjs/core';
 import { RecaptchaRequestResolver } from '../services/recaptcha-request.resolver';
 import { VerifyResponseDecoratorOptions } from '../interfaces/verify-response-decorator-options';
-import { GoogleRecaptchaModuleOptions } from '../interfaces/google-recaptcha-module-options';
 import { RecaptchaValidatorResolver } from '../services/recaptcha-validator.resolver';
 import { GoogleRecaptchaContext } from '../enums/google-recaptcha-context';
 import { AbstractGoogleRecaptchaValidator } from '../services/validators/abstract-google-recaptcha-validator';
 import { GoogleRecaptchaEnterpriseValidator } from '../services/validators/google-recaptcha-enterprise.validator';
 import { LiteralObject } from '../interfaces/literal-object';
+import { RecaptchaConfigRef } from '../models/recaptcha-config-ref';
 
 @Injectable()
 export class GoogleRecaptchaGuard implements CanActivate {
@@ -18,13 +18,14 @@ export class GoogleRecaptchaGuard implements CanActivate {
 		private readonly requestResolver: RecaptchaRequestResolver,
 		private readonly validatorResolver: RecaptchaValidatorResolver,
 		@Inject(RECAPTCHA_LOGGER) private readonly logger: Logger,
-		@Inject(RECAPTCHA_OPTIONS) private readonly options: GoogleRecaptchaModuleOptions
+		private readonly configRef: RecaptchaConfigRef,
 	) {}
 
 	async canActivate(context: ExecutionContext): Promise<true | never> {
 		const request: LiteralObject = this.requestResolver.resolve(context);
 
-		const skip = typeof this.options.skipIf === 'function' ? await this.options.skipIf(request) : !!this.options.skipIf;
+		const skipIfValue = this.configRef.valueOf.skipIf;
+		const skip = typeof skipIfValue === 'function' ? await skipIfValue(request) : !!skipIfValue;
 
 		if (skip) {
 			return true;
@@ -33,18 +34,18 @@ export class GoogleRecaptchaGuard implements CanActivate {
 		const options: VerifyResponseDecoratorOptions = this.reflector.get(RECAPTCHA_VALIDATION_OPTIONS, context.getHandler());
 
 		const [response, remoteIp] = await Promise.all([
-			options?.response ? await options.response(request) : await this.options.response(request),
-			options?.remoteIp ? await options.remoteIp(request) : await this.options.remoteIp && this.options.remoteIp(request),
+			options?.response ? await options.response(request) : await this.configRef.valueOf.response(request),
+			options?.remoteIp ? await options.remoteIp(request) : await this.configRef.valueOf.remoteIp && this.configRef.valueOf.remoteIp(request),
 		]);
 
-		const score = options?.score || this.options.score;
+		const score = options?.score || this.configRef.valueOf.score;
 		const action = options?.action;
 
 		const validator = this.validatorResolver.resolve();
 
 		request.recaptchaValidationResult = await validator.validate({ response, remoteIp, score, action });
 
-		if (this.options.debug) {
+		if (this.configRef.valueOf.debug) {
 			const loggerCtx = this.resolveLogContext(validator);
 			this.logger.debug(request.recaptchaValidationResult.toObject(), `${loggerCtx}.result`);
 		}

@@ -1,4 +1,4 @@
-import { RecaptchaRemoteIpProvider, RecaptchaResponseProvider, ScoreValidator } from "../types";
+import { RecaptchaRemoteIpProvider, RecaptchaResponseProvider, ScoreValidator } from '../types';
 
 export interface VerifyResponseDecoratorOptions {
 	response?: RecaptchaResponseProvider;

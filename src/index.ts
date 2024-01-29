@@ -12,3 +12,4 @@ export { GoogleRecaptchaValidator } from './services/validators/google-recaptcha
 export { GoogleRecaptchaEnterpriseValidator } from './services/validators/google-recaptcha-enterprise.validator';
 export { RecaptchaVerificationResult } from './models/recaptcha-verification-result';
 export { ClassificationReason } from './enums/classification-reason';
+export { RecaptchaConfigRef } from './models/recaptcha-config-ref';

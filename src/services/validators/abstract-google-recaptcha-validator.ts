@@ -1,10 +1,10 @@
 import { VerifyResponseOptions } from '../../interfaces/verify-response-decorator-options';
 import { ScoreValidator } from '../../types';
-import { GoogleRecaptchaModuleOptions } from '../../interfaces/google-recaptcha-module-options';
 import { RecaptchaVerificationResult } from '../../models/recaptcha-verification-result';
+import { RecaptchaConfigRef } from '../../models/recaptcha-config-ref';
 
 export abstract class AbstractGoogleRecaptchaValidator<Res> {
-	protected constructor(protected readonly options: GoogleRecaptchaModuleOptions) {}
+	protected constructor(protected readonly options: RecaptchaConfigRef) {}
 
 	abstract validate(options: VerifyResponseOptions): Promise<RecaptchaVerificationResult<Res>>;
 
@@ -13,11 +13,11 @@ export abstract class AbstractGoogleRecaptchaValidator<Res> {
 			return options.action === action;
 		}
 
-		return this.options.actions ? this.options.actions.includes(action) : true;
+		return this.options.valueOf.actions ? this.options.valueOf.actions.includes(action) : true;
 	}
 
 	protected isValidScore(score: number, validator?: ScoreValidator): boolean {
-		const finalValidator = validator || this.options.score;
+		const finalValidator = validator || this.options.valueOf.score;
 
 		if (finalValidator) {
 			if (typeof finalValidator === 'function') {
