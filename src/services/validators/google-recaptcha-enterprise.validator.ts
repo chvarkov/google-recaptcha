@@ -1,6 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { RECAPTCHA_AXIOS_INSTANCE, RECAPTCHA_LOGGER, RECAPTCHA_OPTIONS } from '../../provider.declarations';
-import { GoogleRecaptchaModuleOptions } from '../../interfaces/google-recaptcha-module-options';
+import { RECAPTCHA_AXIOS_INSTANCE, RECAPTCHA_LOGGER } from '../../provider.declarations';
 import { VerifyResponseOptions } from '../../interfaces/verify-response-decorator-options';
 import { AbstractGoogleRecaptchaValidator } from './abstract-google-recaptcha-validator';
 import { RecaptchaVerificationResult } from '../../models/recaptcha-verification-result';
@@ -13,6 +12,7 @@ import { EnterpriseReasonTransformer } from '../enterprise-reason.transformer';
 import { getErrorInfo } from '../../helpers/get-error-info';
 import { AxiosInstance } from 'axios';
 import { LiteralObject } from '../../interfaces/literal-object';
+import { RecaptchaConfigRef } from '../../models/recaptcha-config-ref';
 
 type VerifyResponse = [VerifyResponseEnterprise, LiteralObject];
 
@@ -23,10 +23,10 @@ export class GoogleRecaptchaEnterpriseValidator extends AbstractGoogleRecaptchaV
 	constructor(
 		@Inject(RECAPTCHA_AXIOS_INSTANCE) private readonly axios: AxiosInstance,
 		@Inject(RECAPTCHA_LOGGER) private readonly logger: Logger,
-		@Inject(RECAPTCHA_OPTIONS) options: GoogleRecaptchaModuleOptions,
+		configRef: RecaptchaConfigRef,
 		private readonly enterpriseReasonTransformer: EnterpriseReasonTransformer
 	) {
-		super(options);
+		super(configRef);
 	}
 
 	async validate(options: VerifyResponseOptions): Promise<RecaptchaVerificationResult<VerifyResponseEnterprise>> {
@@ -73,11 +73,11 @@ export class GoogleRecaptchaEnterpriseValidator extends AbstractGoogleRecaptchaV
 	}
 
 	private verifyResponse(response: string, expectedAction: string, remoteIp: string): Promise<VerifyResponse> {
-		const projectId = this.options.enterprise.projectId;
+		const projectId = this.options.valueOf.enterprise.projectId;
 		const body: { event: VerifyTokenEnterpriseEvent } = {
 			event: {
 				expectedAction,
-				siteKey: this.options.enterprise.siteKey,
+				siteKey: this.options.valueOf.enterprise.siteKey,
 				token: response,
 				userIpAddress: remoteIp,
 			},
@@ -88,25 +88,25 @@ export class GoogleRecaptchaEnterpriseValidator extends AbstractGoogleRecaptchaV
 		const config: axios.AxiosRequestConfig = {
 			headers: this.headers,
 			params: {
-				key: this.options.enterprise.apiKey,
+				key: this.options.valueOf.enterprise.apiKey,
 			},
 		};
 
-		if (this.options.debug) {
+		if (this.options.valueOf.debug) {
 			this.logger.debug({ body }, `${GoogleRecaptchaContext.GoogleRecaptchaEnterprise}.request`);
 		}
 
 		return this.axios.post<VerifyResponseEnterprise>(url, body, config)
 			.then((res) => res.data)
 			.then((data): VerifyResponse => {
-				if (this.options.debug) {
+				if (this.options.valueOf.debug) {
 					this.logger.debug(data, `${GoogleRecaptchaContext.GoogleRecaptchaEnterprise}.response`);
 				}
 
 				return [data, null];
 			})
 			.catch((err: axios.AxiosError): VerifyResponse => {
-				if (this.options.debug) {
+				if (this.options.valueOf.debug) {
 					this.logger.debug(getErrorInfo(err), `${GoogleRecaptchaContext.GoogleRecaptchaEnterprise}.error`);
 				}
 

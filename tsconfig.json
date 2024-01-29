@@ -7,7 +7,7 @@
 		"experimentalDecorators": true,
 		"declarationMap": false,
 		"target": "es2017",
-		"sourceMap": true,
+		"sourceMap": false,
 		"outDir": "./dist",
 		"baseUrl": "./src",
 		"rootDir": "./src"

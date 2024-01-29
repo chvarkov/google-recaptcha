@@ -15,6 +15,7 @@ import { Agent } from 'https';
 import { RecaptchaValidatorResolver } from './services/recaptcha-validator.resolver';
 import { EnterpriseReasonTransformer } from './services/enterprise-reason.transformer';
 import { xor } from './helpers/xor';
+import { RecaptchaConfigRef } from './models/recaptcha-config-ref';
 
 export class GoogleRecaptchaModule {
 	private static axiosDefaultConfig: AxiosRequestConfig = {
@@ -38,6 +39,10 @@ export class GoogleRecaptchaModule {
 			{
 				provide: RECAPTCHA_LOGGER,
 				useFactory: () => options.logger || new Logger(),
+			},
+			{
+				provide: RecaptchaConfigRef,
+				useFactory: () => new RecaptchaConfigRef(options),
 			},
 		];
 
@@ -70,6 +75,11 @@ export class GoogleRecaptchaModule {
 			{
 				provide: RECAPTCHA_LOGGER,
 				useFactory: (options: GoogleRecaptchaModuleOptions) => options.logger || new Logger(),
+				inject: [RECAPTCHA_OPTIONS],
+			},
+			{
+				provide: RecaptchaConfigRef,
+				useFactory: (opts: GoogleRecaptchaModuleOptions) => new RecaptchaConfigRef(opts),
 				inject: [RECAPTCHA_OPTIONS],
 			},
 			GoogleRecaptchaGuard,

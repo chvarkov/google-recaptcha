@@ -1,24 +1,24 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { AbstractGoogleRecaptchaValidator } from './validators/abstract-google-recaptcha-validator';
-import { RECAPTCHA_OPTIONS } from '../provider.declarations';
-import { GoogleRecaptchaModuleOptions } from '../interfaces/google-recaptcha-module-options';
 import { GoogleRecaptchaValidator } from './validators/google-recaptcha.validator';
 import { GoogleRecaptchaEnterpriseValidator } from './validators/google-recaptcha-enterprise.validator';
+import { RecaptchaConfigRef } from '../models/recaptcha-config-ref';
 
 @Injectable()
 export class RecaptchaValidatorResolver {
 	constructor(
-		@Inject(RECAPTCHA_OPTIONS) private readonly options: GoogleRecaptchaModuleOptions,
+		private readonly configRef: RecaptchaConfigRef,
 		protected readonly googleRecaptchaValidator: GoogleRecaptchaValidator,
-		protected readonly googleRecaptchaEnterpriseValidator: GoogleRecaptchaEnterpriseValidator
+		protected readonly googleRecaptchaEnterpriseValidator: GoogleRecaptchaEnterpriseValidator,
 	) {}
 
 	resolve(): AbstractGoogleRecaptchaValidator<unknown> {
-		if (this.options.secretKey) {
+		const configValue = this.configRef.valueOf;
+		if (configValue.secretKey) {
 			return this.googleRecaptchaValidator;
 		}
 
-		if (Object.keys(this.options.enterprise || {}).length) {
+		if (Object.keys(configValue.enterprise || {}).length) {
 			return this.googleRecaptchaEnterpriseValidator;
 		}
 
