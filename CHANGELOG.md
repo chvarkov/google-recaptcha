@@ -1,5 +1,8 @@
 # Changelog
 
+## v3.8.0
+- Updated `GoogleRecaptchaModuleAsyncOptions` interface
+
 ## v3.7.0
 - Added `RecaptchaConfigRef` for dynamic configuration
 

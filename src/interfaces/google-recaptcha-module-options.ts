@@ -15,6 +15,7 @@ export interface GoogleRecaptchaOptionsFactory {
 }
 
 export interface GoogleRecaptchaModuleAsyncOptions extends Pick<ModuleMetadata, 'imports'> {
+	// eslint-disable-next-line
 	inject?: Array<string | symbol | Type | Abstract<any> | Function>;
 	useClass?: Type<GoogleRecaptchaOptionsFactory>;
 	useExisting?: Type<GoogleRecaptchaOptionsFactory>;
