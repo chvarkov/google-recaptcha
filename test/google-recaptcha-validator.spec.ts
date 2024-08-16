@@ -26,7 +26,7 @@ describe('Google recaptcha validator', () => {
 		expect(result.success).toBeFalsy();
 		expect(result.errors).toBeInstanceOf(Array);
 		expect(result.errors.length).toBe(1);
-		expect(result.errors[0]).toBe(ErrorCode.InvalidInputSecret);
+		expect(result.errors[0]).toBe(ErrorCode.InvalidInputResponse);
 	});
 
 	test('Network error', async () => {
