@@ -6,7 +6,8 @@ This package provides protection for endpoints using [reCAPTCHA](https://www.goo
 [![Licence](https://img.shields.io/npm/l/@nestlab/google-recaptcha.svg)](https://github.com/chvarkov/google-recaptcha/blob/master/LICENSE)
 [![NPM Downloads](https://img.shields.io/npm/dm/@nestlab/google-recaptcha.svg)](https://www.npmjs.com/package/@nestlab/google-recaptcha)
 [![Circle CI build](https://img.shields.io/circleci/build/github/chvarkov/google-recaptcha/master)](https://github.com/chvarkov/google-recaptcha/tree/master)
-[![Coverage Status](https://coveralls.io/repos/github/chvarkov/google-recaptcha/badge.svg?branch=master)](https://coveralls.io/github/chvarkov/google-recaptcha?branch=master)
+[![Coverage Status](https://chvarkov.github.io/google-recaptcha/badges/coverage.svg)](https://github.com/chvarkov/google-recaptcha/actions)
+
 
 ## Table of Contents
 
