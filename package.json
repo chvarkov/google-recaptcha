@@ -17,7 +17,6 @@
 		"lint:check": "eslint . --max-warnings=0",
 		"test": "jest --silent=false",
 		"test:cov": "jest --coverage --coverageReporters=\"json-summary\"",
-		"test:coveralls": "jest --runInBand --coverage && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage",
 		"publish-package": "cd dist && npm publish --access public"
 	},
 	"repository": {
@@ -57,7 +56,6 @@
 		"@typescript-eslint/eslint-plugin": "^5.36.1",
 		"@typescript-eslint/parser": "^5.36.1",
 		"apollo-server-express": "^3.10.2",
-		"coveralls": "^3.1.1",
 		"eslint": "^8.23.0",
 		"graphql": "^16.6.0",
 		"jest": "^29.7.0",
