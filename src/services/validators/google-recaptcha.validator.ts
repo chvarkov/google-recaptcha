@@ -12,7 +12,7 @@ import { RecaptchaVerificationResult } from '../../models/recaptcha-verification
 import { GoogleRecaptchaContext } from '../../enums/google-recaptcha-context';
 import { getErrorInfo } from '../../helpers/get-error-info';
 import { AxiosInstance } from 'axios';
-import { RecaptchaConfigRef } from "../../models/recaptcha-config-ref";
+import { RecaptchaConfigRef } from '../../models/recaptcha-config-ref';
 
 @Injectable()
 export class GoogleRecaptchaValidator extends AbstractGoogleRecaptchaValidator<VerifyResponseV3> {
@@ -105,7 +105,7 @@ export class GoogleRecaptchaValidator extends AbstractGoogleRecaptchaValidator<V
 					this.logger.debug(getErrorInfo(err), `${GoogleRecaptchaContext.GoogleRecaptcha}.error`);
 				}
 
-				const networkErrorCode = err.isAxiosError && err.code;
+				const networkErrorCode = err.isAxiosError && !err.response && err.code;
 
 				if (networkErrorCode) {
 					throw new GoogleRecaptchaNetworkException(networkErrorCode);

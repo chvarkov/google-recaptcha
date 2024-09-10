@@ -98,7 +98,7 @@ export class GoogleRecaptchaEnterpriseValidator extends AbstractGoogleRecaptchaV
 
 		return this.axios.post<VerifyResponseEnterprise>(url, body, config)
 			.then((res) => res.data)
-			.then((data): VerifyResponse => {
+			.then((data: VerifyResponseEnterprise): VerifyResponse => {
 				if (this.options.valueOf.debug) {
 					this.logger.debug(data, `${GoogleRecaptchaContext.GoogleRecaptchaEnterprise}.response`);
 				}
@@ -110,7 +110,7 @@ export class GoogleRecaptchaEnterpriseValidator extends AbstractGoogleRecaptchaV
 					this.logger.debug(getErrorInfo(err), `${GoogleRecaptchaContext.GoogleRecaptchaEnterprise}.error`);
 				}
 
-				const networkErrorCode = err.isAxiosError && err.code;
+				const networkErrorCode = err.isAxiosError && !err.response && err.code;
 
 				if (networkErrorCode) {
 					throw new GoogleRecaptchaNetworkException(networkErrorCode);
