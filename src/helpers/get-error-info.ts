@@ -1,8 +1,7 @@
-
 import * as axios from 'axios';
 import { LiteralObject } from '../interfaces/literal-object';
 
-export function isAxiosError(error: Error | axios.AxiosError): error is axios.AxiosError {
+export function isAxiosError<T = LiteralObject>(error: Error | axios.AxiosError<T>): error is axios.AxiosError<T> {
 	return (<axios.AxiosError>error).isAxiosError;
 }
 

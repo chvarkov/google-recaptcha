@@ -204,9 +204,7 @@ describe('HTTP Recaptcha Enterprise', () => {
 	});
 
 	test('Enterprise Network error', async () => {
-		mockedRecaptchaApi.addError<VerifyResponseV2>('test_enterprise_network_err', {
-			code: 'ECONNRESET',
-		});
+		mockedRecaptchaApi.addNetworkError('test_enterprise_network_err', 'ECONNRESET');
 
 		const res: request.Response = await http.post(
 			'/test/submit',
