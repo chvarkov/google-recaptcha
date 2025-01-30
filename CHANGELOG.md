@@ -1,5 +1,13 @@
 # Changelog
 
+## v3.9.0
+- Support NestJS 11. Upgraded peer dependencies versions:
+    - `@nestjs/common`: >=8.0.0 <12.0.0
+    - `@nestjs/core`: >=8.0.0 <12.0.0
+
+- Fixed getting `networkErrorCode` from `AxiosError`
+- Upgraded axios 1.7.4 => 1.7.7
+
 ## v3.8.0
 - Updated `GoogleRecaptchaModuleAsyncOptions` interface
 
