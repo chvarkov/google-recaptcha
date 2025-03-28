@@ -1,5 +1,8 @@
 # Changelog
 
+## v3.10.0
+- Upgraded axios 1.7.7 => 1.8.4
+
 ## v3.9.0
 - Support NestJS 11. Upgraded peer dependencies versions:
     - `@nestjs/common`: >=8.0.0 <12.0.0
