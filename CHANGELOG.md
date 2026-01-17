@@ -1,5 +1,8 @@
 # Changelog
 
+## v3.11.0
+- Upgraded axios 1.8.4 => 1.13.2
+
 ## v3.10.0
 - Upgraded axios 1.7.7 => 1.8.4
 
