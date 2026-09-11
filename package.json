@@ -43,7 +43,7 @@
 	},
 	"devDependencies": {
 		"@as-integrations/express5": "^1.1.2",
-		"@nestjs/apollo": "^13.1.0",
+		"@nestjs/apollo": "^14.0.0",
 		"@nestjs/axios": "^4.0.1",
 		"@nestjs/common": "^11.1.12",
 		"@nestjs/core": "^11.1.12",
