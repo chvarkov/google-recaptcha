@@ -48,7 +48,7 @@
 		"@nestjs/common": "^11.1.12",
 		"@nestjs/core": "^11.1.12",
 		"@nestjs/graphql": "^13.2.3",
-		"@nestjs/platform-express": "^11.1.12",
+		"@nestjs/platform-express": "^12.3.2",
 		"@nestjs/testing": "^11.1.12",
 		"@types/express": "^5.0.6",
 		"@types/jest": "^29.5.14",
