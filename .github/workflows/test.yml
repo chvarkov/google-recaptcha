@@ -7,13 +7,11 @@ on:
     branches: [ "master", "develop" ]
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   lint:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
 
     steps:
       - uses: actions/checkout@v4
@@ -43,6 +41,51 @@ jobs:
       - run: npm run build
       - run: npm run test:types
       - run: npm run test:cov
-      - name: Update Coverage Badge
-        if: ${{ github.event_name == 'push' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && matrix.node-version == '24.x'}}
-        uses: we-cli/coverage-badge-action@main
+      - name: Upload coverage summary
+        if: ${{ github.event_name == 'push' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && matrix.node-version == '24.x' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-summary
+          path: coverage/coverage-summary.json
+          retention-days: 1
+
+  coverage-badge:
+    needs: build
+    if: ${{ github.event_name == 'push' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    # Serialize pushes to gh-pages.
+    concurrency:
+      group: coverage-badge
+      cancel-in-progress: false
+
+    steps:
+      # Badge script is taken from the tested commit; the gh-pages branch is checked out separately.
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: .github/scripts
+      - uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages
+      - uses: actions/download-artifact@v4
+        with:
+          name: coverage-summary
+          path: coverage
+      - name: Render badge
+        run: |
+          mkdir -p gh-pages/badges
+          node .github/scripts/coverage-badge.mjs coverage/coverage-summary.json gh-pages/badges/coverage.svg
+      - name: Push badge to gh-pages
+        working-directory: gh-pages
+        run: |
+          if git diff --quiet -- badges/coverage.svg && ! git ls-files --others --exclude-standard | grep -q .; then
+            echo "Badge is up to date."
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add badges/coverage.svg
+          git commit -m 'Update badges [skip ci]'
+          git push origin HEAD:gh-pages
