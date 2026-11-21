@@ -117,9 +117,10 @@ export class GoogleRecaptchaEnterpriseValidator extends AbstractGoogleRecaptchaV
 					throw new GoogleRecaptchaNetworkException(networkErrorCode);
 				}
 
+				// Not only axios errors can get here (e.g. an exception thrown by the logger above).
 				const errData: LiteralObject = {
-					status: err.response.status,
-					data: err.response.data,
+					status: err.response?.status,
+					data: err.response?.data ?? getErrorInfo(err),
 				};
 
 				return [null, errData];

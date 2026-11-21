@@ -8,7 +8,7 @@ export abstract class AbstractGoogleRecaptchaValidator<Res> {
 
 	abstract validate(options: VerifyResponseOptions): Promise<RecaptchaVerificationResult<Res>>;
 
-	protected isValidAction(action: string, options?: VerifyResponseOptions): boolean {
+	protected isValidAction(action: string, options: VerifyResponseOptions): boolean {
 		if (options.action) {
 			return options.action === action;
 		}
@@ -17,9 +17,9 @@ export abstract class AbstractGoogleRecaptchaValidator<Res> {
 	}
 
 	protected isValidScore(score: number, validator?: ScoreValidator): boolean {
-		const finalValidator = validator || this.options.valueOf.score;
+		const finalValidator = validator ?? this.options.valueOf.score;
 
-		if (finalValidator) {
+		if (finalValidator != null) {
 			if (typeof finalValidator === 'function') {
 				return finalValidator(score);
 			}

@@ -23,7 +23,12 @@ function createArgumentHost(req: Partial<Request>): HttpArgumentsHost {
 	})();
 }
 
-export function createExecutionContext(handler: () => void, req: Partial<Request>, type: string = 'http'): ExecutionContext {
+export function createExecutionContext(
+	handler: () => void,
+	req: Partial<Request>,
+	type: string = 'http',
+	classRef: Type = class {}
+): ExecutionContext {
 	return new (class implements ExecutionContext {
 		getHandler(): () => void {
 			return handler;
@@ -44,8 +49,7 @@ export function createExecutionContext(handler: () => void, req: Partial<Request
 		}
 
 		getClass<T>(): Type<T> {
-			console.error("Method 'getClass' doesn't implemented");
-			return undefined;
+			return classRef as Type<T>;
 		}
 
 		getType<TContext = ContextType>(): TContext {

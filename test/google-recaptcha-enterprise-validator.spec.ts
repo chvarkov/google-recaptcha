@@ -5,6 +5,7 @@ import { GoogleRecaptchaEnterpriseValidator } from '../src/services/validators/g
 import { RecaptchaConfigRef } from '../src/models/recaptcha-config-ref';
 import { EnterpriseReasonTransformer } from '../src/services/enterprise-reason.transformer';
 import { GoogleRecaptchaNetworkException } from '../src/exceptions/google-recaptcha-network.exception';
+import { ErrorCode } from '../src';
 
 const API_KEY = 'SUPER_SECRET_ENTERPRISE_API_KEY';
 
@@ -76,5 +77,32 @@ describe('Google recaptcha enterprise validator: api key is never logged', () =>
 		await ctx.validator.validate({ response: 'TOKEN' });
 
 		expect(ctx.logs).not.toContain(API_KEY);
+	});
+});
+
+describe('Google recaptcha enterprise validator: non-axios errors', () => {
+	test('Exception inside response handler returns UnknownError instead of TypeError', async () => {
+		const logger = {
+			debug: (_: unknown, ctx: string) => {
+				if (ctx.endsWith('.response')) throw new Error('logger is broken');
+			},
+		} as unknown as Logger;
+		const configRef = new RecaptchaConfigRef({
+			response: () => 'TOKEN',
+			debug: true,
+			enterprise: { projectId: 'p', siteKey: 'site', apiKey: API_KEY },
+		});
+		const post = () => Promise.resolve({ data: { tokenProperties: { valid: true, action: 'Submit' } } });
+		const validator = new GoogleRecaptchaEnterpriseValidator(
+			{ post } as unknown as AxiosInstance,
+			logger,
+			configRef,
+			new EnterpriseReasonTransformer()
+		);
+
+		const result = await validator.validate({ response: 'TOKEN' });
+
+		expect(result.success).toBe(false);
+		expect(result.errors).toEqual([ErrorCode.UnknownError]);
 	});
 });

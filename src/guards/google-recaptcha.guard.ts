@@ -31,17 +31,16 @@ export class GoogleRecaptchaGuard implements CanActivate {
 			return true;
 		}
 
-		const options: VerifyResponseDecoratorOptions = this.reflector.get(RECAPTCHA_VALIDATION_OPTIONS, context.getHandler());
+		const options = this.resolveDecoratorOptions(context);
+		const config = this.configRef.valueOf;
 
-		const [response, remoteIp] = await Promise.all([
-			options?.response ? await options.response(request) : await this.configRef.valueOf.response(request),
-			options?.remoteIp
-				? await options.remoteIp(request)
-				: (await this.configRef.valueOf.remoteIp) && this.configRef.valueOf.remoteIp(request),
-		]);
+		const responseProvider = options.response ?? config.response;
+		const remoteIpProvider = options.remoteIp ?? config.remoteIp;
 
-		const score = options?.score || this.configRef.valueOf.score;
-		const action = options?.action;
+		const [response, remoteIp] = await Promise.all([responseProvider(request), remoteIpProvider?.(request)]);
+
+		// Score falls back to module config inside the validator.
+		const { score, action } = options;
 
 		const validator = this.validatorResolver.resolve();
 
@@ -57,6 +56,13 @@ export class GoogleRecaptchaGuard implements CanActivate {
 		}
 
 		throw new GoogleRecaptchaException(request.recaptchaValidationResult.errors);
+	}
+
+	private resolveDecoratorOptions(context: ExecutionContext): VerifyResponseDecoratorOptions {
+		const classOptions: VerifyResponseDecoratorOptions = this.reflector.get(RECAPTCHA_VALIDATION_OPTIONS, context.getClass());
+		const handlerOptions: VerifyResponseDecoratorOptions = this.reflector.get(RECAPTCHA_VALIDATION_OPTIONS, context.getHandler());
+
+		return { ...classOptions, ...handlerOptions };
 	}
 
 	private resolveLogContext(validator: AbstractGoogleRecaptchaValidator<unknown>): GoogleRecaptchaContext {
