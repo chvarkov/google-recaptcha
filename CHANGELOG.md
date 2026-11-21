@@ -1,5 +1,14 @@
 # Changelog
 
+## v3.12.0
+- Support NestJS 12. Upgraded peer dependencies versions:
+    - `@nestjs/common`: >=8.0.0 <13.0.0
+    - `@nestjs/core`: >=8.0.0 <13.0.0
+
+- Added `engines` requirement: Node.js >=20
+- Replaced deprecated `querystring` with `URLSearchParams` for building the verify request body.
+- Upgraded axios 1.19.0 ⇒ 1.21.1
+
 ## v3.11.3
 - Upgraded axios 1.16.0 ⇒ 1.19.0
 
