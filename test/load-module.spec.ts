@@ -9,7 +9,7 @@ describe('loadModule', () => {
 	});
 
 	test('failed load', () => {
-		expect(() => loadModule('@unknown/unknown-package', true)).toThrowError('Cannot find module');
-		expect(() => loadModule('@unknown/unknown-package', false)).toThrowError('Cannot find module');
+		expect(() => loadModule('@unknown/unknown-package', true)).toThrow('Cannot find module');
+		expect(() => loadModule('@unknown/unknown-package', false)).toThrow('Cannot find module');
 	});
 });

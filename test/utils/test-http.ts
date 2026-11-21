@@ -1,4 +1,6 @@
-import * as request from 'supertest';
+import request from 'supertest';
+
+type App = Parameters<typeof request>[0];
 import { LiteralObject } from '../../src/interfaces/literal-object';
 
 export interface ITestHttpRequestOptions {
@@ -8,7 +10,7 @@ export interface ITestHttpRequestOptions {
 }
 
 export class TestHttp {
-	constructor(private readonly httpServer: unknown) {}
+	constructor(private readonly httpServer: App) {}
 
 	get(url: string, options?: ITestHttpRequestOptions): Promise<request.Response> {
 		return new Promise((resolve, reject) =>

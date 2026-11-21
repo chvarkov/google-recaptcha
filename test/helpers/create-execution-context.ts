@@ -1,6 +1,9 @@
 import { ContextType, ExecutionContext, Type } from '@nestjs/common';
-import { HttpArgumentsHost, RpcArgumentsHost, WsArgumentsHost } from '@nestjs/common/interfaces';
 import { Request } from 'express';
+
+type HttpArgumentsHost = ReturnType<ExecutionContext['switchToHttp']>;
+type RpcArgumentsHost = ReturnType<ExecutionContext['switchToRpc']>;
+type WsArgumentsHost = ReturnType<ExecutionContext['switchToWs']>;
 
 function createArgumentHost(req: Partial<Request>): HttpArgumentsHost {
 	return new (class implements HttpArgumentsHost {

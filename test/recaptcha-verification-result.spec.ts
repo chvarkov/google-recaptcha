@@ -3,7 +3,7 @@ import { GoogleRecaptchaModule, Recaptcha, RecaptchaResult, RecaptchaVerificatio
 import { Test, TestingModule } from '@nestjs/testing';
 import { Request } from 'express';
 import { VerifyResponseV3 } from '../src/interfaces/verify-response';
-import * as request from 'supertest';
+import request from 'supertest';
 import { RECAPTCHA_AXIOS_INSTANCE } from '../src/provider.declarations';
 import axios from 'axios';
 

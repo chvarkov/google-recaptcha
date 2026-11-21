@@ -1,6 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { RECAPTCHA_AXIOS_INSTANCE, RECAPTCHA_LOGGER } from '../../provider.declarations';
-import * as qs from 'querystring';
 import * as axios from 'axios';
 import { GoogleRecaptchaNetwork } from '../../enums/google-recaptcha-network';
 import { VerifyResponseOptions } from '../../interfaces/verify-response-decorator-options';
@@ -72,7 +71,12 @@ export class GoogleRecaptchaValidator extends AbstractGoogleRecaptchaValidator<V
 	}
 
 	private verifyResponse<T extends VerifyResponseV2>(response: string, remoteIp?: string): Promise<T> {
-		const body = qs.stringify({ secret: this.options.valueOf.secretKey, response, remoteip: remoteIp });
+		const body = new URLSearchParams({ secret: this.options.valueOf.secretKey, response });
+
+		if (remoteIp) {
+			body.append('remoteip', remoteIp);
+		}
+
 		const url = this.options.valueOf.network || this.defaultNetwork;
 
 		const config: axios.AxiosRequestConfig = {

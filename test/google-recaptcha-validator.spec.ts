@@ -51,6 +51,6 @@ describe('Google recaptcha validator', () => {
 		expect(validator).toBeDefined();
 		expect(validator).toBeInstanceOf(GoogleRecaptchaValidator);
 
-		await expect(validator.validate({ response: 'TEST_TOKEN' })).rejects.toThrowError(GoogleRecaptchaNetworkException);
+		await expect(validator.validate({ response: 'TEST_TOKEN' })).rejects.toThrow(GoogleRecaptchaNetworkException);
 	});
 });

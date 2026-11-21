@@ -1,7 +1,7 @@
 import { INestApplication, Module } from '@nestjs/common';
 import { GoogleRecaptchaModule, Recaptcha, RecaptchaResult, RecaptchaVerificationResult } from '../../../src';
 import { Test, TestingModule } from '@nestjs/testing';
-import * as request from 'supertest';
+import request from 'supertest';
 import { MockedRecaptchaApi } from '../../utils/mocked-recaptcha-api';
 import { VerifyResponseV3 } from '../../../src/interfaces/verify-response';
 import { TestHttp } from '../../utils/test-http';

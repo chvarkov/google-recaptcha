@@ -20,7 +20,13 @@ export class MockedRecaptchaApi {
 			post<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<AxiosResponse<T>> {
 				const resolveFn = (d: any) => d?.['response'] || d?.['event']?.token || null;
 
-				const token = typeof data === 'string' ? resolveFn(qs.parse(data)) : resolveFn(data);
+				const payload =
+					data instanceof URLSearchParams
+						? Object.fromEntries(data)
+						: typeof data === 'string'
+							? qs.parse(data)
+							: data;
+				const token = resolveFn(payload);
 
 				const response = responseMap.get(token);
 
