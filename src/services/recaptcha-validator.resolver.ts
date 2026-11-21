@@ -22,6 +22,6 @@ export class RecaptchaValidatorResolver {
 			return this.googleRecaptchaEnterpriseValidator;
 		}
 
-		throw new Error('Cannot resolve google recaptcha validator');
+		throw new Error('Cannot resolve the Google reCAPTCHA validator: neither "secretKey" nor "enterprise" options are configured.');
 	}
 }

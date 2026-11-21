@@ -1,20 +1,20 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { ErrorCode } from '../enums/error-code';
 
-const DEFAULT_ERROR_MESSAGE = 'Unexpected error. Please submit issue to @nestlab/google-recaptcha.';
+const DEFAULT_ERROR_MESSAGE = 'Unexpected error. Please submit an issue to @nestlab/google-recaptcha.';
 
 const ERROR_MESSAGES: Partial<Record<ErrorCode, string>> = {
 	[ErrorCode.InvalidInputResponse]: 'The response parameter is invalid or malformed.',
 	[ErrorCode.MissingInputResponse]: 'The response parameter is missing.',
-	[ErrorCode.TimeoutOrDuplicate]: 'The response is no longer valid: either is too old or has been used previously.',
-	[ErrorCode.InvalidInputSecret]: 'Invalid module configuration. Please check public-secret keys.',
-	[ErrorCode.MissingInputSecret]: 'Invalid module configuration. Please check public-secret keys.',
-	[ErrorCode.InvalidKeys]: 'Recaptcha token was signed by invalid api key.',
-	[ErrorCode.LowScore]: 'Low recaptcha score.',
-	[ErrorCode.ForbiddenAction]: 'Forbidden recaptcha action.',
+	[ErrorCode.TimeoutOrDuplicate]: 'The response is no longer valid: it is either too old or has already been used.',
+	[ErrorCode.InvalidInputSecret]: 'Invalid module configuration. Please check the secret key.',
+	[ErrorCode.MissingInputSecret]: 'Invalid module configuration. Please check the secret key.',
+	[ErrorCode.InvalidKeys]: 'The reCAPTCHA token was signed by an invalid API key.',
+	[ErrorCode.LowScore]: 'Low reCAPTCHA score.',
+	[ErrorCode.ForbiddenAction]: 'Forbidden reCAPTCHA action.',
 	[ErrorCode.SiteMismatch]: 'The user verification token did not match the provided site key.',
-	[ErrorCode.BrowserError]: 'Retriable error (such as network failure) occurred on the browser.',
-	[ErrorCode.IncorrectCaptchaSol]: 'incorrect-captcha-sol',
+	[ErrorCode.BrowserError]: 'A retriable error (such as a network failure) occurred in the browser.',
+	[ErrorCode.IncorrectCaptchaSol]: 'Incorrect captcha solution.',
 };
 
 /** Error codes caused by the client (invalid/expired token, low score, etc.). Everything else is a server-side error. */

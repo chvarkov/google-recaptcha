@@ -33,11 +33,11 @@ describe('resolveRequest', () => {
 	});
 
 	test('graphql: request is missing', () => {
-		expect(() => resolveRequest(createGqlContext({}))).toThrow('Unable to resolve HTTP request from GraphQL context');
+		expect(() => resolveRequest(createGqlContext({}))).toThrow('Unable to resolve the HTTP request from the GraphQL context');
 	});
 
 	test('graphql: context is missing', () => {
-		expect(() => resolveRequest(createGqlContext(undefined))).toThrow('Unable to resolve HTTP request from GraphQL context');
+		expect(() => resolveRequest(createGqlContext(undefined))).toThrow('Unable to resolve the HTTP request from the GraphQL context');
 	});
 
 	test('unsupported', () => {

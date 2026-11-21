@@ -10,7 +10,7 @@ function resolveGraphqlRequest(context: ExecutionContext): LiteralObject {
 
 	if (!request) {
 		throw new Error(
-			'Unable to resolve HTTP request from GraphQL context. ' +
+			'Unable to resolve the HTTP request from the GraphQL context. ' +
 				'Make sure the request is exposed in the context, e.g. `context: ({ req }) => ({ req })`.'
 		);
 	}

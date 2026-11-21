@@ -73,4 +73,21 @@ describe('Google recaptcha exception', () => {
 		expect(exception.getStatus()).toBe(HttpStatus.INTERNAL_SERVER_ERROR);
 		expect(exception.message).toBe(message);
 	});
+
+	test.each([
+		[ErrorCode.InvalidInputResponse, 'The response parameter is invalid or malformed.'],
+		[ErrorCode.MissingInputResponse, 'The response parameter is missing.'],
+		[ErrorCode.TimeoutOrDuplicate, 'The response is no longer valid: it is either too old or has already been used.'],
+		[ErrorCode.InvalidInputSecret, 'Invalid module configuration. Please check the secret key.'],
+		[ErrorCode.MissingInputSecret, 'Invalid module configuration. Please check the secret key.'],
+		[ErrorCode.InvalidKeys, 'The reCAPTCHA token was signed by an invalid API key.'],
+		[ErrorCode.LowScore, 'Low reCAPTCHA score.'],
+		[ErrorCode.ForbiddenAction, 'Forbidden reCAPTCHA action.'],
+		[ErrorCode.SiteMismatch, 'The user verification token did not match the provided site key.'],
+		[ErrorCode.BrowserError, 'A retriable error (such as a network failure) occurred in the browser.'],
+		[ErrorCode.IncorrectCaptchaSol, 'Incorrect captcha solution.'],
+		[ErrorCode.UnknownError, 'Unexpected error. Please submit an issue to @nestlab/google-recaptcha.'],
+	])('Message for %s', (errorCode, message) => {
+		expect(new GoogleRecaptchaException([errorCode]).message).toBe(message);
+	});
 });

@@ -7,7 +7,7 @@ export function loadModule(moduleName: string, logError = false): LiteralObject 
 		return require(moduleName);
 	} catch (e) {
 		if (logError) {
-			Logger.error(`Module '${moduleName}' not found. \nPotential solution npm i  ${moduleName}`);
+			Logger.error(`Module '${moduleName}' not found.\nPossible solution: npm i ${moduleName}`);
 		}
 		throw e;
 	}

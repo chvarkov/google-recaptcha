@@ -47,6 +47,8 @@ describe('Google recaptcha module', () => {
 	});
 
 	test('Test invalid config', async () => {
-		await expect(createApp({ response: () => '' })).rejects.toThrow('must be contains "secretKey" xor "enterprise"');
+		await expect(createApp({ response: () => '' })).rejects.toThrow(
+			'Google reCAPTCHA options must contain either "secretKey" or "enterprise", but not both.'
+		);
 	});
 });

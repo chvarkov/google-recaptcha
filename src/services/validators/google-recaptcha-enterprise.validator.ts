@@ -77,7 +77,7 @@ export class GoogleRecaptchaEnterpriseValidator extends AbstractGoogleRecaptchaV
 		const enterprise = this.options.valueOf.enterprise;
 
 		if (!enterprise) {
-			throw new Error('Google recaptcha enterprise options are not configured.');
+			throw new Error('Google reCAPTCHA Enterprise options are not configured.');
 		}
 
 		const { projectId, siteKey, apiKey } = enterprise;

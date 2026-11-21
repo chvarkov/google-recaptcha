@@ -139,7 +139,7 @@ export class GoogleRecaptchaModule {
 			provide: RECAPTCHA_OPTIONS,
 			useFactory: async (optionsFactory: GoogleRecaptchaOptionsFactory): Promise<GoogleRecaptchaModuleOptions> => {
 				if (!this.isGoogleRecaptchaFactory(optionsFactory)) {
-					throw new Error("Factory must be implement 'GoogleRecaptchaOptionsFactory' interface.");
+					throw new Error("Factory must implement the 'GoogleRecaptchaOptionsFactory' interface.");
 				}
 				return optionsFactory.createGoogleRecaptchaOptions();
 			},
@@ -150,7 +150,7 @@ export class GoogleRecaptchaModule {
 	private static validateOptions(options: GoogleRecaptchaModuleOptions): void | never {
 		const hasEnterpriseOptions = !!Object.keys(options.enterprise || {}).length;
 		if (!xor(!!options.secretKey, hasEnterpriseOptions)) {
-			throw new Error('Google recaptcha options must be contains "secretKey" xor "enterprise".');
+			throw new Error('Google reCAPTCHA options must contain either "secretKey" or "enterprise", but not both.');
 		}
 	}
 

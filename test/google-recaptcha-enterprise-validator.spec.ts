@@ -118,7 +118,7 @@ describe('Google recaptcha enterprise validator: misconfiguration', () => {
 			new EnterpriseReasonTransformer()
 		);
 
-		await expect(validator.validate({ response: 'TOKEN' })).rejects.toThrow('Google recaptcha enterprise options are not configured.');
+		await expect(validator.validate({ response: 'TOKEN' })).rejects.toThrow('Google reCAPTCHA Enterprise options are not configured.');
 		expect(post).not.toHaveBeenCalled();
 	});
 });

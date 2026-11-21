@@ -538,19 +538,19 @@ One important feature of the `GoogleRecaptchaException` is that it contains an a
 
 | Error code                       | Description | Status code |
 |----------------------------------|-------------|-------------|
-| `ErrorCode.MissingInputSecret`   | The secret parameter is missing. (Throws from reCAPTCHA api). | 500         |
-| `ErrorCode.InvalidInputSecret`   | The secret parameter is invalid or malformed. (Throws from reCAPTCHA api). | 500         |
-| `ErrorCode.MissingInputResponse` | The response parameter is missing. (Throws from reCAPTCHA api). | 400         |
-| `ErrorCode.InvalidInputResponse` | The response parameter is invalid or malformed. (Throws from reCAPTCHA api). | 400         |
-| `ErrorCode.BadRequest`	       | The request is invalid or malformed. (Throws from reCAPTCHA api). | 500         |
-| `ErrorCode.TimeoutOrDuplicate`   | The response is no longer valid: either is too old or has been used previously. (Throws from reCAPTCHA api). | 400         |
-| `ErrorCode.UnknownError`         | Unknown error. (Throws from reCAPTCHA api). | 500         |
-| `ErrorCode.ForbiddenAction`      | Forbidden action. (Throws from guard when expected action not equals to received). | 400         |
-| `ErrorCode.LowScore`             | Low score (Throws from guard when expected score less than received). | 400         |
-| `ErrorCode.InvalidKeys`          | keys were copied incorrectly, the wrong keys were used for the environment (e.g. development vs production), or if the keys were revoked or deleted from the Google reCAPTCHA admin console.. (Throws from reCAPTCHA api). | 400         |
-| `ErrorCode.NetworkError`         | Network error (like ECONNRESET, ECONNREFUSED...). | 500         |
-| `ErrorCode.SiteMismatch`         | Site mismatch (Throws from reCAPTCHA Enterprise api only). | 400         |
-| `ErrorCode.BrowserError`         | Browser error (Throws from reCAPTCHA Enterprise api only). | 400         |
+| `ErrorCode.MissingInputSecret`   | The secret parameter is missing. (Returned by the reCAPTCHA API.) | 500         |
+| `ErrorCode.InvalidInputSecret`   | The secret parameter is invalid or malformed. (Returned by the reCAPTCHA API.) | 500         |
+| `ErrorCode.MissingInputResponse` | The response parameter is missing. (Returned by the reCAPTCHA API.) | 400         |
+| `ErrorCode.InvalidInputResponse` | The response parameter is invalid or malformed. (Returned by the reCAPTCHA API.) | 400         |
+| `ErrorCode.BadRequest`	       | The request is invalid or malformed. (Returned by the reCAPTCHA API.) | 500         |
+| `ErrorCode.TimeoutOrDuplicate`   | The response is no longer valid: it is either too old or has already been used. (Returned by the reCAPTCHA API.) | 400         |
+| `ErrorCode.UnknownError`         | Unknown error. (Returned by the reCAPTCHA API.) | 500         |
+| `ErrorCode.ForbiddenAction`      | Forbidden action. (Thrown by the guard when the received action does not match the expected one.) | 400         |
+| `ErrorCode.LowScore`             | Low score. (Thrown by the guard when the received score is below the expected one.) | 400         |
+| `ErrorCode.InvalidKeys`          | The keys were copied incorrectly, the wrong keys were used for the environment (e.g. development vs production), or the keys were revoked or deleted in the Google reCAPTCHA admin console. (Returned by the reCAPTCHA API.) | 400         |
+| `ErrorCode.NetworkError`         | Network error (e.g. ECONNRESET, ECONNREFUSED). | 500         |
+| `ErrorCode.SiteMismatch`         | Site mismatch. (Returned by the reCAPTCHA Enterprise API only.) | 400         |
+| `ErrorCode.BrowserError`         | Browser error. (Returned by the reCAPTCHA Enterprise API only.) | 400         |
 
 
 **GoogleRecaptchaNetworkException**
