@@ -7,7 +7,12 @@ export class RecaptchaConfigRef {
 		return this.value;
 	}
 
-	constructor(private readonly value: GoogleRecaptchaModuleOptions) {}
+	private readonly value: GoogleRecaptchaModuleOptions;
+
+	/** Options are copied: setters never mutate the object passed by the user. */
+	constructor(value: GoogleRecaptchaModuleOptions) {
+		this.value = { ...value };
+	}
 
 	setSecretKey(secretKey: string): this {
 		this.value.secretKey = secretKey;

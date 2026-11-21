@@ -14,12 +14,12 @@ describe('RecaptchaConfigRef', () => {
 
 		ref.setSecretKey('NEW_ONE');
 		expect(ref.valueOf.secretKey).toBe('NEW_ONE');
-		expect(options.secretKey).toBe('NEW_ONE');
+		expect(options.secretKey).toBe('SECRET');
 
 		expect(ref.valueOf.enterprise).toBeUndefined();
 	});
 
-	test('setSecretKey', () => {
+	test('setEnterpriseOptions', () => {
 		const ref = new RecaptchaConfigRef(options);
 		expect(ref.valueOf.secretKey).toBe(options.secretKey);
 
@@ -35,10 +35,8 @@ describe('RecaptchaConfigRef', () => {
 		expect(ref.valueOf.enterprise.siteKey).toBe(eOpts.siteKey);
 		expect(ref.valueOf.secretKey).toBeUndefined();
 
-		expect(options.enterprise.apiKey).toBe(eOpts.apiKey);
-		expect(options.enterprise.projectId).toBe(eOpts.projectId);
-		expect(options.enterprise.siteKey).toBe(eOpts.siteKey);
-		expect(options.secretKey).toBeUndefined();
+		expect(options.enterprise).toBeUndefined();
+		expect(options.secretKey).toBe('SECRET');
 	});
 
 	test('setScore', () => {
@@ -47,7 +45,7 @@ describe('RecaptchaConfigRef', () => {
 
 		ref.setScore(0.5);
 		expect(ref.valueOf.score).toBe(0.5);
-		expect(options.score).toBe(0.5);
+		expect(options.score).toBeUndefined();
 	});
 
 	test('setSkipIf', () => {
@@ -56,6 +54,6 @@ describe('RecaptchaConfigRef', () => {
 
 		ref.setSkipIf(true);
 		expect(ref.valueOf.skipIf).toBeTruthy();
-		expect(options.skipIf).toBeTruthy();
+		expect(options.skipIf).toBeUndefined();
 	});
 });
