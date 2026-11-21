@@ -36,6 +36,10 @@ describe('resolveRequest', () => {
 		expect(() => resolveRequest(createGqlContext({}))).toThrow('Unable to resolve HTTP request from GraphQL context');
 	});
 
+	test('graphql: context is missing', () => {
+		expect(() => resolveRequest(createGqlContext(undefined))).toThrow('Unable to resolve HTTP request from GraphQL context');
+	});
+
 	test('unsupported', () => {
 		expect(() => resolveRequest(createExecutionContext(() => null, null, 'rpc'))).toThrow("Unsupported request type 'rpc'");
 	});
