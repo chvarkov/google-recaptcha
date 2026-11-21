@@ -54,8 +54,8 @@ export class RecaptchaVerificationResult<Res = LiteralObject> {
 	}
 
 	getEnterpriseRiskAnalytics(): VerifyResponseEnterpriseRiskAnalysis | null {
-		const res = this.getResponse() as LiteralObject;
+		const res = this.getResponse() as { riskAnalysis?: VerifyResponseEnterpriseRiskAnalysis } | null;
 
-		return res['riskAnalysis'] || null;
+		return res?.riskAnalysis || null;
 	}
 }

@@ -5,7 +5,7 @@ import { Reflector } from '@nestjs/core';
 import { RecaptchaRequestResolver } from '../services/recaptcha-request.resolver';
 import { VerifyResponseDecoratorOptions } from '../interfaces/verify-response-decorator-options';
 import { RecaptchaValidatorResolver } from '../services/recaptcha-validator.resolver';
-import { LiteralObject } from '../interfaces/literal-object';
+import { RecaptchaRequest } from '../helpers/resolve-request';
 import { RecaptchaConfigRef } from '../models/recaptcha-config-ref';
 
 @Injectable()
@@ -19,7 +19,7 @@ export class GoogleRecaptchaGuard implements CanActivate {
 	) {}
 
 	async canActivate(context: ExecutionContext): Promise<true | never> {
-		const request: LiteralObject = this.requestResolver.resolve(context);
+		const request = this.requestResolver.resolve<RecaptchaRequest>(context);
 
 		const skipIfValue = this.configRef.valueOf.skipIf;
 		const skip = typeof skipIfValue === 'function' ? await skipIfValue(request) : !!skipIfValue;
@@ -41,17 +41,20 @@ export class GoogleRecaptchaGuard implements CanActivate {
 
 		const validator = this.validatorResolver.resolve();
 
-		request.recaptchaValidationResult = await validator.validate({ response, remoteIp, score, action });
+		const result = await validator.validate({ response, remoteIp, score, action });
+
+		// Read by the @RecaptchaResult() decorator.
+		request.recaptchaValidationResult = result;
 
 		if (this.configRef.valueOf.debug) {
-			this.logger.debug(request.recaptchaValidationResult.toObject(), `${validator.logContext}.result`);
+			this.logger.debug(result.toObject(), `${validator.logContext}.result`);
 		}
 
-		if (request.recaptchaValidationResult.success) {
+		if (result.success) {
 			return true;
 		}
 
-		throw new GoogleRecaptchaException(request.recaptchaValidationResult.errors);
+		throw new GoogleRecaptchaException(result.errors);
 	}
 
 	private resolveDecoratorOptions(context: ExecutionContext): VerifyResponseDecoratorOptions {

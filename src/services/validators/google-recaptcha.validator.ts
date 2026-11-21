@@ -10,7 +10,9 @@ import { GoogleRecaptchaContext } from '../../enums/google-recaptcha-context';
 import { maskSecret } from '../../helpers/mask-secret';
 import { AxiosInstance } from 'axios';
 import { RecaptchaConfigRef } from '../../models/recaptcha-config-ref';
-import { LiteralObject } from '../../interfaces/literal-object';
+
+/** Raw siteverify response: Google returns errors as `error-codes`. */
+type SiteVerifyResponse = Omit<VerifyResponseV3, 'errors'> & { 'error-codes'?: ErrorCode[] };
 
 @Injectable()
 export class GoogleRecaptchaValidator extends AbstractGoogleRecaptchaValidator<VerifyResponseV3> {
@@ -33,7 +35,7 @@ export class GoogleRecaptchaValidator extends AbstractGoogleRecaptchaValidator<V
 	 * @param {VerifyResponseOptions} options
 	 */
 	async validate(options: VerifyResponseOptions): Promise<RecaptchaVerificationResult<VerifyResponseV3>> {
-		const result = await this.verifyResponse<VerifyResponseV3>(options.response, options.remoteIp);
+		const result = await this.verifyResponse(options.response, options.remoteIp);
 
 		if (!this.isUseV3(result)) {
 			const resV2: VerifyResponseV2 = result;
@@ -71,7 +73,7 @@ export class GoogleRecaptchaValidator extends AbstractGoogleRecaptchaValidator<V
 		});
 	}
 
-	private async verifyResponse<T extends VerifyResponseV2>(response: string | undefined, remoteIp?: string): Promise<T> {
+	private async verifyResponse(response: string | undefined, remoteIp?: string): Promise<VerifyResponseV2 | VerifyResponseV3> {
 		const secretKey = this.options.valueOf.secretKey;
 		const body = new URLSearchParams({ secret: secretKey ?? '', response: response ?? '' });
 
@@ -84,16 +86,17 @@ export class GoogleRecaptchaValidator extends AbstractGoogleRecaptchaValidator<V
 		// Secret key must never be logged in plain text.
 		const loggedBody = { secret: maskSecret(secretKey), response, remoteip: remoteIp };
 
-		const { data, error } = await this.post<LiteralObject>(url, body, { headers: this.headers }, loggedBody);
+		const { data, error } = await this.post<SiteVerifyResponse | null>(url, body, { headers: this.headers }, loggedBody);
 
 		// Empty body is treated as an error too (previously failed with TypeError inside the promise chain).
 		if (error || !data) {
-			return { success: false, errors: [ErrorCode.UnknownError] } as T;
+			// No response from Google: hostname/challenge_ts are unknown.
+			return { success: false, errors: [ErrorCode.UnknownError] } as unknown as VerifyResponseV2;
 		}
 
 		const { 'error-codes': errorCodes, ...result } = data;
 
-		return { ...result, errors: errorCodes || [] } as T;
+		return { ...result, errors: errorCodes || [] };
 	}
 
 	private isUseV3(v: VerifyResponseV2): v is VerifyResponseV3 {

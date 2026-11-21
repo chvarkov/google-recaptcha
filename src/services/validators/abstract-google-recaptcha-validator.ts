@@ -7,9 +7,13 @@ import { RecaptchaConfigRef } from '../../models/recaptcha-config-ref';
 import { GoogleRecaptchaContext } from '../../enums/google-recaptcha-context';
 import { GoogleRecaptchaNetworkException } from '../../exceptions/google-recaptcha-network.exception';
 import { getErrorInfo, isAxiosError } from '../../helpers/get-error-info';
-import { LiteralObject } from '../../interfaces/literal-object';
 
-export type PostResult<T> = { data: T; error?: undefined } | { data?: undefined; error: LiteralObject };
+export interface PostError {
+	status?: number;
+	data: unknown;
+}
+
+export type PostResult<T> = { data: T; error?: undefined } | { data?: undefined; error: PostError };
 
 export abstract class AbstractGoogleRecaptchaValidator<Res> {
 	/** Prefix for debug log messages: `<logContext>.request`, `<logContext>.response`, etc. */

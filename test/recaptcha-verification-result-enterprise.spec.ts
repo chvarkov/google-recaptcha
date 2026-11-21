@@ -89,3 +89,16 @@ describe('Recaptcha verification result decorator (enterprise)', () => {
 		return request(app.getHttpServer()).post('/test/submit').expect(201).expect('OK');
 	});
 });
+
+describe('RecaptchaVerificationResult.getEnterpriseRiskAnalytics', () => {
+	test('Returns null when there is no native response (e.g. HTTP error)', () => {
+		const result = new RecaptchaVerificationResult<VerifyResponseEnterprise>({
+			success: false,
+			errors: [],
+			hostname: '',
+			nativeResponse: null as unknown as VerifyResponseEnterprise,
+		});
+
+		expect(result.getEnterpriseRiskAnalytics()).toBeNull();
+	});
+});

@@ -1,6 +1,6 @@
 import { GoogleRecaptchaGuardOptions } from './google-recaptcha-guard-options';
 import { GoogleRecaptchaValidatorOptions } from './google-recaptcha-validator-options';
-import { ModuleMetadata, Type, Logger, Abstract } from '@nestjs/common';
+import { FactoryProvider, ModuleMetadata, Type, Logger } from '@nestjs/common';
 
 export interface GoogleRecaptchaModuleOptions extends GoogleRecaptchaValidatorOptions, GoogleRecaptchaGuardOptions {
 	debug?: boolean;
@@ -13,11 +13,11 @@ export interface GoogleRecaptchaOptionsFactory {
 }
 
 export interface GoogleRecaptchaModuleAsyncOptions extends Pick<ModuleMetadata, 'imports'> {
-	// eslint-disable-next-line
-	inject?: Array<string | symbol | Type | Abstract<any> | Function>;
+	/** Same tokens as Nest's `FactoryProvider.inject`. */
+	inject?: FactoryProvider['inject'];
 	useClass?: Type<GoogleRecaptchaOptionsFactory>;
 	useExisting?: Type<GoogleRecaptchaOptionsFactory>;
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	useFactory?: (...args: any[]) => Promise<Omit<GoogleRecaptchaModuleOptions, 'global'>> | Omit<GoogleRecaptchaModuleOptions, 'global'>;
+	// `never[]` accepts a factory with any parameters, e.g. `(config: ConfigService) => ...`.
+	useFactory?: (...args: never[]) => Promise<Omit<GoogleRecaptchaModuleOptions, 'global'>> | Omit<GoogleRecaptchaModuleOptions, 'global'>;
 	global?: boolean;
 }

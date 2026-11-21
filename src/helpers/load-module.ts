@@ -1,7 +1,6 @@
 import { Logger } from '@nestjs/common';
-import { LiteralObject } from '../interfaces/literal-object';
 
-export function loadModule(moduleName: string, logError = false): LiteralObject {
+export function loadModule<T = unknown>(moduleName: string, logError = false): T {
 	try {
 		// eslint-disable-next-line @typescript-eslint/no-require-imports
 		return require(moduleName);
