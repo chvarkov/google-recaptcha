@@ -24,96 +24,67 @@ export class GoogleRecaptchaModule {
 	};
 
 	static forRoot(options: GoogleRecaptchaModuleOptions): DynamicModule {
-		const providers: Provider[] = [
-			Reflector,
-			GoogleRecaptchaGuard,
-			GoogleRecaptchaValidator,
-			GoogleRecaptchaEnterpriseValidator,
-			RecaptchaRequestResolver,
-			RecaptchaValidatorResolver,
-			EnterpriseReasonTransformer,
-			{
-				provide: RECAPTCHA_OPTIONS,
-				useValue: options,
-			},
-			{
-				provide: RECAPTCHA_LOGGER,
-				useFactory: () => options.logger || new Logger(),
-			},
-			{
-				provide: RecaptchaConfigRef,
-				useFactory: () => new RecaptchaConfigRef(options),
-			},
-		];
-
-		this.validateOptions(options);
-
-		const internalProviders: Provider[] = [
-			{
-				provide: RECAPTCHA_AXIOS_INSTANCE,
-				useFactory: (): AxiosInstance =>
-					axios.create(
-						this.transformAxiosConfig({
-							...this.axiosDefaultConfig,
-							...options.axiosConfig,
-							headers: null,
-						})
-					),
-			},
-		];
-
-		return {
-			global: options.global != null ? options.global : true,
-			module: GoogleRecaptchaModule,
-			providers: providers.concat(internalProviders),
-			exports: providers,
-		};
+		return this.createDynamicModule({
+			global: options.global,
+			optionsProviders: [{ provide: RECAPTCHA_OPTIONS, useValue: options }],
+		});
 	}
 
 	static forRootAsync(options: GoogleRecaptchaModuleAsyncOptions): DynamicModule {
+		return this.createDynamicModule({
+			global: options.global,
+			imports: options.imports,
+			optionsProviders: this.createAsyncProviders(options),
+		});
+	}
+
+	private static createDynamicModule(params: {
+		global?: boolean;
+		imports?: GoogleRecaptchaModuleAsyncOptions['imports'];
+		optionsProviders: Provider[];
+	}): DynamicModule {
 		const providers: Provider[] = [
 			Reflector,
-			{
-				provide: RECAPTCHA_LOGGER,
-				useFactory: (options: GoogleRecaptchaModuleOptions) => options.logger || new Logger(),
-				inject: [RECAPTCHA_OPTIONS],
-			},
-			{
-				provide: RecaptchaConfigRef,
-				useFactory: (opts: GoogleRecaptchaModuleOptions) => new RecaptchaConfigRef(opts),
-				inject: [RECAPTCHA_OPTIONS],
-			},
 			GoogleRecaptchaGuard,
 			GoogleRecaptchaValidator,
 			GoogleRecaptchaEnterpriseValidator,
 			RecaptchaRequestResolver,
 			RecaptchaValidatorResolver,
 			EnterpriseReasonTransformer,
-			...this.createAsyncProviders(options),
-		];
-
-		const internalProviders: Provider[] = [
+			...params.optionsProviders,
 			{
-				provide: RECAPTCHA_AXIOS_INSTANCE,
-				useFactory: (options: GoogleRecaptchaModuleOptions): AxiosInstance => {
+				provide: RECAPTCHA_LOGGER,
+				useFactory: (options: GoogleRecaptchaModuleOptions): Logger => options.logger || new Logger(),
+				inject: [RECAPTCHA_OPTIONS],
+			},
+			{
+				provide: RecaptchaConfigRef,
+				useFactory: (options: GoogleRecaptchaModuleOptions): RecaptchaConfigRef => {
 					this.validateOptions(options);
-
-					const transformedAxiosConfig = this.transformAxiosConfig({
-						...this.axiosDefaultConfig,
-						...options.axiosConfig,
-						headers: null,
-					});
-					return axios.create(transformedAxiosConfig);
+					return new RecaptchaConfigRef(options);
 				},
 				inject: [RECAPTCHA_OPTIONS],
 			},
 		];
 
+		const axiosProvider: Provider = {
+			provide: RECAPTCHA_AXIOS_INSTANCE,
+			useFactory: (options: GoogleRecaptchaModuleOptions): AxiosInstance =>
+				axios.create(
+					this.transformAxiosConfig({
+						...this.axiosDefaultConfig,
+						...options.axiosConfig,
+						headers: null,
+					})
+				),
+			inject: [RECAPTCHA_OPTIONS],
+		};
+
 		return {
-			global: options.global != null ? options.global : true,
+			global: params.global ?? true,
 			module: GoogleRecaptchaModule,
-			imports: options.imports,
-			providers: providers.concat(internalProviders),
+			imports: params.imports,
+			providers: [...providers, axiosProvider],
 			exports: providers,
 		};
 	}

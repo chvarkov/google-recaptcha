@@ -122,4 +122,12 @@ describe('Google recaptcha async module', () => {
 			.then(() => expect(true).toBeFalsy())
 			.catch((e) => expect(e.message).toBe("Factory must be implement 'GoogleRecaptchaOptionsFactory' interface."));
 	});
+
+	test('Invalid options are rejected', async () => {
+		await expect(
+			Test.createTestingModule({
+				imports: [GoogleRecaptchaModule.forRootAsync({ useFactory: () => ({ response: () => '' }) })],
+			}).compile()
+		).rejects.toThrow('must be contains "secretKey" xor "enterprise"');
+	});
 });
