@@ -5,9 +5,6 @@ import { Reflector } from '@nestjs/core';
 import { RecaptchaRequestResolver } from '../services/recaptcha-request.resolver';
 import { VerifyResponseDecoratorOptions } from '../interfaces/verify-response-decorator-options';
 import { RecaptchaValidatorResolver } from '../services/recaptcha-validator.resolver';
-import { GoogleRecaptchaContext } from '../enums/google-recaptcha-context';
-import { AbstractGoogleRecaptchaValidator } from '../services/validators/abstract-google-recaptcha-validator';
-import { GoogleRecaptchaEnterpriseValidator } from '../services/validators/google-recaptcha-enterprise.validator';
 import { LiteralObject } from '../interfaces/literal-object';
 import { RecaptchaConfigRef } from '../models/recaptcha-config-ref';
 
@@ -47,8 +44,7 @@ export class GoogleRecaptchaGuard implements CanActivate {
 		request.recaptchaValidationResult = await validator.validate({ response, remoteIp, score, action });
 
 		if (this.configRef.valueOf.debug) {
-			const loggerCtx = this.resolveLogContext(validator);
-			this.logger.debug(request.recaptchaValidationResult.toObject(), `${loggerCtx}.result`);
+			this.logger.debug(request.recaptchaValidationResult.toObject(), `${validator.logContext}.result`);
 		}
 
 		if (request.recaptchaValidationResult.success) {
@@ -63,11 +59,5 @@ export class GoogleRecaptchaGuard implements CanActivate {
 		const handlerOptions: VerifyResponseDecoratorOptions = this.reflector.get(RECAPTCHA_VALIDATION_OPTIONS, context.getHandler());
 
 		return { ...classOptions, ...handlerOptions };
-	}
-
-	private resolveLogContext(validator: AbstractGoogleRecaptchaValidator<unknown>): GoogleRecaptchaContext {
-		return validator instanceof GoogleRecaptchaEnterpriseValidator
-			? GoogleRecaptchaContext.GoogleRecaptchaEnterprise
-			: GoogleRecaptchaContext.GoogleRecaptcha;
 	}
 }

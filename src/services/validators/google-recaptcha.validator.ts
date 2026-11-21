@@ -1,18 +1,16 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { RECAPTCHA_AXIOS_INSTANCE, RECAPTCHA_LOGGER } from '../../provider.declarations';
-import * as axios from 'axios';
 import { GoogleRecaptchaNetwork } from '../../enums/google-recaptcha-network';
 import { VerifyResponseOptions } from '../../interfaces/verify-response-decorator-options';
 import { VerifyResponseV2, VerifyResponseV3 } from '../../interfaces/verify-response';
 import { ErrorCode } from '../../enums/error-code';
-import { GoogleRecaptchaNetworkException } from '../../exceptions/google-recaptcha-network.exception';
 import { AbstractGoogleRecaptchaValidator } from './abstract-google-recaptcha-validator';
 import { RecaptchaVerificationResult } from '../../models/recaptcha-verification-result';
 import { GoogleRecaptchaContext } from '../../enums/google-recaptcha-context';
-import { getErrorInfo } from '../../helpers/get-error-info';
 import { maskSecret } from '../../helpers/mask-secret';
 import { AxiosInstance } from 'axios';
 import { RecaptchaConfigRef } from '../../models/recaptcha-config-ref';
+import { LiteralObject } from '../../interfaces/literal-object';
 
 @Injectable()
 export class GoogleRecaptchaValidator extends AbstractGoogleRecaptchaValidator<VerifyResponseV3> {
@@ -20,12 +18,14 @@ export class GoogleRecaptchaValidator extends AbstractGoogleRecaptchaValidator<V
 
 	private readonly headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
 
+	readonly logContext = GoogleRecaptchaContext.GoogleRecaptcha;
+
 	constructor(
-		@Inject(RECAPTCHA_AXIOS_INSTANCE) private readonly axios: AxiosInstance,
-		@Inject(RECAPTCHA_LOGGER) private readonly logger: Logger,
+		@Inject(RECAPTCHA_AXIOS_INSTANCE) axios: AxiosInstance,
+		@Inject(RECAPTCHA_LOGGER) logger: Logger,
 		configRef: RecaptchaConfigRef
 	) {
-		super(configRef);
+		super(axios, logger, configRef);
 	}
 
 	/**
@@ -71,8 +71,9 @@ export class GoogleRecaptchaValidator extends AbstractGoogleRecaptchaValidator<V
 		});
 	}
 
-	private verifyResponse<T extends VerifyResponseV2>(response: string, remoteIp?: string): Promise<T> {
-		const body = new URLSearchParams({ secret: this.options.valueOf.secretKey, response });
+	private async verifyResponse<T extends VerifyResponseV2>(response: string, remoteIp?: string): Promise<T> {
+		const secretKey = this.options.valueOf.secretKey;
+		const body = new URLSearchParams({ secret: secretKey, response });
 
 		if (remoteIp) {
 			body.append('remoteip', remoteIp);
@@ -80,50 +81,19 @@ export class GoogleRecaptchaValidator extends AbstractGoogleRecaptchaValidator<V
 
 		const url = this.options.valueOf.network || this.defaultNetwork;
 
-		const config: axios.AxiosRequestConfig = {
-			headers: this.headers,
-		};
+		// Secret key must never be logged in plain text.
+		const loggedBody = { secret: maskSecret(secretKey), response, remoteip: remoteIp };
 
-		if (this.options.valueOf.debug) {
-			// Secret key must never be logged in plain text.
-			const loggedBody = { secret: maskSecret(this.options.valueOf.secretKey), response, remoteip: remoteIp };
-			this.logger.debug({ body: loggedBody }, `${GoogleRecaptchaContext.GoogleRecaptcha}.request`);
+		const { data, error } = await this.post<LiteralObject>(url, body, { headers: this.headers }, loggedBody);
+
+		// Empty body is treated as an error too (previously failed with TypeError inside the promise chain).
+		if (error || !data) {
+			return { success: false, errors: [ErrorCode.UnknownError] } as T;
 		}
 
-		return this.axios
-			.post(url, body, config)
-			.then((res) => res.data)
-			.then((data) => {
-				if (this.options.valueOf.debug) {
-					this.logger.debug(data, `${GoogleRecaptchaContext.GoogleRecaptcha}.response`);
-				}
+		const { 'error-codes': errorCodes, ...result } = data;
 
-				return data;
-			})
-			.then((result) => ({
-				...result,
-				errors: result['error-codes'] || [],
-			}))
-			.then((result) => {
-				delete result['error-codes'];
-				return result;
-			})
-			.catch((err: axios.AxiosError) => {
-				if (this.options.valueOf.debug) {
-					this.logger.debug(getErrorInfo(err), `${GoogleRecaptchaContext.GoogleRecaptcha}.error`);
-				}
-
-				const networkErrorCode = err.isAxiosError && !err.response && err.code;
-
-				if (networkErrorCode) {
-					throw new GoogleRecaptchaNetworkException(networkErrorCode);
-				}
-
-				return {
-					success: false,
-					errors: [ErrorCode.UnknownError],
-				};
-			});
+		return { ...result, errors: errorCodes || [] } as T;
 	}
 
 	private isUseV3(v: VerifyResponseV2): v is VerifyResponseV3 {
