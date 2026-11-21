@@ -19,7 +19,7 @@ import { RecaptchaConfigRef } from './models/recaptcha-config-ref';
 
 export class GoogleRecaptchaModule {
 	private static axiosDefaultConfig: AxiosRequestConfig = {
-		timeout: 60_000,
+		timeout: 10_000,
 		httpsAgent: new Agent({ keepAlive: true }),
 	};
 
