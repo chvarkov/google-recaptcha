@@ -27,7 +27,7 @@ export class RecaptchaVerificationResult<Res = LiteralObject> {
 
 	readonly errors: ErrorCode[];
 
-	constructor(private readonly options: RecaptchaVerificationResultOptions<Res>) {
+	constructor(options: RecaptchaVerificationResultOptions<Res>) {
 		this.success = options.success;
 		this.hostname = options.hostname;
 		this.action = options.action;

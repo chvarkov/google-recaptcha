@@ -1,6 +1,35 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { ErrorCode } from '../enums/error-code';
 
+const DEFAULT_ERROR_MESSAGE = 'Unexpected error. Please submit issue to @nestlab/google-recaptcha.';
+
+const ERROR_MESSAGES: Partial<Record<ErrorCode, string>> = {
+	[ErrorCode.InvalidInputResponse]: 'The response parameter is invalid or malformed.',
+	[ErrorCode.MissingInputResponse]: 'The response parameter is missing.',
+	[ErrorCode.TimeoutOrDuplicate]: 'The response is no longer valid: either is too old or has been used previously.',
+	[ErrorCode.InvalidInputSecret]: 'Invalid module configuration. Please check public-secret keys.',
+	[ErrorCode.MissingInputSecret]: 'Invalid module configuration. Please check public-secret keys.',
+	[ErrorCode.InvalidKeys]: 'Recaptcha token was signed by invalid api key.',
+	[ErrorCode.LowScore]: 'Low recaptcha score.',
+	[ErrorCode.ForbiddenAction]: 'Forbidden recaptcha action.',
+	[ErrorCode.SiteMismatch]: 'The user verification token did not match the provided site key.',
+	[ErrorCode.BrowserError]: 'Retriable error (such as network failure) occurred on the browser.',
+	[ErrorCode.IncorrectCaptchaSol]: 'incorrect-captcha-sol',
+};
+
+/** Error codes caused by the client (invalid/expired token, low score, etc.). Everything else is a server-side error. */
+const CLIENT_ERROR_CODES: ReadonlySet<ErrorCode> = new Set([
+	ErrorCode.InvalidInputResponse,
+	ErrorCode.MissingInputResponse,
+	ErrorCode.TimeoutOrDuplicate,
+	ErrorCode.ForbiddenAction,
+	ErrorCode.SiteMismatch,
+	ErrorCode.BrowserError,
+	ErrorCode.IncorrectCaptchaSol,
+	ErrorCode.LowScore,
+	ErrorCode.InvalidKeys,
+]);
+
 export class GoogleRecaptchaException extends HttpException {
 	constructor(
 		public readonly errorCodes: ErrorCode[],
@@ -13,55 +42,10 @@ export class GoogleRecaptchaException extends HttpException {
 	}
 
 	private static getErrorMessage(errorCode: ErrorCode): string {
-		switch (errorCode) {
-			case ErrorCode.InvalidInputResponse:
-				return 'The response parameter is invalid or malformed.';
-
-			case ErrorCode.MissingInputResponse:
-				return 'The response parameter is missing.';
-			case ErrorCode.TimeoutOrDuplicate:
-				return 'The response is no longer valid: either is too old or has been used previously.';
-
-			case ErrorCode.InvalidInputSecret:
-			case ErrorCode.MissingInputSecret:
-				return 'Invalid module configuration. Please check public-secret keys.';
-
-			case ErrorCode.InvalidKeys:
-				return 'Recaptcha token was signed by invalid api key.';
-
-			case ErrorCode.LowScore:
-				return 'Low recaptcha score.';
-
-			case ErrorCode.ForbiddenAction:
-				return 'Forbidden recaptcha action.';
-
-			case ErrorCode.SiteMismatch:
-				return 'The user verification token did not match the provided site key.';
-
-			case ErrorCode.BrowserError:
-				return 'Retriable error (such as network failure) occurred on the browser.';
-
-			case ErrorCode.IncorrectCaptchaSol:
-				return 'incorrect-captcha-sol';
-
-			case ErrorCode.UnknownError:
-			case ErrorCode.BadRequest:
-			default:
-				return 'Unexpected error. Please submit issue to @nestlab/google-recaptcha.';
-		}
+		return ERROR_MESSAGES[errorCode] ?? DEFAULT_ERROR_MESSAGE;
 	}
 
 	private static getErrorStatus(errorCode: ErrorCode): number {
-		return errorCode === ErrorCode.InvalidInputResponse ||
-			errorCode === ErrorCode.MissingInputResponse ||
-			errorCode === ErrorCode.TimeoutOrDuplicate ||
-			errorCode === ErrorCode.ForbiddenAction ||
-			errorCode === ErrorCode.SiteMismatch ||
-			errorCode === ErrorCode.BrowserError ||
-			errorCode === ErrorCode.IncorrectCaptchaSol ||
-			errorCode === ErrorCode.LowScore ||
-			errorCode === ErrorCode.InvalidKeys
-			? HttpStatus.BAD_REQUEST
-			: HttpStatus.INTERNAL_SERVER_ERROR;
+		return CLIENT_ERROR_CODES.has(errorCode) ? HttpStatus.BAD_REQUEST : HttpStatus.INTERNAL_SERVER_ERROR;
 	}
 }
