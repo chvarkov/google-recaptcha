@@ -71,9 +71,9 @@ export class GoogleRecaptchaValidator extends AbstractGoogleRecaptchaValidator<V
 		});
 	}
 
-	private async verifyResponse<T extends VerifyResponseV2>(response: string, remoteIp?: string): Promise<T> {
+	private async verifyResponse<T extends VerifyResponseV2>(response: string | undefined, remoteIp?: string): Promise<T> {
 		const secretKey = this.options.valueOf.secretKey;
-		const body = new URLSearchParams({ secret: secretKey, response });
+		const body = new URLSearchParams({ secret: secretKey ?? '', response: response ?? '' });
 
 		if (remoteIp) {
 			body.append('remoteip', remoteIp);

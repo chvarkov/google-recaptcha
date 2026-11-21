@@ -69,9 +69,9 @@ describe('Google recaptcha async module', () => {
 
 		expect(options).toBeDefined();
 
-		checkDefaultConfigs(options.axiosConfig);
+		checkDefaultConfigs(options.axiosConfig!);
 
-		expect(options.axiosConfig.data).toBe('TEST');
+		expect(options.axiosConfig!.data).toBe('TEST');
 
 		const httpsAgent: https.Agent = axiosInstance.defaults.httpsAgent;
 
@@ -129,5 +129,11 @@ describe('Google recaptcha async module', () => {
 				imports: [GoogleRecaptchaModule.forRootAsync({ useFactory: () => ({ response: () => '' }) })],
 			}).compile()
 		).rejects.toThrow('must be contains "secretKey" xor "enterprise"');
+	});
+
+	test('Options provider is required', () => {
+		expect(() => GoogleRecaptchaModule.forRootAsync({})).toThrow(
+			"GoogleRecaptchaModule.forRootAsync() requires one of 'useFactory', 'useClass' or 'useExisting'."
+		);
 	});
 });

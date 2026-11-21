@@ -1,4 +1,4 @@
-import { getErrorInfo } from '../src/helpers/get-error-info';
+import { getErrorInfo, isAxiosError } from '../src/helpers/get-error-info';
 import { LiteralObject } from '../src/interfaces/literal-object';
 import { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
@@ -37,7 +37,7 @@ describe('getErrorInfo', () => {
 
 		expect(typeof info).toBe('object');
 		expect(info.success).toBeFalsy();
-		expect(info.message).toBe(err.response.data.message);
+		expect(info.message).toBe(err.response?.data.message);
 	});
 
 	test('Axios error code', () => {
@@ -64,5 +64,11 @@ describe('getErrorInfo', () => {
 
 		expect(typeof info).toBe('string');
 		expect(info).toBe('Unknown axios error');
+	});
+
+	test('isAxiosError handles non-object values', () => {
+		expect(isAxiosError(undefined)).toBe(false);
+		expect(isAxiosError(null)).toBe(false);
+		expect(isAxiosError('error')).toBe(false);
 	});
 });

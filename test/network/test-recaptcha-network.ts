@@ -4,7 +4,7 @@ import { LiteralObject } from '../../src/interfaces/literal-object';
 
 @Controller('api')
 class TestSiteVerifyController {
-	private value: LiteralObject;
+	private value: LiteralObject = {};
 
 	@Post('siteverify')
 	verify(): LiteralObject {

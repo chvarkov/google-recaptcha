@@ -106,3 +106,19 @@ describe('Google recaptcha enterprise validator: non-axios errors', () => {
 		expect(result.errors).toEqual([ErrorCode.UnknownError]);
 	});
 });
+
+describe('Google recaptcha enterprise validator: misconfiguration', () => {
+	test('Throws when enterprise options are missing', async () => {
+		const configRef = new RecaptchaConfigRef({ response: () => 'TOKEN', secretKey: 'SECRET' });
+		const post = vi.fn();
+		const validator = new GoogleRecaptchaEnterpriseValidator(
+			{ post } as unknown as AxiosInstance,
+			new Logger(),
+			configRef,
+			new EnterpriseReasonTransformer()
+		);
+
+		await expect(validator.validate({ response: 'TOKEN' })).rejects.toThrow('Google recaptcha enterprise options are not configured.');
+		expect(post).not.toHaveBeenCalled();
+	});
+});

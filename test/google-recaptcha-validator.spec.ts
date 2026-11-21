@@ -154,4 +154,17 @@ describe('Google recaptcha validator: HTTP handling', () => {
 
 		expect(debugMock).not.toHaveBeenCalled();
 	});
+
+	test('Missing token and secret are sent as empty strings', async () => {
+		const post = vi.fn().mockResolvedValue({ data: { success: false, 'error-codes': [ErrorCode.MissingInputResponse] } });
+		const configRef = new RecaptchaConfigRef({ enterprise: { projectId: 'p', siteKey: 's', apiKey: 'k' }, response: () => undefined });
+		const validator = new GoogleRecaptchaValidator({ post } as unknown as AxiosInstance, new Logger(), configRef);
+
+		const result = await validator.validate({ response: undefined });
+
+		const sentBody = post.mock.calls[0][1] as URLSearchParams;
+		expect(sentBody.get('secret')).toBe('');
+		expect(sentBody.get('response')).toBe('');
+		expect(result.errors).toEqual([ErrorCode.MissingInputResponse]);
+	});
 });

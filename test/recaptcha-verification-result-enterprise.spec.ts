@@ -17,7 +17,7 @@ class TestController {
 
 		expect(result.getResponse()).toBeDefined();
 
-		const riskAnalytics = result.getEnterpriseRiskAnalytics();
+		const riskAnalytics = result.getEnterpriseRiskAnalytics()!;
 
 		expect(riskAnalytics).toBeDefined();
 		expect(riskAnalytics.score).toBe(0.5);
@@ -36,7 +36,7 @@ describe('Recaptcha verification result decorator (enterprise)', () => {
 		module = await Test.createTestingModule({
 			imports: [
 				GoogleRecaptchaModule.forRoot({
-					response: (req: Request): string => req.headers.recaptcha?.toString(),
+					response: (req: Request): string | undefined => req.headers.recaptcha?.toString(),
 					enterprise: {
 						siteKey: 'siteKey',
 						apiKey: 'apiKey',

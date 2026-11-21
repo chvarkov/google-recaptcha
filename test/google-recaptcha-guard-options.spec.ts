@@ -8,6 +8,7 @@ import { createGoogleRecaptchaValidator } from './helpers/create-google-recaptch
 import { createGoogleRecaptchaEnterpriseValidator } from './helpers/create-google-recaptcha-enterprise-validator';
 import { createExecutionContext } from './helpers/create-execution-context';
 import { TestRecaptchaNetwork } from './network/test-recaptcha-network';
+import { LiteralObject } from '../src/interfaces/literal-object';
 
 @Recaptcha({ action: 'Login' })
 class ClassLevelController {
@@ -89,7 +90,7 @@ describe('Google recaptcha guard: decorator options', () => {
 	});
 
 	test('Module remoteIp provider result is passed to validator', async () => {
-		const request = { body: { recaptcha: 'TOKEN' } };
+		const request: LiteralObject = { body: { recaptcha: 'TOKEN' } };
 		const ctx = createExecutionContext(PlainController.prototype.zeroScore, request, 'http', PlainController);
 
 		v3('Submit');

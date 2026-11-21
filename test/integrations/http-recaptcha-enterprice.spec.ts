@@ -24,7 +24,7 @@ class TestController {
 
 		expect(result.getResponse()).toBeDefined();
 
-		const riskAnalytics = result.getEnterpriseRiskAnalytics();
+		const riskAnalytics = result.getEnterpriseRiskAnalytics()!;
 
 		expect(riskAnalytics).toBeDefined();
 
@@ -48,7 +48,7 @@ describe('HTTP Recaptcha Enterprise', () => {
 			imports: [
 				GoogleRecaptchaModule.forRoot({
 					debug: true,
-					response: (req: Request): string => req.headers.recaptcha_should_be_overwritten?.toString(),
+					response: (req: Request): string | undefined => req.headers.recaptcha_should_be_overwritten?.toString(),
 					enterprise: {
 						projectId: 'enterprise_projectId',
 						apiKey: 'enterprise_apiKey',

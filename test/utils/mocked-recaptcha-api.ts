@@ -80,12 +80,14 @@ export class MockedRecaptchaApi {
 				}
 
 				expect(errData).toBeDefined();
+
+				return Promise.reject(new Error(`No mocked response for token '${token}'.`));
 			},
 		});
 	}
 
 	addResponse<T = LiteralObject>(token: string, payload: T): this {
-		this.responseMap.set(token, payload);
+		this.responseMap.set(token, payload as LiteralObject);
 
 		return this;
 	}

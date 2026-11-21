@@ -30,9 +30,9 @@ describe('RecaptchaConfigRef', () => {
 		};
 
 		ref.setEnterpriseOptions(eOpts);
-		expect(ref.valueOf.enterprise.apiKey).toBe(eOpts.apiKey);
-		expect(ref.valueOf.enterprise.projectId).toBe(eOpts.projectId);
-		expect(ref.valueOf.enterprise.siteKey).toBe(eOpts.siteKey);
+		expect(ref.valueOf.enterprise?.apiKey).toBe(eOpts.apiKey);
+		expect(ref.valueOf.enterprise?.projectId).toBe(eOpts.projectId);
+		expect(ref.valueOf.enterprise?.siteKey).toBe(eOpts.siteKey);
 		expect(ref.valueOf.secretKey).toBeUndefined();
 
 		expect(options.enterprise).toBeUndefined();

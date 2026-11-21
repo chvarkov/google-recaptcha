@@ -30,7 +30,7 @@ describe('Recaptcha verification result decorator', () => {
 		module = await Test.createTestingModule({
 			imports: [
 				GoogleRecaptchaModule.forRoot({
-					response: (req: Request): string => req.headers.recaptcha?.toString(),
+					response: (req: Request): string | undefined => req.headers.recaptcha?.toString(),
 					secretKey: 'secret',
 				}),
 			],

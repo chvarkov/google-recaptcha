@@ -1,17 +1,14 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { RECAPTCHA_AXIOS_INSTANCE, RECAPTCHA_LOGGER } from '../../provider.declarations';
 import { VerifyResponseOptions } from '../../interfaces/verify-response-decorator-options';
-import { AbstractGoogleRecaptchaValidator } from './abstract-google-recaptcha-validator';
+import { AbstractGoogleRecaptchaValidator, PostResult } from './abstract-google-recaptcha-validator';
 import { RecaptchaVerificationResult } from '../../models/recaptcha-verification-result';
 import { ErrorCode } from '../../enums/error-code';
 import { GoogleRecaptchaContext } from '../../enums/google-recaptcha-context';
 import { VerifyResponseEnterprise, VerifyTokenEnterpriseEvent } from '../../interfaces/verify-response-enterprise';
 import { EnterpriseReasonTransformer } from '../enterprise-reason.transformer';
 import { AxiosInstance } from 'axios';
-import { LiteralObject } from '../../interfaces/literal-object';
 import { RecaptchaConfigRef } from '../../models/recaptcha-config-ref';
-
-type VerifyResponse = [VerifyResponseEnterprise, LiteralObject];
 
 @Injectable()
 export class GoogleRecaptchaEnterpriseValidator extends AbstractGoogleRecaptchaValidator<VerifyResponseEnterprise> {
@@ -29,12 +26,12 @@ export class GoogleRecaptchaEnterpriseValidator extends AbstractGoogleRecaptchaV
 	}
 
 	async validate(options: VerifyResponseOptions): Promise<RecaptchaVerificationResult<VerifyResponseEnterprise>> {
-		const [result, errorDetails] = await this.verifyResponse(options.response, options.action, options.remoteIp);
+		const { data: result, error } = await this.verifyResponse(options.response, options.action, options.remoteIp);
 
 		const errors: ErrorCode[] = [];
 		let success = result?.tokenProperties?.valid || false;
 
-		if (!errorDetails) {
+		if (!error) {
 			if (result.tokenProperties) {
 				if (result.tokenProperties.invalidReason) {
 					const invalidReasonCode = this.enterpriseReasonTransformer.transform(result.tokenProperties.invalidReason);
@@ -57,13 +54,14 @@ export class GoogleRecaptchaEnterpriseValidator extends AbstractGoogleRecaptchaV
 		}
 
 		if (!success && !errors.length) {
-			errors.push(errorDetails ? ErrorCode.UnknownError : ErrorCode.InvalidInputResponse);
+			errors.push(error ? ErrorCode.UnknownError : ErrorCode.InvalidInputResponse);
 		}
 
 		return new RecaptchaVerificationResult({
 			success,
 			errors,
-			nativeResponse: result,
+			// On HTTP error there is no response from Google.
+			nativeResponse: result as VerifyResponseEnterprise,
 			remoteIp: options.remoteIp,
 			score: result?.riskAnalysis?.score,
 			action: result?.tokenProperties?.action,
@@ -71,25 +69,33 @@ export class GoogleRecaptchaEnterpriseValidator extends AbstractGoogleRecaptchaV
 		});
 	}
 
-	private async verifyResponse(response: string, expectedAction: string, remoteIp: string): Promise<VerifyResponse> {
-		const { projectId, siteKey, apiKey } = this.options.valueOf.enterprise;
+	private async verifyResponse(
+		response: string | undefined,
+		expectedAction?: string,
+		remoteIp?: string
+	): Promise<PostResult<VerifyResponseEnterprise>> {
+		const enterprise = this.options.valueOf.enterprise;
+
+		if (!enterprise) {
+			throw new Error('Google recaptcha enterprise options are not configured.');
+		}
+
+		const { projectId, siteKey, apiKey } = enterprise;
 
 		const body: { event: VerifyTokenEnterpriseEvent } = {
 			event: {
 				expectedAction,
 				siteKey,
-				token: response,
+				token: response ?? '',
 				userIpAddress: remoteIp,
 			},
 		};
 
 		const url = `https://recaptchaenterprise.googleapis.com/v1/projects/${projectId}/assessments`;
 
-		const { data, error } = await this.post<VerifyResponseEnterprise>(url, body, {
+		return this.post<VerifyResponseEnterprise>(url, body, {
 			headers: this.headers,
 			params: { key: apiKey },
 		});
-
-		return error ? [null, error] : [data, null];
 	}
 }

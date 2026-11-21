@@ -74,7 +74,8 @@ export class GoogleRecaptchaModule {
 					this.transformAxiosConfig({
 						...this.axiosDefaultConfig,
 						...options.axiosConfig,
-						headers: null,
+						// User headers are ignored on purpose (see GoogleRecaptchaValidatorOptions.axiosConfig).
+						headers: null as unknown as AxiosRequestConfig['headers'],
 					})
 				),
 			inject: [RECAPTCHA_OPTIONS],
@@ -128,6 +129,12 @@ export class GoogleRecaptchaModule {
 			};
 		}
 
+		const factoryClass = options.useExisting || options.useClass;
+
+		if (!factoryClass) {
+			throw new Error("GoogleRecaptchaModule.forRootAsync() requires one of 'useFactory', 'useClass' or 'useExisting'.");
+		}
+
 		return {
 			provide: RECAPTCHA_OPTIONS,
 			useFactory: async (optionsFactory: GoogleRecaptchaOptionsFactory): Promise<GoogleRecaptchaModuleOptions> => {
@@ -136,7 +143,7 @@ export class GoogleRecaptchaModule {
 				}
 				return optionsFactory.createGoogleRecaptchaOptions();
 			},
-			inject: [options.useExisting || options.useClass],
+			inject: [factoryClass],
 		};
 	}
 
