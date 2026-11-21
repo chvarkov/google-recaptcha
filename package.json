@@ -16,7 +16,7 @@
 		"lint:fix": "eslint . --fix",
 		"lint:check": "eslint . --max-warnings=0",
 		"test": "vitest run",
-		"test:cov": "vitest run --coverage --coverage.reporter=json-summary",
+		"test:cov": "vitest run --coverage",
 		"test:types": "tsc -p tsconfig.spec.json",
 		"publish-package": "cd dist && npm publish --access public"
 	},
