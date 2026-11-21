@@ -5,9 +5,5 @@ import axios from 'axios';
 import { RecaptchaConfigRef } from '../../src/models/recaptcha-config-ref';
 
 export function createGoogleRecaptchaValidator(options: GoogleRecaptchaModuleOptions): GoogleRecaptchaValidator {
-	return new GoogleRecaptchaValidator(
-		axios.create(options.axiosConfig),
-		new Logger(),
-		new RecaptchaConfigRef(options),
-	);
+	return new GoogleRecaptchaValidator(axios.create(options.axiosConfig), new Logger(), new RecaptchaConfigRef(options));
 }

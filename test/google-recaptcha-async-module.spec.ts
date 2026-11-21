@@ -69,9 +69,9 @@ describe('Google recaptcha async module', () => {
 
 		expect(options).toBeDefined();
 
-		checkDefaultConfigs(options.axiosConfig);
+		checkDefaultConfigs(options.axiosConfig!);
 
-		expect(options.axiosConfig.data).toBe('TEST');
+		expect(options.axiosConfig!.data).toBe('TEST');
 
 		const httpsAgent: https.Agent = axiosInstance.defaults.httpsAgent;
 
@@ -120,6 +120,20 @@ describe('Google recaptcha async module', () => {
 		})
 			.compile()
 			.then(() => expect(true).toBeFalsy())
-			.catch((e) => expect(e.message).toBe("Factory must be implement 'GoogleRecaptchaOptionsFactory' interface."));
+			.catch((e) => expect(e.message).toBe("Factory must implement the 'GoogleRecaptchaOptionsFactory' interface."));
+	});
+
+	test('Invalid options are rejected', async () => {
+		await expect(
+			Test.createTestingModule({
+				imports: [GoogleRecaptchaModule.forRootAsync({ useFactory: () => ({ response: () => '' }) })],
+			}).compile()
+		).rejects.toThrow('Google reCAPTCHA options must contain either "secretKey" or "enterprise", but not both.');
+	});
+
+	test('Options provider is required', () => {
+		expect(() => GoogleRecaptchaModule.forRootAsync({})).toThrow(
+			"GoogleRecaptchaModule.forRootAsync() requires one of 'useFactory', 'useClass' or 'useExisting'."
+		);
 	});
 });

@@ -1,8 +1,12 @@
 import { ContextType } from '@nestjs/common';
 
-export type RecaptchaResponseProvider = (req) => string | Promise<string>;
+// `any` on purpose: request shape depends on the platform (express, fastify, graphql context).
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyRequest = any;
 
-export type RecaptchaRemoteIpProvider = (req) => string | Promise<string>;
+export type RecaptchaResponseProvider = (req: AnyRequest) => string | undefined | Promise<string | undefined>;
+
+export type RecaptchaRemoteIpProvider = (req: AnyRequest) => string | undefined | Promise<string | undefined>;
 
 export type ScoreValidator = number | ((score: number) => boolean);
 

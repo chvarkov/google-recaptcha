@@ -3,8 +3,9 @@ import { RecaptchaValidatorResolver } from '../src/services/recaptcha-validator.
 import { RecaptchaConfigRef } from '../src/models/recaptcha-config-ref';
 
 describe('RecaptchaValidatorResolver', () => {
-	const validator = new GoogleRecaptchaValidator(null, null, null);
-	const enterpriseValidator = new GoogleRecaptchaEnterpriseValidator(null, null, null, null);
+	// Dependencies are not used: the resolver only picks an instance.
+	const validator = new GoogleRecaptchaValidator(null!, null!, null!);
+	const enterpriseValidator = new GoogleRecaptchaEnterpriseValidator(null!, null!, null!, null!);
 
 	const createResolver = (options: GoogleRecaptchaModuleOptions) =>
 		new RecaptchaValidatorResolver(new RecaptchaConfigRef(options), validator, enterpriseValidator);

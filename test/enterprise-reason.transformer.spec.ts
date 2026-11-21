@@ -5,7 +5,7 @@ import { ErrorCode } from '../src';
 describe('EnterpriseReasonTransformer', () => {
 	const transformer = new EnterpriseReasonTransformer();
 
-	const expectedMap: Map<GoogleRecaptchaEnterpriseReason, ErrorCode> = new Map<GoogleRecaptchaEnterpriseReason, ErrorCode>([
+	const expectedMap: Map<GoogleRecaptchaEnterpriseReason, ErrorCode | null> = new Map<GoogleRecaptchaEnterpriseReason, ErrorCode | null>([
 		[GoogleRecaptchaEnterpriseReason.InvalidReasonUnspecified, null],
 		[GoogleRecaptchaEnterpriseReason.UnknownInvalidReason, ErrorCode.InvalidInputResponse],
 		[GoogleRecaptchaEnterpriseReason.Malformed, ErrorCode.InvalidInputResponse],

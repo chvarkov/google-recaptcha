@@ -5,9 +5,6 @@ import { Reflector } from '@nestjs/core';
 import { RecaptchaRequestResolver } from '../services/recaptcha-request.resolver';
 import { VerifyResponseDecoratorOptions } from '../interfaces/verify-response-decorator-options';
 import { RecaptchaValidatorResolver } from '../services/recaptcha-validator.resolver';
-import { GoogleRecaptchaContext } from '../enums/google-recaptcha-context';
-import { AbstractGoogleRecaptchaValidator } from '../services/validators/abstract-google-recaptcha-validator';
-import { GoogleRecaptchaEnterpriseValidator } from '../services/validators/google-recaptcha-enterprise.validator';
 import { LiteralObject } from '../interfaces/literal-object';
 import { RecaptchaConfigRef } from '../models/recaptcha-config-ref';
 
@@ -18,7 +15,7 @@ export class GoogleRecaptchaGuard implements CanActivate {
 		private readonly requestResolver: RecaptchaRequestResolver,
 		private readonly validatorResolver: RecaptchaValidatorResolver,
 		@Inject(RECAPTCHA_LOGGER) private readonly logger: Logger,
-		private readonly configRef: RecaptchaConfigRef,
+		private readonly configRef: RecaptchaConfigRef
 	) {}
 
 	async canActivate(context: ExecutionContext): Promise<true | never> {
@@ -31,23 +28,23 @@ export class GoogleRecaptchaGuard implements CanActivate {
 			return true;
 		}
 
-		const options: VerifyResponseDecoratorOptions = this.reflector.get(RECAPTCHA_VALIDATION_OPTIONS, context.getHandler());
+		const options = this.resolveDecoratorOptions(context);
+		const config = this.configRef.valueOf;
 
-		const [response, remoteIp] = await Promise.all([
-			options?.response ? await options.response(request) : await this.configRef.valueOf.response(request),
-			options?.remoteIp ? await options.remoteIp(request) : await this.configRef.valueOf.remoteIp && this.configRef.valueOf.remoteIp(request),
-		]);
+		const responseProvider = options.response ?? config.response;
+		const remoteIpProvider = options.remoteIp ?? config.remoteIp;
 
-		const score = options?.score || this.configRef.valueOf.score;
-		const action = options?.action;
+		const [response, remoteIp] = await Promise.all([responseProvider(request), remoteIpProvider?.(request)]);
+
+		// Score falls back to module config inside the validator.
+		const { score, action } = options;
 
 		const validator = this.validatorResolver.resolve();
 
 		request.recaptchaValidationResult = await validator.validate({ response, remoteIp, score, action });
 
 		if (this.configRef.valueOf.debug) {
-			const loggerCtx = this.resolveLogContext(validator);
-			this.logger.debug(request.recaptchaValidationResult.toObject(), `${loggerCtx}.result`);
+			this.logger.debug(request.recaptchaValidationResult.toObject(), `${validator.logContext}.result`);
 		}
 
 		if (request.recaptchaValidationResult.success) {
@@ -57,9 +54,10 @@ export class GoogleRecaptchaGuard implements CanActivate {
 		throw new GoogleRecaptchaException(request.recaptchaValidationResult.errors);
 	}
 
-	private resolveLogContext(validator: AbstractGoogleRecaptchaValidator<unknown>): GoogleRecaptchaContext {
-		return validator instanceof GoogleRecaptchaEnterpriseValidator
-			? GoogleRecaptchaContext.GoogleRecaptchaEnterprise
-			: GoogleRecaptchaContext.GoogleRecaptcha;
+	private resolveDecoratorOptions(context: ExecutionContext): VerifyResponseDecoratorOptions {
+		const classOptions: VerifyResponseDecoratorOptions = this.reflector.get(RECAPTCHA_VALIDATION_OPTIONS, context.getClass());
+		const handlerOptions: VerifyResponseDecoratorOptions = this.reflector.get(RECAPTCHA_VALIDATION_OPTIONS, context.getHandler());
+
+		return { ...classOptions, ...handlerOptions };
 	}
 }

@@ -14,13 +14,13 @@ import { RECAPTCHA_AXIOS_INSTANCE } from '../../../src/provider.declarations';
 @InputType()
 export class FeedbackInput {
 	@Field({ nullable: false })
-	title: string;
+	title!: string;
 }
 
 @ObjectType()
 export class Feedback {
 	@Field({ nullable: false })
-	title: string;
+	title!: string;
 }
 
 @Resolver(() => Feedback)
@@ -73,7 +73,7 @@ describe('HTTP Recaptcha V2 V3', () => {
 				}),
 				GoogleRecaptchaModule.forRoot({
 					debug: true,
-					response: (req: IncomingMessage): string => req.headers.recaptcha?.toString(),
+					response: (req: IncomingMessage): string | undefined => req.headers.recaptcha?.toString(),
 					secretKey: 'secret_key',
 					score: (score: number) => score >= 0.6,
 					actions: ['Submit'],

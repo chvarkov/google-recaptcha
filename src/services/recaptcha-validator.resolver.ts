@@ -9,7 +9,7 @@ export class RecaptchaValidatorResolver {
 	constructor(
 		private readonly configRef: RecaptchaConfigRef,
 		protected readonly googleRecaptchaValidator: GoogleRecaptchaValidator,
-		protected readonly googleRecaptchaEnterpriseValidator: GoogleRecaptchaEnterpriseValidator,
+		protected readonly googleRecaptchaEnterpriseValidator: GoogleRecaptchaEnterpriseValidator
 	) {}
 
 	resolve(): AbstractGoogleRecaptchaValidator<unknown> {
@@ -22,6 +22,6 @@ export class RecaptchaValidatorResolver {
 			return this.googleRecaptchaEnterpriseValidator;
 		}
 
-		throw new Error('Cannot resolve google recaptcha validator');
+		throw new Error('Cannot resolve the Google reCAPTCHA validator: neither "secretKey" nor "enterprise" options are configured.');
 	}
 }

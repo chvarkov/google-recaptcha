@@ -16,6 +16,11 @@ export interface GoogleRecaptchaValidatorOptions {
 	 */
 	network?: GoogleRecaptchaNetwork | string;
 
+	/**
+	 * Config for the internal axios instance (proxy, timeout, https agent, etc.).
+	 * Note: `headers` and request-specific fields (`url`, `baseURL`, `method`, `data`, `responseType`,
+	 * `transformRequest`, `transformResponse`, `paramsSerializer`, `validateStatus`, `adapter`) are ignored.
+	 */
 	axiosConfig?: AxiosRequestConfig;
 
 	enterprise?: GoogleRecaptchaEnterpriseOptions;

@@ -1,6 +1,6 @@
 import { LiteralObject } from '../../src/interfaces/literal-object';
 import axios from 'axios';
-import { AxiosRequestConfig, AxiosResponse, AxiosError, AxiosInstance, InternalAxiosRequestConfig } from "axios";
+import { AxiosRequestConfig, AxiosResponse, AxiosError, AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 import * as qs from 'qs';
 
 export class MockedRecaptchaApi {
@@ -21,11 +21,7 @@ export class MockedRecaptchaApi {
 				const resolveFn = (d: any) => d?.['response'] || d?.['event']?.token || null;
 
 				const payload =
-					data instanceof URLSearchParams
-						? Object.fromEntries(data)
-						: typeof data === 'string'
-							? qs.parse(data)
-							: data;
+					data instanceof URLSearchParams ? Object.fromEntries(data) : typeof data === 'string' ? qs.parse(data) : data;
 				const token = resolveFn(payload);
 
 				const response = responseMap.get(token);
@@ -84,12 +80,14 @@ export class MockedRecaptchaApi {
 				}
 
 				expect(errData).toBeDefined();
+
+				return Promise.reject(new Error(`No mocked response for token '${token}'.`));
 			},
 		});
 	}
 
 	addResponse<T = LiteralObject>(token: string, payload: T): this {
-		this.responseMap.set(token, payload);
+		this.responseMap.set(token, payload as LiteralObject);
 
 		return this;
 	}

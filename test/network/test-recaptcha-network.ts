@@ -4,7 +4,7 @@ import { LiteralObject } from '../../src/interfaces/literal-object';
 
 @Controller('api')
 class TestSiteVerifyController {
-	private value: LiteralObject;
+	private value: LiteralObject = {};
 
 	@Post('siteverify')
 	verify(): LiteralObject {
@@ -22,7 +22,10 @@ class TestSiteVerifyController {
 class TestRecaptchaModule {}
 
 export class TestRecaptchaNetwork {
-	constructor(private readonly app: INestApplication, private readonly port: number) {}
+	constructor(
+		private readonly app: INestApplication,
+		private readonly port: number
+	) {}
 
 	get url(): string {
 		return `http://localhost:${this.port}/api/siteverify`;

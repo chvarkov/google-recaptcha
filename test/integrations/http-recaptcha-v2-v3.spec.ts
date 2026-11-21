@@ -17,7 +17,7 @@ class TestController {
 	testAction(@RecaptchaResult() result: RecaptchaVerificationResult): LiteralObject {
 		expect(result).toBeInstanceOf(RecaptchaVerificationResult);
 		expect(result.success).toBeTruthy();
-		expect(result.remoteIp).toBe('IP_ADDR')
+		expect(result.remoteIp).toBe('IP_ADDR');
 
 		expect(result.getResponse()).toBeDefined();
 
@@ -42,7 +42,7 @@ describe('HTTP Recaptcha V2 V3', () => {
 			imports: [
 				GoogleRecaptchaModule.forRoot({
 					debug: true,
-					response: (req: Request): string => req.headers.recaptcha?.toString(),
+					response: (req: Request): string | undefined => req.headers.recaptcha?.toString(),
 					secretKey: 'secret_key',
 					score: 0.6,
 					actions: ['Submit'],
