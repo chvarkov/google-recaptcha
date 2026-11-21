@@ -2,16 +2,19 @@ name: Test
 
 on:
   push:
-    branches: [ "develop" ]
+    branches: [ "master", "develop" ]
   pull_request:
     branches: [ "master", "develop" ]
+
+permissions:
+  contents: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18.x, 20.x, 22.x]
+        node-version: [20.x, 22.x, 24.x]
 
     steps:
       - uses: actions/checkout@v4
@@ -22,7 +25,8 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npm run build
+      - run: npm run test:types
       - run: npm run test:cov
       - name: Update Coverage Badge
-        if: ${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && matrix.node-version == '22.x'}}
+        if: ${{ github.event_name == 'push' && github.ref == format('refs/heads/{0}', github.event.repository.default_branch) && matrix.node-version == '24.x'}}
         uses: we-cli/coverage-badge-action@main

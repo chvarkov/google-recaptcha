@@ -176,6 +176,6 @@ describe('Google recaptcha guard', () => {
 
 		Object.assign(context, { getType: () => 'unknown' });
 
-		await expect(guard.canActivate(context)).rejects.toThrowError('Unsupported request type');
+		await expect(guard.canActivate(context)).rejects.toThrow('Unsupported request type');
 	});
 });

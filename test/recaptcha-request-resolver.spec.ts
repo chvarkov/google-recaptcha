@@ -5,6 +5,6 @@ describe('RecaptchaRequestResolver', () => {
 	const resolver = new RecaptchaRequestResolver();
 
 	test('Negative', () => {
-		expect(() => resolver.resolve(createExecutionContext(() => null, null, 'unsupported'))).toThrowError('Unsupported request type');
+		expect(() => resolver.resolve(createExecutionContext(() => null, null, 'unsupported'))).toThrow('Unsupported request type');
 	});
 });

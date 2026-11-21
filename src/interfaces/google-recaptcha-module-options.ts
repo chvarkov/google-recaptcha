@@ -1,8 +1,6 @@
 import { GoogleRecaptchaGuardOptions } from './google-recaptcha-guard-options';
 import { GoogleRecaptchaValidatorOptions } from './google-recaptcha-validator-options';
-import { ModuleMetadata, Type } from '@nestjs/common/interfaces';
-import { Logger } from '@nestjs/common';
-import { Abstract } from '@nestjs/common/interfaces/abstract.interface';
+import { ModuleMetadata, Type, Logger, Abstract } from '@nestjs/common';
 
 export interface GoogleRecaptchaModuleOptions extends GoogleRecaptchaValidatorOptions, GoogleRecaptchaGuardOptions {
 	debug?: boolean;

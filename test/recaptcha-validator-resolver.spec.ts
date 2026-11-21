@@ -44,6 +44,6 @@ describe('RecaptchaValidatorResolver', () => {
 		};
 
 		const resolver = createResolver(moduleOptions);
-		expect(() => resolver.resolve()).toThrowError('Cannot resolve');
+		expect(() => resolver.resolve()).toThrow('Cannot resolve');
 	});
 });

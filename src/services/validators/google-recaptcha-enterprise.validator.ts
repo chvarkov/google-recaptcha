@@ -58,7 +58,7 @@ export class GoogleRecaptchaEnterpriseValidator extends AbstractGoogleRecaptchaV
 		}
 
 		if (!success && !errors.length) {
-			errorDetails ? errors.push(ErrorCode.UnknownError) : errors.push(ErrorCode.InvalidInputResponse);
+			errors.push(errorDetails ? ErrorCode.UnknownError : ErrorCode.InvalidInputResponse);
 		}
 
 		return new RecaptchaVerificationResult({

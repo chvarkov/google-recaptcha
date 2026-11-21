@@ -47,6 +47,6 @@ describe('Google recaptcha module', () => {
 	});
 
 	test('Test invalid config', async () => {
-		await expect(createApp({ response: () => '' })).rejects.toThrowError('must be contains "secretKey" xor "enterprise"');
+		await expect(createApp({ response: () => '' })).rejects.toThrow('must be contains "secretKey" xor "enterprise"');
 	});
 });

@@ -2,7 +2,7 @@ import { Controller, INestApplication, Post } from '@nestjs/common';
 import { ErrorCode, GoogleRecaptchaModule, Recaptcha, RecaptchaResult, RecaptchaVerificationResult } from '../../src';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Request } from 'express';
-import * as request from 'supertest';
+import request from 'supertest';
 import { MockedRecaptchaApi } from '../utils/mocked-recaptcha-api';
 import { VerifyResponseV2, VerifyResponseV3 } from '../../src/interfaces/verify-response';
 import { TestHttp } from '../utils/test-http';
