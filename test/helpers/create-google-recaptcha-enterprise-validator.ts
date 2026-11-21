@@ -9,6 +9,6 @@ export function createGoogleRecaptchaEnterpriseValidator(options: GoogleRecaptch
 		axios.create(),
 		new Logger(),
 		new RecaptchaConfigRef(options),
-		new EnterpriseReasonTransformer(),
+		new EnterpriseReasonTransformer()
 	);
 }

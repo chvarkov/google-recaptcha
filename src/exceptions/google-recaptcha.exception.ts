@@ -2,7 +2,10 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 import { ErrorCode } from '../enums/error-code';
 
 export class GoogleRecaptchaException extends HttpException {
-	constructor(public readonly errorCodes: ErrorCode[], errorMessage?: string) {
+	constructor(
+		public readonly errorCodes: ErrorCode[],
+		errorMessage?: string
+	) {
 		super(
 			errorMessage || GoogleRecaptchaException.getErrorMessage(errorCodes[0]),
 			GoogleRecaptchaException.getErrorStatus(errorCodes[0])

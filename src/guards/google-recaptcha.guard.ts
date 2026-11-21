@@ -18,7 +18,7 @@ export class GoogleRecaptchaGuard implements CanActivate {
 		private readonly requestResolver: RecaptchaRequestResolver,
 		private readonly validatorResolver: RecaptchaValidatorResolver,
 		@Inject(RECAPTCHA_LOGGER) private readonly logger: Logger,
-		private readonly configRef: RecaptchaConfigRef,
+		private readonly configRef: RecaptchaConfigRef
 	) {}
 
 	async canActivate(context: ExecutionContext): Promise<true | never> {
@@ -35,7 +35,9 @@ export class GoogleRecaptchaGuard implements CanActivate {
 
 		const [response, remoteIp] = await Promise.all([
 			options?.response ? await options.response(request) : await this.configRef.valueOf.response(request),
-			options?.remoteIp ? await options.remoteIp(request) : await this.configRef.valueOf.remoteIp && this.configRef.valueOf.remoteIp(request),
+			options?.remoteIp
+				? await options.remoteIp(request)
+				: (await this.configRef.valueOf.remoteIp) && this.configRef.valueOf.remoteIp(request),
 		]);
 
 		const score = options?.score || this.configRef.valueOf.score;

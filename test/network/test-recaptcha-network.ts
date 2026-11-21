@@ -22,7 +22,10 @@ class TestSiteVerifyController {
 class TestRecaptchaModule {}
 
 export class TestRecaptchaNetwork {
-	constructor(private readonly app: INestApplication, private readonly port: number) {}
+	constructor(
+		private readonly app: INestApplication,
+		private readonly port: number
+	) {}
 
 	get url(): string {
 		return `http://localhost:${this.port}/api/siteverify`;

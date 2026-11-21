@@ -9,7 +9,7 @@ export class RecaptchaValidatorResolver {
 	constructor(
 		private readonly configRef: RecaptchaConfigRef,
 		protected readonly googleRecaptchaValidator: GoogleRecaptchaValidator,
-		protected readonly googleRecaptchaEnterpriseValidator: GoogleRecaptchaEnterpriseValidator,
+		protected readonly googleRecaptchaEnterpriseValidator: GoogleRecaptchaEnterpriseValidator
 	) {}
 
 	resolve(): AbstractGoogleRecaptchaValidator<unknown> {

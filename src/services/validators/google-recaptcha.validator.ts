@@ -22,7 +22,7 @@ export class GoogleRecaptchaValidator extends AbstractGoogleRecaptchaValidator<V
 	constructor(
 		@Inject(RECAPTCHA_AXIOS_INSTANCE) private readonly axios: AxiosInstance,
 		@Inject(RECAPTCHA_LOGGER) private readonly logger: Logger,
-		configRef: RecaptchaConfigRef,
+		configRef: RecaptchaConfigRef
 	) {
 		super(configRef);
 	}
@@ -87,7 +87,8 @@ export class GoogleRecaptchaValidator extends AbstractGoogleRecaptchaValidator<V
 			this.logger.debug({ body }, `${GoogleRecaptchaContext.GoogleRecaptcha}.request`);
 		}
 
-		return this.axios.post(url, body, config)
+		return this.axios
+			.post(url, body, config)
 			.then((res) => res.data)
 			.then((data) => {
 				if (this.options.valueOf.debug) {

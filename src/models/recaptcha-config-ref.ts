@@ -7,8 +7,7 @@ export class RecaptchaConfigRef {
 		return this.value;
 	}
 
-	constructor(private readonly value: GoogleRecaptchaModuleOptions) {
-	}
+	constructor(private readonly value: GoogleRecaptchaModuleOptions) {}
 
 	setSecretKey(secretKey: string): this {
 		this.value.secretKey = secretKey;

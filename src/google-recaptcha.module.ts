@@ -51,13 +51,14 @@ export class GoogleRecaptchaModule {
 		const internalProviders: Provider[] = [
 			{
 				provide: RECAPTCHA_AXIOS_INSTANCE,
-				useFactory: (): AxiosInstance => axios.create(
-					this.transformAxiosConfig({
-						...this.axiosDefaultConfig,
-						...options.axiosConfig,
-						headers: null,
-					}),
-				),
+				useFactory: (): AxiosInstance =>
+					axios.create(
+						this.transformAxiosConfig({
+							...this.axiosDefaultConfig,
+							...options.axiosConfig,
+							headers: null,
+						})
+					),
 			},
 		];
 

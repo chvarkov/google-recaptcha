@@ -17,7 +17,7 @@ class TestController {
 	testAction(@RecaptchaResult() result: RecaptchaVerificationResult): LiteralObject {
 		expect(result).toBeInstanceOf(RecaptchaVerificationResult);
 		expect(result.success).toBeTruthy();
-		expect(result.remoteIp).toBe('IP_ADDR')
+		expect(result.remoteIp).toBe('IP_ADDR');
 
 		expect(result.getResponse()).toBeDefined();
 

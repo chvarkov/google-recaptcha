@@ -96,7 +96,8 @@ export class GoogleRecaptchaEnterpriseValidator extends AbstractGoogleRecaptchaV
 			this.logger.debug({ body }, `${GoogleRecaptchaContext.GoogleRecaptchaEnterprise}.request`);
 		}
 
-		return this.axios.post<VerifyResponseEnterprise>(url, body, config)
+		return this.axios
+			.post<VerifyResponseEnterprise>(url, body, config)
 			.then((res) => res.data)
 			.then((data: VerifyResponseEnterprise): VerifyResponse => {
 				if (this.options.valueOf.debug) {

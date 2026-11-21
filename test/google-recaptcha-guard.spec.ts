@@ -44,7 +44,7 @@ describe('Google recaptcha guard', () => {
 			new RecaptchaRequestResolver(),
 			validatorResolver,
 			new Logger(),
-			new RecaptchaConfigRef({ ...options, skipIf: true }),
+			new RecaptchaConfigRef({ ...options, skipIf: true })
 		);
 
 		const context = createExecutionContext(controller.submit, { body: { recaptcha: 'RECAPTCHA_TOKEN' } });
@@ -58,18 +58,14 @@ describe('Google recaptcha guard', () => {
 		const options = { ...validatorOptions, ...guardOptions };
 		const validator = createGoogleRecaptchaValidator(options);
 		const enterpriseValidator = createGoogleRecaptchaEnterpriseValidator(options);
-		const validatorResolver = new RecaptchaValidatorResolver(
-			new RecaptchaConfigRef(options),
-			validator,
-			enterpriseValidator,
-		);
+		const validatorResolver = new RecaptchaValidatorResolver(new RecaptchaConfigRef(options), validator, enterpriseValidator);
 
 		const guard = new GoogleRecaptchaGuard(
 			new Reflector(),
 			new RecaptchaRequestResolver(),
 			validatorResolver,
 			new Logger(),
-			new RecaptchaConfigRef({ ...options, skipIf: (): boolean => true }),
+			new RecaptchaConfigRef({ ...options, skipIf: (): boolean => true })
 		);
 
 		const context = createExecutionContext(controller.submitOverridden.prototype, { body: { recaptcha: 'RECAPTCHA_TOKEN' } });
@@ -83,18 +79,14 @@ describe('Google recaptcha guard', () => {
 		const options = { ...validatorOptions, ...guardOptions };
 		const validator = createGoogleRecaptchaValidator(options);
 		const enterpriseValidator = createGoogleRecaptchaEnterpriseValidator(options);
-		const validatorResolver = new RecaptchaValidatorResolver(
-			new RecaptchaConfigRef(options),
-			validator,
-			enterpriseValidator,
-		);
+		const validatorResolver = new RecaptchaValidatorResolver(new RecaptchaConfigRef(options), validator, enterpriseValidator);
 
 		const guard = new GoogleRecaptchaGuard(
 			new Reflector(),
 			new RecaptchaRequestResolver(),
 			validatorResolver,
 			new Logger(),
-			new RecaptchaConfigRef(options),
+			new RecaptchaConfigRef(options)
 		);
 
 		const context = createExecutionContext(controller.submit, { body: { recaptcha: 'RECAPTCHA_TOKEN' } });
@@ -114,18 +106,14 @@ describe('Google recaptcha guard', () => {
 
 		const validator = createGoogleRecaptchaValidator(options);
 		const enterpriseValidator = createGoogleRecaptchaEnterpriseValidator(options);
-		const validatorResolver = new RecaptchaValidatorResolver(
-			new RecaptchaConfigRef(options),
-			validator,
-			enterpriseValidator,
-		);
+		const validatorResolver = new RecaptchaValidatorResolver(new RecaptchaConfigRef(options), validator, enterpriseValidator);
 
 		const guard = new GoogleRecaptchaGuard(
 			new Reflector(),
 			new RecaptchaRequestResolver(),
 			validatorResolver,
 			new Logger(),
-			new RecaptchaConfigRef({ ...guardOptions, ...validatorOptions }),
+			new RecaptchaConfigRef({ ...guardOptions, ...validatorOptions })
 		);
 
 		const context = createExecutionContext(controller.submit, { body: { recaptcha: 'RECAPTCHA_TOKEN' } });
@@ -150,7 +138,13 @@ describe('Google recaptcha guard', () => {
 		const enterpriseValidator = createGoogleRecaptchaEnterpriseValidator(options);
 		const validatorResolver = new RecaptchaValidatorResolver(new RecaptchaConfigRef(options), validator, enterpriseValidator);
 
-		const guard = new GoogleRecaptchaGuard(new Reflector(), new RecaptchaRequestResolver(), validatorResolver, new Logger(), new RecaptchaConfigRef(options));
+		const guard = new GoogleRecaptchaGuard(
+			new Reflector(),
+			new RecaptchaRequestResolver(),
+			validatorResolver,
+			new Logger(),
+			new RecaptchaConfigRef(options)
+		);
 
 		const context = createExecutionContext(controller.submit, { body: { recaptcha: 'RECAPTCHA_TOKEN' } });
 
@@ -164,13 +158,15 @@ describe('Google recaptcha guard', () => {
 
 		const validator = createGoogleRecaptchaValidator(options);
 		const enterpriseValidator = createGoogleRecaptchaEnterpriseValidator(options);
-		const validatorResolver = new RecaptchaValidatorResolver(
-			new RecaptchaConfigRef(options),
-			validator,
-			enterpriseValidator,
-		);
+		const validatorResolver = new RecaptchaValidatorResolver(new RecaptchaConfigRef(options), validator, enterpriseValidator);
 
-		const guard = new GoogleRecaptchaGuard(new Reflector(), new RecaptchaRequestResolver(), validatorResolver, new Logger(), new RecaptchaConfigRef(options));
+		const guard = new GoogleRecaptchaGuard(
+			new Reflector(),
+			new RecaptchaRequestResolver(),
+			validatorResolver,
+			new Logger(),
+			new RecaptchaConfigRef(options)
+		);
 
 		const context = createExecutionContext(controller.submit, { body: { recaptcha: 'RECAPTCHA_TOKEN' } });
 
