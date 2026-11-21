@@ -13,6 +13,7 @@
 	"scripts": {
 		"build": "rm -rf dist && tsc && cp package.json dist && cp README.md dist && cp LICENSE dist && cp CONTRIBUTING.md dist && cp CHANGELOG.md dist",
 		"format": "prettier \"**/*.ts\" \"**/*.json\" --ignore-path ./.prettierignore --write",
+		"format:check": "prettier \"**/*.ts\" \"**/*.json\" --ignore-path ./.prettierignore --check",
 		"lint:fix": "eslint . --fix",
 		"lint:check": "eslint . --max-warnings=0",
 		"test": "vitest run",
