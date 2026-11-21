@@ -2,6 +2,10 @@ import { Test } from '@nestjs/testing';
 import { ErrorCode, GoogleRecaptchaModule } from '../src';
 import { GoogleRecaptchaValidator } from '../src/services/validators/google-recaptcha.validator';
 import { GoogleRecaptchaNetworkException } from '../src/exceptions/google-recaptcha-network.exception';
+import { RecaptchaConfigRef } from '../src/models/recaptcha-config-ref';
+import { AxiosInstance } from 'axios';
+import { Logger } from '@nestjs/common';
+import { inspect } from 'node:util';
 
 describe('Google recaptcha validator', () => {
 	test('Invalid secret', async () => {
@@ -52,5 +56,34 @@ describe('Google recaptcha validator', () => {
 		expect(validator).toBeInstanceOf(GoogleRecaptchaValidator);
 
 		await expect(validator.validate({ response: 'TEST_TOKEN' })).rejects.toThrow(GoogleRecaptchaNetworkException);
+	});
+});
+
+describe('Google recaptcha validator debug logging', () => {
+	test('Does not log secret key', async () => {
+		const secretKey = '6LeIxAATAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe';
+		const axiosMock = {
+			post: vi.fn().mockResolvedValue({ data: { success: true, hostname: 'localhost' } }),
+		} as unknown as AxiosInstance;
+		const logger = { debug: vi.fn() } as unknown as Logger;
+		const configRef = new RecaptchaConfigRef({ secretKey, debug: true, response: () => 'TEST_TOKEN' });
+
+		const validator = new GoogleRecaptchaValidator(axiosMock, logger, configRef);
+		await validator.validate({ response: 'TEST_TOKEN', remoteIp: '127.0.0.1' });
+
+		const debugMock = vi.mocked(logger.debug);
+
+		expect(debugMock).toHaveBeenCalledWith(
+			{ body: { secret: '6Le******JWe', response: 'TEST_TOKEN', remoteip: '127.0.0.1' } },
+			'GoogleRecaptcha.request'
+		);
+
+		for (const args of debugMock.mock.calls) {
+			expect(inspect(args, { depth: null })).not.toContain(secretKey);
+		}
+
+		// Secret must still be sent to Google.
+		const sentBody = vi.mocked(axiosMock.post).mock.calls[0][1] as URLSearchParams;
+		expect(sentBody.get('secret')).toBe(secretKey);
 	});
 });

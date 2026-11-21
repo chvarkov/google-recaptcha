@@ -10,6 +10,7 @@ import { AbstractGoogleRecaptchaValidator } from './abstract-google-recaptcha-va
 import { RecaptchaVerificationResult } from '../../models/recaptcha-verification-result';
 import { GoogleRecaptchaContext } from '../../enums/google-recaptcha-context';
 import { getErrorInfo } from '../../helpers/get-error-info';
+import { maskSecret } from '../../helpers/mask-secret';
 import { AxiosInstance } from 'axios';
 import { RecaptchaConfigRef } from '../../models/recaptcha-config-ref';
 
@@ -84,7 +85,9 @@ export class GoogleRecaptchaValidator extends AbstractGoogleRecaptchaValidator<V
 		};
 
 		if (this.options.valueOf.debug) {
-			this.logger.debug({ body }, `${GoogleRecaptchaContext.GoogleRecaptcha}.request`);
+			// Secret key must never be logged in plain text.
+			const loggedBody = { secret: maskSecret(this.options.valueOf.secretKey), response, remoteip: remoteIp };
+			this.logger.debug({ body: loggedBody }, `${GoogleRecaptchaContext.GoogleRecaptcha}.request`);
 		}
 
 		return this.axios
