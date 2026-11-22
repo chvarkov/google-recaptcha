@@ -1,11 +1,11 @@
 import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import { GoogleRecaptchaValidator } from '../src/services/validators/google-recaptcha.validator';
-import { GoogleRecaptchaGuard, GoogleRecaptchaModuleOptions, GoogleRecaptchaModule } from '../src';
-import { RECAPTCHA_OPTIONS } from '../src/provider.declarations';
+import { GoogleRecaptchaValidator } from '../src/services/validators/google-recaptcha.validator.js';
+import { GoogleRecaptchaGuard, GoogleRecaptchaModuleOptions, GoogleRecaptchaModule } from '../src/index.js';
+import { RECAPTCHA_OPTIONS } from '../src/provider.declarations.js';
 
 describe('Google recaptcha module', () => {
-	const customNetwork = 'CUSTOM_URL';
+	const customSiteVerifyUrl = 'CUSTOM_URL';
 
 	const createApp = async (options: GoogleRecaptchaModuleOptions): Promise<INestApplication> => {
 		const testingModule = await Test.createTestingModule({
@@ -19,10 +19,11 @@ describe('Google recaptcha module', () => {
 
 	beforeAll(async () => {
 		app = await createApp({
+			type: 'v3',
 			secretKey: 'secret key',
 			response: (req) => req.headers.authorization,
 			skipIf: () => process.env.NODE_ENV !== 'production',
-			network: customNetwork,
+			siteVerifyUrl: customSiteVerifyUrl,
 			global: false,
 		});
 	});
@@ -43,10 +44,11 @@ describe('Google recaptcha module', () => {
 		const options: GoogleRecaptchaModuleOptions = app.get(RECAPTCHA_OPTIONS);
 
 		expect(options).toBeDefined();
-		expect(options.network).toBe(customNetwork);
+		expect(options.siteVerifyUrl).toBe(customSiteVerifyUrl);
 	});
 
 	test('Test invalid config', async () => {
+		// @ts-expect-error neither `secretKey` nor `enterprise`: rejected by types, checked at runtime for JS users
 		await expect(createApp({ response: () => '' })).rejects.toThrow(
 			'Google reCAPTCHA options must contain either "secretKey" or "enterprise", but not both.'
 		);

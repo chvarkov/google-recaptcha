@@ -1,21 +1,22 @@
-import { GoogleRecaptchaException, GoogleRecaptchaGuard, GoogleRecaptchaModuleOptions } from '../src';
+import { GoogleRecaptchaException, GoogleRecaptchaGuard, GoogleRecaptchaModuleOptions } from '../src/index.js';
 import { Reflector } from '@nestjs/core';
-import { GoogleRecaptchaGuardOptions } from '../src/interfaces/google-recaptcha-guard-options';
-import { createGoogleRecaptchaValidator } from './helpers/create-google-recaptcha-validator';
-import { GoogleRecaptchaValidatorOptions } from '../src/interfaces/google-recaptcha-validator-options';
-import { createExecutionContext } from './helpers/create-execution-context';
-import { TestController } from './assets/test-controller';
-import { TestRecaptchaNetwork } from './network/test-recaptcha-network';
-import { RecaptchaRequestResolver } from '../src/services/recaptcha-request.resolver';
+import { GoogleRecaptchaGuardOptions } from '../src/interfaces/google-recaptcha-guard-options.js';
+import { createGoogleRecaptchaValidator } from './helpers/create-google-recaptcha-validator.js';
+import { GoogleRecaptchaValidatorOptions } from '../src/interfaces/google-recaptcha-validator-options.js';
+import { createExecutionContext } from './helpers/create-execution-context.js';
+import { TestController } from './assets/test-controller.js';
+import { TestRecaptchaNetwork } from './network/test-recaptcha-network.js';
+import { RecaptchaRequestResolver } from '../src/services/recaptcha-request.resolver.js';
 import { Logger } from '@nestjs/common';
-import { createGoogleRecaptchaEnterpriseValidator } from './helpers/create-google-recaptcha-enterprise-validator';
-import { RecaptchaValidatorResolver } from '../src/services/recaptcha-validator.resolver';
-import { RecaptchaConfigRef } from '../src/models/recaptcha-config-ref';
+import { createGoogleRecaptchaEnterpriseValidator } from './helpers/create-google-recaptcha-enterprise-validator.js';
+import { RecaptchaValidatorResolver } from '../src/services/recaptcha-validator.resolver.js';
+import { RecaptchaConfigRef } from '../src/models/recaptcha-config-ref.js';
 
 describe('Google recaptcha guard', () => {
 	let network: TestRecaptchaNetwork;
 	const networkPort = 6048;
 	const validatorOptions: GoogleRecaptchaValidatorOptions = {
+		type: 'v3',
 		secretKey: 'Secret',
 	};
 	const guardOptions: GoogleRecaptchaGuardOptions = {
@@ -75,6 +76,30 @@ describe('Google recaptcha guard', () => {
 		expect(canActivate).toBeTruthy();
 	});
 
+	test('SkipIf = typed (req) => boolean receives the request', async () => {
+		const options = { ...validatorOptions, ...guardOptions };
+		const validator = createGoogleRecaptchaValidator(options);
+		const enterpriseValidator = createGoogleRecaptchaEnterpriseValidator(options);
+		const validatorResolver = new RecaptchaValidatorResolver(new RecaptchaConfigRef(options), validator, enterpriseValidator);
+
+		// Typed parameter must be accepted by SkipIfValue (compile-time check via test:types).
+		const skipIf = vi.fn(async (req: { headers: Record<string, string> }): Promise<boolean> => req.headers['x-skip'] === '1');
+
+		const guard = new GoogleRecaptchaGuard(
+			new Reflector(),
+			new RecaptchaRequestResolver(),
+			validatorResolver,
+			new Logger(),
+			new RecaptchaConfigRef({ ...options, skipIf })
+		);
+
+		const request = { headers: { 'x-skip': '1' }, body: {} };
+		const context = createExecutionContext(controller.submit.prototype, request);
+
+		await expect(guard.canActivate(context)).resolves.toBe(true);
+		expect(skipIf).toHaveBeenCalledWith(request);
+	});
+
 	test('Invalid secret', async () => {
 		const options = { ...validatorOptions, ...guardOptions };
 		const validator = createGoogleRecaptchaValidator(options);
@@ -97,11 +122,11 @@ describe('Google recaptcha guard', () => {
 			.catch((e) => expect(e).toBeInstanceOf(GoogleRecaptchaException));
 	});
 
-	test('Invalid network', async () => {
+	test('Invalid siteVerifyUrl', async () => {
 		const options = {
 			...validatorOptions,
 			...guardOptions,
-			network: 'https://localhost/some-invalid-path',
+			siteVerifyUrl: 'https://localhost/some-invalid-path',
 		};
 
 		const validator = createGoogleRecaptchaValidator(options);
@@ -131,7 +156,7 @@ describe('Google recaptcha guard', () => {
 		const options = {
 			...validatorOptions,
 			...guardOptions,
-			network: network.url,
+			siteVerifyUrl: network.url,
 		};
 
 		const validator = createGoogleRecaptchaValidator(options);

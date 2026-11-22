@@ -1,8 +1,8 @@
 import { ExecutionContext } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { afterEach, describe, expect, test, vi } from 'vitest';
-import { resolveRequest } from '../src/helpers/resolve-request';
-import { createExecutionContext } from './helpers/create-execution-context';
+import { resolveRequest } from '../src/helpers/resolve-request.js';
+import { createExecutionContext } from './helpers/create-execution-context.js';
 
 function createGqlContext(gqlContext: unknown): ExecutionContext {
 	vi.spyOn(GqlExecutionContext, 'create').mockReturnValue({ getContext: () => gqlContext } as unknown as GqlExecutionContext);

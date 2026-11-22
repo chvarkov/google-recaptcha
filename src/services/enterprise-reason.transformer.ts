@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { GoogleRecaptchaEnterpriseReason } from '../enums/google-recaptcha-enterprise-reason';
-import { ErrorCode } from '../enums/error-code';
+import { GoogleRecaptchaEnterpriseReason } from '../enums/google-recaptcha-enterprise-reason.js';
+import { ErrorCode } from '../enums/error-code.js';
 
 @Injectable()
 export class EnterpriseReasonTransformer {

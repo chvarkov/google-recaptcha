@@ -1,10 +1,10 @@
 import { Controller, INestApplication, Post } from '@nestjs/common';
-import { ClassificationReason, GoogleRecaptchaModule, Recaptcha, RecaptchaResult, RecaptchaVerificationResult } from '../src';
+import { ClassificationReason, GoogleRecaptchaModule, Recaptcha, RecaptchaResult, RecaptchaVerificationResult } from '../src/index.js';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Request } from 'express';
 import request from 'supertest';
-import { VerifyResponseEnterprise } from '../src/interfaces/verify-response-enterprise';
-import { RECAPTCHA_AXIOS_INSTANCE } from '../src/provider.declarations';
+import { VerifyResponseEnterprise } from '../src/interfaces/verify-response-enterprise.js';
+import { RECAPTCHA_AXIOS_INSTANCE } from '../src/provider.declarations.js';
 import axios from 'axios';
 
 @Controller('test')
@@ -37,6 +37,7 @@ describe('Recaptcha verification result decorator (enterprise)', () => {
 			imports: [
 				GoogleRecaptchaModule.forRoot({
 					response: (req: Request): string | undefined => req.headers.recaptcha?.toString(),
+					type: 'enterprise',
 					enterprise: {
 						siteKey: 'siteKey',
 						apiKey: 'apiKey',
@@ -87,5 +88,18 @@ describe('Recaptcha verification result decorator (enterprise)', () => {
 
 	test('Test', () => {
 		return request(app.getHttpServer()).post('/test/submit').expect(201).expect('OK');
+	});
+});
+
+describe('RecaptchaVerificationResult.getEnterpriseRiskAnalytics', () => {
+	test('Returns null when there is no native response (e.g. HTTP error)', () => {
+		const result = new RecaptchaVerificationResult<VerifyResponseEnterprise | undefined>({
+			success: false,
+			errors: [],
+			hostname: '',
+			nativeResponse: undefined,
+		});
+
+		expect(result.getEnterpriseRiskAnalytics()).toBeNull();
 	});
 });

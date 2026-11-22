@@ -1,6 +1,6 @@
 import { Controller, INestApplication, Module, Post } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { LiteralObject } from '../../src/interfaces/literal-object';
+import { LiteralObject } from '../utils/literal-object.js';
 
 @Controller('api')
 class TestSiteVerifyController {

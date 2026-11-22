@@ -1,15 +1,19 @@
 import { Logger } from '@nestjs/common';
 import { AxiosInstance, AxiosRequestConfig } from 'axios';
-import { VerifyResponseOptions } from '../../interfaces/verify-response-decorator-options';
-import { ScoreValidator } from '../../types';
-import { RecaptchaVerificationResult } from '../../models/recaptcha-verification-result';
-import { RecaptchaConfigRef } from '../../models/recaptcha-config-ref';
-import { GoogleRecaptchaContext } from '../../enums/google-recaptcha-context';
-import { GoogleRecaptchaNetworkException } from '../../exceptions/google-recaptcha-network.exception';
-import { getErrorInfo, isAxiosError } from '../../helpers/get-error-info';
-import { LiteralObject } from '../../interfaces/literal-object';
+import { VerifyResponseOptions } from '../../interfaces/verify-response-decorator-options.js';
+import { ScoreValidator } from '../../types.js';
+import { RecaptchaVerificationResult } from '../../models/recaptcha-verification-result.js';
+import { RecaptchaConfigRef } from '../../models/recaptcha-config-ref.js';
+import { GoogleRecaptchaContext } from '../../enums/google-recaptcha-context.js';
+import { GoogleRecaptchaNetworkException } from '../../exceptions/google-recaptcha-network.exception.js';
+import { getErrorInfo, isAxiosError } from '../../helpers/get-error-info.js';
 
-export type PostResult<T> = { data: T; error?: undefined } | { data?: undefined; error: LiteralObject };
+export interface PostError {
+	status?: number;
+	data: unknown;
+}
+
+export type PostResult<T> = { data: T; error?: undefined } | { data?: undefined; error: PostError };
 
 export abstract class AbstractGoogleRecaptchaValidator<Res> {
 	/** Prefix for debug log messages: `<logContext>.request`, `<logContext>.response`, etc. */
@@ -66,25 +70,33 @@ export abstract class AbstractGoogleRecaptchaValidator<Res> {
 		}
 	}
 
-	protected isValidAction(action: string, options: VerifyResponseOptions): boolean {
+	/** Missing action (e.g. not returned by Google) is valid only when no action restrictions are configured. */
+	protected isValidAction(action: string | undefined, options: VerifyResponseOptions): boolean {
 		if (options.action) {
 			return options.action === action;
 		}
 
-		return this.options.valueOf.actions ? this.options.valueOf.actions.includes(action) : true;
-	}
+		const actions = this.options.valueOf.actions;
 
-	protected isValidScore(score: number, validator?: ScoreValidator): boolean {
-		const finalValidator = validator ?? this.options.valueOf.score;
-
-		if (finalValidator != null) {
-			if (typeof finalValidator === 'function') {
-				return finalValidator(score);
-			}
-
-			return score >= finalValidator;
+		if (!actions) {
+			return true;
 		}
 
-		return true;
+		return action !== undefined && actions.includes(action);
+	}
+
+	/** Missing score (e.g. not returned by Google) is valid only when no score validator is configured. */
+	protected isValidScore(score: number | undefined, validator?: ScoreValidator): boolean {
+		const finalValidator = validator ?? this.options.valueOf.score;
+
+		if (finalValidator == null) {
+			return true;
+		}
+
+		if (score === undefined) {
+			return false;
+		}
+
+		return typeof finalValidator === 'function' ? finalValidator(score) : score >= finalValidator;
 	}
 }

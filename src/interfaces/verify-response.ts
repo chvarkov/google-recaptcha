@@ -1,4 +1,4 @@
-import { ErrorCode } from '../enums/error-code';
+import { ErrorCode } from '../enums/error-code.js';
 
 export interface VerifyResponseV2 {
 	success: boolean;

@@ -1,11 +1,11 @@
 import { Logger } from '@nestjs/common';
 import { AxiosError, AxiosHeaders, AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 import { inspect } from 'node:util';
-import { GoogleRecaptchaEnterpriseValidator } from '../src/services/validators/google-recaptcha-enterprise.validator';
-import { RecaptchaConfigRef } from '../src/models/recaptcha-config-ref';
-import { EnterpriseReasonTransformer } from '../src/services/enterprise-reason.transformer';
-import { GoogleRecaptchaNetworkException } from '../src/exceptions/google-recaptcha-network.exception';
-import { ErrorCode } from '../src';
+import { GoogleRecaptchaEnterpriseValidator } from '../src/services/validators/google-recaptcha-enterprise.validator.js';
+import { RecaptchaConfigRef } from '../src/models/recaptcha-config-ref.js';
+import { EnterpriseReasonTransformer } from '../src/services/enterprise-reason.transformer.js';
+import { GoogleRecaptchaNetworkException } from '../src/exceptions/google-recaptcha-network.exception.js';
+import { ErrorCode } from '../src/index.js';
 
 const API_KEY = 'SUPER_SECRET_ENTERPRISE_API_KEY';
 
@@ -21,6 +21,7 @@ function createValidator(post: () => Promise<unknown>): { validator: GoogleRecap
 	const configRef = new RecaptchaConfigRef({
 		response: () => 'TOKEN',
 		debug: true,
+		type: 'enterprise',
 		enterprise: { projectId: 'p', siteKey: 'site', apiKey: API_KEY },
 	});
 	const validator = new GoogleRecaptchaEnterpriseValidator(
@@ -58,6 +59,10 @@ describe('Google recaptcha enterprise validator: api key is never logged', () =>
 		const result = await ctx.validator.validate({ response: 'TOKEN' });
 
 		expect(result.success).toBe(false);
+		expect(result.errors).toEqual([ErrorCode.UnknownError]);
+		expect(result.nativeResponse).toBeUndefined();
+		expect(result.getResponse()).toBeUndefined();
+		expect(result.getEnterpriseRiskAnalytics()).toBeNull();
 		expect(ctx.logs).not.toContain(API_KEY);
 	});
 
@@ -90,6 +95,7 @@ describe('Google recaptcha enterprise validator: non-axios errors', () => {
 		const configRef = new RecaptchaConfigRef({
 			response: () => 'TOKEN',
 			debug: true,
+			type: 'enterprise',
 			enterprise: { projectId: 'p', siteKey: 'site', apiKey: API_KEY },
 		});
 		const post = () => Promise.resolve({ data: { tokenProperties: { valid: true, action: 'Submit' } } });
@@ -109,7 +115,7 @@ describe('Google recaptcha enterprise validator: non-axios errors', () => {
 
 describe('Google recaptcha enterprise validator: misconfiguration', () => {
 	test('Throws when enterprise options are missing', async () => {
-		const configRef = new RecaptchaConfigRef({ response: () => 'TOKEN', secretKey: 'SECRET' });
+		const configRef = new RecaptchaConfigRef({ response: () => 'TOKEN', type: 'v3', secretKey: 'SECRET' });
 		const post = vi.fn();
 		const validator = new GoogleRecaptchaEnterpriseValidator(
 			{ post } as unknown as AxiosInstance,

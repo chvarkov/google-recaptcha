@@ -1,15 +1,15 @@
 import { INestApplication, Module } from '@nestjs/common';
-import { GoogleRecaptchaModule, Recaptcha, RecaptchaResult, RecaptchaVerificationResult } from '../../../src';
+import { GoogleRecaptchaModule, Recaptcha, RecaptchaResult, RecaptchaVerificationResult } from '../../../src/index.js';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
-import { MockedRecaptchaApi } from '../../utils/mocked-recaptcha-api';
-import { VerifyResponseV3 } from '../../../src/interfaces/verify-response';
-import { TestHttp } from '../../utils/test-http';
+import { MockedRecaptchaApi } from '../../utils/mocked-recaptcha-api.js';
+import { VerifyResponseV3 } from '../../../src/interfaces/verify-response.js';
+import { TestHttp } from '../../utils/test-http.js';
 import { IncomingMessage } from 'http';
 import { Args, Field, GraphQLModule, InputType, Mutation, ObjectType, Query, Resolver } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import * as path from 'path';
-import { RECAPTCHA_AXIOS_INSTANCE } from '../../../src/provider.declarations';
+import { RECAPTCHA_AXIOS_INSTANCE } from '../../../src/provider.declarations.js';
 
 @InputType()
 export class FeedbackInput {
@@ -74,6 +74,7 @@ describe('HTTP Recaptcha V2 V3', () => {
 				GoogleRecaptchaModule.forRoot({
 					debug: true,
 					response: (req: IncomingMessage): string | undefined => req.headers.recaptcha?.toString(),
+					type: 'v3',
 					secretKey: 'secret_key',
 					score: (score: number) => score >= 0.6,
 					actions: ['Submit'],

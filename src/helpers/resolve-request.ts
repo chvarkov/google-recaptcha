@@ -1,10 +1,21 @@
 import { ExecutionContext } from '@nestjs/common';
-import { loadModule } from './load-module';
-import { RecaptchaContextType } from '../types';
-import { LiteralObject } from '../interfaces/literal-object';
+import { loadModule } from './load-module.js';
+import { RecaptchaContextType } from '../types.js';
 
-function resolveGraphqlRequest(context: ExecutionContext): LiteralObject {
-	const gqlContext = loadModule('@nestjs/graphql', true).GqlExecutionContext.create(context).getContext();
+/** Request object of any platform (express, fastify, ...). The guard stores the verification result on it. */
+export type RecaptchaRequest = Record<string, unknown>;
+
+/** The part of `@nestjs/graphql` used here. Declared locally: the package is an optional dependency. */
+interface GraphqlModule {
+	GqlExecutionContext: {
+		create(context: ExecutionContext): {
+			getContext(): { req?: RecaptchaRequest; request?: RecaptchaRequest; reply?: { request?: RecaptchaRequest } } | undefined;
+		};
+	};
+}
+
+function resolveGraphqlRequest(context: ExecutionContext): RecaptchaRequest {
+	const gqlContext = loadModule<GraphqlModule>('@nestjs/graphql', true).GqlExecutionContext.create(context).getContext();
 
 	const request = gqlContext?.req ?? gqlContext?.request ?? gqlContext?.reply?.request;
 
@@ -18,7 +29,7 @@ function resolveGraphqlRequest(context: ExecutionContext): LiteralObject {
 	return request;
 }
 
-export function resolveRequest<T = LiteralObject>(context: ExecutionContext): T {
+export function resolveRequest<T = RecaptchaRequest>(context: ExecutionContext): T {
 	const contextType: RecaptchaContextType = context.getType();
 
 	switch (contextType) {

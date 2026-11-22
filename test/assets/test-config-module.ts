@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { TestConfigService } from './test-config-service';
-import { GoogleRecaptchaModuleOptionsFactory } from './test-recaptcha-options-factory';
+import { TestConfigService } from './test-config-service.js';
+import { GoogleRecaptchaModuleOptionsFactory } from './test-recaptcha-options-factory.js';
 
 @Module({
 	providers: [TestConfigService, GoogleRecaptchaModuleOptionsFactory],

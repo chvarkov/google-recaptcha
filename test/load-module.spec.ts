@@ -1,9 +1,9 @@
-import { loadModule } from '../src/helpers/load-module';
+import { loadModule } from '../src/helpers/load-module.js';
 import { Reflector } from '@nestjs/core';
 
 describe('loadModule', () => {
 	test('load', () => {
-		const module = loadModule('@nestjs/core');
+		const module = loadModule<typeof import('@nestjs/core')>('@nestjs/core');
 		expect(module).toBeDefined();
 		expect(module.Reflector).toEqual(Reflector);
 	});

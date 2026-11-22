@@ -1,12 +1,12 @@
 import { CanActivate, ExecutionContext, Inject, Injectable, Logger } from '@nestjs/common';
-import { RECAPTCHA_LOGGER, RECAPTCHA_VALIDATION_OPTIONS } from '../provider.declarations';
-import { GoogleRecaptchaException } from '../exceptions/google-recaptcha.exception';
+import { RECAPTCHA_LOGGER, RECAPTCHA_VALIDATION_OPTIONS } from '../provider.declarations.js';
+import { GoogleRecaptchaException } from '../exceptions/google-recaptcha.exception.js';
 import { Reflector } from '@nestjs/core';
-import { RecaptchaRequestResolver } from '../services/recaptcha-request.resolver';
-import { VerifyResponseDecoratorOptions } from '../interfaces/verify-response-decorator-options';
-import { RecaptchaValidatorResolver } from '../services/recaptcha-validator.resolver';
-import { LiteralObject } from '../interfaces/literal-object';
-import { RecaptchaConfigRef } from '../models/recaptcha-config-ref';
+import { RecaptchaRequestResolver } from '../services/recaptcha-request.resolver.js';
+import { VerifyResponseDecoratorOptions } from '../interfaces/verify-response-decorator-options.js';
+import { RecaptchaValidatorResolver } from '../services/recaptcha-validator.resolver.js';
+import { RecaptchaRequest } from '../helpers/resolve-request.js';
+import { RecaptchaConfigRef } from '../models/recaptcha-config-ref.js';
 
 @Injectable()
 export class GoogleRecaptchaGuard implements CanActivate {
@@ -19,7 +19,7 @@ export class GoogleRecaptchaGuard implements CanActivate {
 	) {}
 
 	async canActivate(context: ExecutionContext): Promise<true | never> {
-		const request: LiteralObject = this.requestResolver.resolve(context);
+		const request = this.requestResolver.resolve<RecaptchaRequest>(context);
 
 		const skipIfValue = this.configRef.valueOf.skipIf;
 		const skip = typeof skipIfValue === 'function' ? await skipIfValue(request) : !!skipIfValue;
@@ -41,17 +41,20 @@ export class GoogleRecaptchaGuard implements CanActivate {
 
 		const validator = this.validatorResolver.resolve();
 
-		request.recaptchaValidationResult = await validator.validate({ response, remoteIp, score, action });
+		const result = await validator.validate({ response, remoteIp, score, action });
+
+		// Read by the @RecaptchaResult() decorator.
+		request.recaptchaValidationResult = result;
 
 		if (this.configRef.valueOf.debug) {
-			this.logger.debug(request.recaptchaValidationResult.toObject(), `${validator.logContext}.result`);
+			this.logger.debug(result.toObject(), `${validator.logContext}.result`);
 		}
 
-		if (request.recaptchaValidationResult.success) {
+		if (result.success) {
 			return true;
 		}
 
-		throw new GoogleRecaptchaException(request.recaptchaValidationResult.errors);
+		throw new GoogleRecaptchaException(result.errors);
 	}
 
 	private resolveDecoratorOptions(context: ExecutionContext): VerifyResponseDecoratorOptions {

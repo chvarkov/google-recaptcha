@@ -1,9 +1,11 @@
 import { Logger } from '@nestjs/common';
-import { LiteralObject } from '../interfaces/literal-object';
+import { createRequire } from 'node:module';
 
-export function loadModule(moduleName: string, logError = false): LiteralObject {
+// Synchronous loading of optional dependencies (e.g. `@nestjs/graphql`) from an ES module.
+const require = createRequire(import.meta.url);
+
+export function loadModule<T = unknown>(moduleName: string, logError = false): T {
 	try {
-		// eslint-disable-next-line @typescript-eslint/no-require-imports
 		return require(moduleName);
 	} catch (e) {
 		if (logError) {

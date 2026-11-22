@@ -9,7 +9,16 @@
 		"nestjs recaptcha"
 	],
 	"private": false,
+	"type": "module",
 	"main": "index.js",
+	"types": "index.d.ts",
+	"exports": {
+		".": {
+			"types": "./index.d.ts",
+			"default": "./index.js"
+		},
+		"./package.json": "./package.json"
+	},
 	"scripts": {
 		"build": "rm -rf dist && tsc && cp package.json dist && cp README.md dist && cp LICENSE dist && cp CONTRIBUTING.md dist && cp CHANGELOG.md dist",
 		"format": "prettier \"**/*.ts\" \"**/*.json\" --ignore-path ./.prettierignore --write",
@@ -23,7 +32,7 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/chvarkov/google-recaptcha.git"
+		"url": "git+https://github.com/chvarkov/google-recaptcha.git"
 	},
 	"author": "Alexey Chvarkov",
 	"license": "MIT",
@@ -32,7 +41,7 @@
 	},
 	"homepage": "https://github.com/chvarkov/google-recaptcha",
 	"engines": {
-		"node": ">=20"
+		"node": "^22.12.0 || >=24"
 	},
 	"dependencies": {
 		"axios": "^1.21.1"
@@ -55,18 +64,23 @@
 		"@nestjs/common": "^12.6.0",
 		"@nestjs/core": "^12.6.0",
 		"@nestjs/graphql": "^14.2.1",
+		"@nestjs/mercurius": "^14.2.1",
 		"@nestjs/platform-express": "^12.6.0",
+		"@nestjs/platform-fastify": "^12.6.0",
+		"@nestjs/platform-node": "^12.6.0",
 		"@nestjs/testing": "^12.6.0",
 		"@swc/core": "^1.16.22",
 		"@types/express": "^5.0.6",
-		"@types/node": "^20.19.43",
+		"@types/node": "^22.20.5",
 		"@types/supertest": "^7.2.1",
 		"@typescript-eslint/eslint-plugin": "^8.73.0",
 		"@typescript-eslint/parser": "^8.73.0",
-		"@vitest/coverage-v8": "^4.1.12",
+		"@vitest/coverage-v8": "^5.1.1",
 		"eslint": "^10.15.0",
 		"express": "^5.3.0",
+		"fastify": "^5.12.8",
 		"graphql": "^16.15.0",
+		"mercurius": "^16.12.2",
 		"prettier": "^3.10.1",
 		"reflect-metadata": "^0.2.2",
 		"rxjs": "^7.8.2",
@@ -75,6 +89,6 @@
 		"ts-node": "^10.9.2",
 		"typescript": "^6.0.3",
 		"unplugin-swc": "^2.0.0",
-		"vitest": "^4.1.12"
+		"vitest": "^5.1.1"
 	}
 }

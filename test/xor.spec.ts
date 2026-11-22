@@ -1,4 +1,4 @@
-import { xor } from '../src/helpers/xor';
+import { xor } from '../src/helpers/xor.js';
 
 describe('xor', () => {
 	test('Test', () => {

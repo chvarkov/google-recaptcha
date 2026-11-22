@@ -1,8 +1,8 @@
-import { createExecutionContext } from './helpers/create-execution-context';
-import { TestController } from './assets/test-controller';
+import { createExecutionContext } from './helpers/create-execution-context.js';
+import { TestController } from './assets/test-controller.js';
 import { Reflector } from '@nestjs/core';
-import { RECAPTCHA_VALIDATION_OPTIONS } from '../src/provider.declarations';
-import { VerifyResponseDecoratorOptions } from '../src/interfaces/verify-response-decorator-options';
+import { RECAPTCHA_VALIDATION_OPTIONS } from '../src/provider.declarations.js';
+import { VerifyResponseDecoratorOptions } from '../src/interfaces/verify-response-decorator-options.js';
 
 describe('Set recaptcha options decorator', () => {
 	let controller: TestController;

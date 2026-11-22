@@ -1,5 +1,5 @@
-import { GoogleRecaptchaEnterpriseReason } from '../enums/google-recaptcha-enterprise-reason';
-import { ClassificationReason } from '../enums/classification-reason';
+import { GoogleRecaptchaEnterpriseReason } from '../enums/google-recaptcha-enterprise-reason.js';
+import { ClassificationReason } from '../enums/classification-reason.js';
 
 export interface VerifyResponseEnterprise {
 	tokenProperties?: VerifyResponseEnterpriseTokenProperties;

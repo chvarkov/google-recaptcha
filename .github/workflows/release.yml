@@ -1,0 +1,108 @@
+name: Release
+
+# Push to a release/* branch publishes the version from package.json to npm if it is not published yet.
+# The branch name is only a trigger: bump the version in package.json, commit and push.
+on:
+  push:
+    branches:
+      - 'release/**'
+
+permissions:
+  contents: read
+
+# One release per branch at a time; a newer push waits instead of racing the publish.
+concurrency:
+  group: release-${{ github.ref_name }}
+  cancel-in-progress: false
+
+env:
+  PACKAGE_NAME: '@nestlab/google-recaptcha'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # npm Trusted Publishing (OIDC): no NPM_TOKEN secret, provenance is generated automatically.
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js 24.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+          cache: 'npm'
+          registry-url: 'https://registry.npmjs.org'
+
+      # Trusted Publishing requires npm >= 11.5.1.
+      - name: Update npm
+        run: npm install -g npm@^11.5.1
+
+      - name: Resolve version and dist-tag
+        id: release
+        run: |
+          set -euo pipefail
+
+          version=$(node -p "require('./package.json').version")
+          if latest=$(npm view "$PACKAGE_NAME" dist-tags.latest 2>/dev/null); then :; else latest=''; fi
+          node .github/scripts/release-info.mjs "$version" "$latest" >> "$GITHUB_OUTPUT"
+          cat "$GITHUB_OUTPUT"
+
+      - name: Check if version is already published
+        id: published
+        env:
+          VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          set -uo pipefail
+
+          if out=$(npm view "$PACKAGE_NAME@$VERSION" version 2>npm-view.err); then
+            if [ "$out" = "$VERSION" ]; then
+              echo "::notice::$PACKAGE_NAME@$VERSION is already published, skipping."
+              echo "published=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          elif ! grep -q 'code E404' npm-view.err; then
+            # Registry/network error: do not treat it as "not published".
+            cat npm-view.err
+            exit 1
+          fi
+
+          echo "published=false" >> "$GITHUB_OUTPUT"
+
+      - name: Install dependencies
+        if: steps.published.outputs.published == 'false'
+        run: npm ci
+
+      - name: Lint
+        if: steps.published.outputs.published == 'false'
+        run: |
+          npm run lint:check
+          npm run format:check
+
+      - name: Test
+        if: steps.published.outputs.published == 'false'
+        run: |
+          npm run test:types
+          npm test
+
+      - name: Build
+        if: steps.published.outputs.published == 'false'
+        run: npm run build
+
+      - name: Publish
+        if: steps.published.outputs.published == 'false'
+        working-directory: dist
+        run: npm publish --access public --tag "${{ steps.release.outputs.tag }}"
+
+      - name: Summary
+        if: steps.published.outputs.published == 'false'
+        run: |
+          {
+            echo "### Published ${PACKAGE_NAME}@${{ steps.release.outputs.version }}"
+            echo ""
+            echo "dist-tag: \`${{ steps.release.outputs.tag }}\`"
+            echo ""
+            echo "https://www.npmjs.com/package/${PACKAGE_NAME}/v/${{ steps.release.outputs.version }}"
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -1,5 +1,5 @@
-import { RecaptchaRequestResolver } from '../src/services/recaptcha-request.resolver';
-import { createExecutionContext } from './helpers/create-execution-context';
+import { RecaptchaRequestResolver } from '../src/services/recaptcha-request.resolver.js';
+import { createExecutionContext } from './helpers/create-execution-context.js';
 
 describe('RecaptchaRequestResolver', () => {
 	const resolver = new RecaptchaRequestResolver();

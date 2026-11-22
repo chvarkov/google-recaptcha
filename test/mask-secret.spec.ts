@@ -1,4 +1,4 @@
-import { maskSecret } from '../src/helpers/mask-secret';
+import { maskSecret } from '../src/helpers/mask-secret.js';
 
 describe('maskSecret', () => {
 	test('Keeps first and last 3 characters', () => {

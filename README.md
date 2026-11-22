@@ -42,6 +42,11 @@ Usage example [here](https://github.com/chvarkov/google-recaptcha-example)
 $ npm i @nestlab/google-recaptcha
 ```
 
+The package is published as an ES module and requires Node.js `^22.12.0 || >=24`.
+It works in both ESM and CommonJS applications: in CommonJS `require('@nestlab/google-recaptcha')` loads it via
+[`require(esm)`](https://nodejs.org/api/modules.html#loading-ecmascript-modules-using-require).
+TypeScript projects compiled to CommonJS need `"module": "nodenext"` (TypeScript 5.8+) or `"moduleResolution": "node"` / `"node10"`; `"module": "node16"` is not supported.
+
 ## Changes
 
 The list of changes made in the project can be found in the [CHANGELOG.md](./CHANGELOG.md) file.
@@ -55,14 +60,15 @@ The list of changes made in the project can be found in the [CHANGELOG.md](./CHA
 | Property          | Description |
 |-------------------|-------------|
 | `response`        | **Required.**<br> Type: `(request) => string`<br> Function that returns response (recaptcha token) by request |
-| `secretKey`       | Optional.<br> Type: `string`<br> Google recaptcha secret key. Must be set if you don't use reCAPTCHA Enterprise |
+| `type`            | **Required.**<br> Type: `'v2'` \| `'v3'` \| `'enterprise'`<br> reCAPTCHA type. Defines available options and checks: <br> `'v2'` - `secretKey` is required, `score` / `actions` are not available (reCAPTCHA v2 response has neither); <br> `'v3'` - `secretKey` is required, `score` and `actions` are checked for every successful response; <br> `'enterprise'` - `enterprise` is required. |
+| `secretKey`       | Required for `'v2'` / `'v3'`.<br> Type: `string`<br> Google recaptcha secret key. Cannot be used with `enterprise` option. |
 | `debug`           | Optional.<br> Type: `boolean` <br> Default: `false` <br> Enables logging requests, responses, errors and transformed results |
 | `logger`          | Optional.<br> Type: `Logger` <br> Default: `new Logger()` <br> Instance of custom logger that extended from Logger (@nestjs/common) |
 | `skipIf`          | Optional.<br> Type: `boolean` \| `(request) => boolean \| Promise<boolean>` <br> Function that returns true if you allow the request to skip the recaptcha verification. Useful for involing other check methods (e.g. custom privileged API key) or for development or testing |
-| `enterprise`      | Optional.<br> Type: `GoogleRecaptchaEnterpriseOptions` <br> Options for using reCAPTCHA Enterprise API. Cannot be used with `secretKey` option.  |
-| `network`         | Optional.<br> Type: `GoogleRecaptchaNetwork` \| `string`<br> Default: `GoogleRecaptchaNetwork.Google` <br> If your server has trouble connecting to https://google.com then you can set networks:<br> `GoogleRecaptchaNetwork.Google` = 'https://www.google.com/recaptcha/api/siteverify'<br>`GoogleRecaptchaNetwork.Recaptcha` = 'https://recaptcha.net/recaptcha/api/siteverify'<br> or set any api url |
-| `score`           | Optional.<br> Type: `number` \| `(score: number) => boolean`<br> Score validator for reCAPTCHA v3 or enterprise. <br> `number` - minimum available score. <br> `(score: number) => boolean` - function with custom validation rules. |
-| `actions`         | Optional.<br> Type: `string[]`<br> Available action list for reCAPTCHA v3 or enterprise. <br> You can make this check stricter by passing the action property parameter to `@Recaptcha(...)` decorator. |
+| `enterprise`      | Required for `'enterprise'`.<br> Type: `GoogleRecaptchaEnterpriseOptions` <br> Options for using reCAPTCHA Enterprise API. Cannot be used with `secretKey` and `siteVerifyUrl` options.  |
+| `siteVerifyUrl`   | Optional.<br> Type: `GoogleRecaptchaSiteVerifyUrl` \| `string`<br> Default: `GoogleRecaptchaSiteVerifyUrl.Google` <br> URL of the siteverify API (not used by Enterprise). If your server has trouble connecting to https://google.com then you can use:<br> `GoogleRecaptchaSiteVerifyUrl.Google` = 'https://www.google.com/recaptcha/api/siteverify'<br>`GoogleRecaptchaSiteVerifyUrl.Recaptcha` = 'https://recaptcha.net/recaptcha/api/siteverify'<br> or set any api url |
+| `score`           | Optional.<br> Type: `number` \| `(score: number) => boolean`<br> Score validator for reCAPTCHA v3 or enterprise. Not available for `type: 'v2'`. <br> `number` - minimum available score. <br> `(score: number) => boolean` - function with custom validation rules. |
+| `actions`         | Optional.<br> Type: `string[]`<br> Available action list for reCAPTCHA v3 or enterprise. Not available for `type: 'v2'`. <br> You can make this check stricter by passing the action property parameter to `@Recaptcha(...)` decorator. |
 | `remoteIp`        | Optional.<br> Type: `(request) => string`<br> A function that returns a remote IP address from the request |
 | `axiosConfig`     | Optional.<br> Type: `AxiosRequestConfig`<br> Allows to setup proxy, response timeout, https agent etc...<br> `headers` and request-specific fields (`url`, `method`, `data`, etc.) are ignored. |
 | `global`     		| Optional.<br> Type: `boolean` <br> Default: `false` Defines a module in the [global scope](https://docs.nestjs.com/modules#global-modules). |
@@ -88,6 +94,7 @@ The `forRoot` method accepts a `GoogleRecaptchaModuleOptions` object that config
 @Module({
     imports: [
         GoogleRecaptchaModule.forRoot({
+            type: 'v3',
             secretKey: process.env.GOOGLE_RECAPTCHA_SECRET_KEY,
             response: req => req.headers.recaptcha,
         })
@@ -129,6 +136,7 @@ export class AppModule {
 @Module({
     imports: [
         GoogleRecaptchaModule.forRoot({
+            type: 'v2',
             secretKey: process.env.GOOGLE_RECAPTCHA_SECRET_KEY,
             response: req => req.headers.recaptcha,
             skipIf: process.env.NODE_ENV !== 'production',
@@ -151,6 +159,7 @@ export class AppModule {
 @Module({
     imports: [
         GoogleRecaptchaModule.forRoot({
+            type: 'v3',
             secretKey: process.env.GOOGLE_RECAPTCHA_SECRET_KEY,
             response: req => req.headers.recaptcha,
             skipIf: process.env.NODE_ENV !== 'production',
@@ -175,6 +184,7 @@ export class AppModule {
 @Module({
     imports: [
         GoogleRecaptchaModule.forRoot({
+            type: 'enterprise',
             response: (req) => req.headers.recaptcha,
             skipIf: process.env.NODE_ENV !== 'production',
             actions: ['SignUp', 'SignIn'],
@@ -203,6 +213,7 @@ export class AppModule {
 @Module({
     imports: [
         GoogleRecaptchaModule.forRoot({
+            type: 'v2',
             secretKey: process.env.GOOGLE_RECAPTCHA_SECRET_KEY,
             response: (req: IncomingMessage) => (req.headers.recaptcha || '').toString(),
             skipIf: process.env.NODE_ENV !== 'production',
@@ -225,6 +236,7 @@ export class AppModule {
 @Module({
     imports: [
         GoogleRecaptchaModule.forRoot({
+            type: 'v3',
             secretKey: process.env.GOOGLE_RECAPTCHA_SECRET_KEY,
             response: (req: IncomingMessage) => (req.headers.recaptcha || '').toString(),
             skipIf: process.env.NODE_ENV !== 'production',
@@ -249,6 +261,7 @@ export class AppModule {
 @Module({
     imports: [
         GoogleRecaptchaModule.forRoot({
+            type: 'enterprise',
             response: (req: IncomingMessage) => (req.headers.recaptcha || '').toString(),
             skipIf: process.env.NODE_ENV !== 'production',
             actions: ['SignUp', 'SignIn'],
@@ -276,6 +289,7 @@ export class AppModule {
 @Module({
     imports: [
         GoogleRecaptchaModule.forRoot({
+            type: 'enterprise',
             response: (req) => req.headers.recaptcha,
             skipIf: process.env.NODE_ENV !== 'production',
             actions: ['SignUp', 'SignIn'],
@@ -484,13 +498,13 @@ The class exposes methods that allow the customization of various Recaptcha opti
 ```typescript
 @Injectable()
 class RecaptchaConfigRef {
-  // Sets the secret key for Recaptcha validation.
+  // Sets the secret key for Recaptcha validation. Keeps type 'v2' / 'v3'; switches 'enterprise' to 'v3'.
   setSecretKey(secretKey: string): this;
 
-  // Sets enterprise-specific options for Recaptcha validation
+  // Sets enterprise-specific options for Recaptcha validation (type becomes 'enterprise').
   setEnterpriseOptions(options: GoogleRecaptchaEnterpriseOptions): this;
 
-  // Sets the score threshold for Recaptcha validation.
+  // Sets the score threshold for Recaptcha validation. Throws for type 'v2'.
   setScore(score: ScoreValidator): this;
 
   // Sets conditions under which Recaptcha validation should be skipped.

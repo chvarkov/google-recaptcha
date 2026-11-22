@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { AbstractGoogleRecaptchaValidator } from './validators/abstract-google-recaptcha-validator';
-import { GoogleRecaptchaValidator } from './validators/google-recaptcha.validator';
-import { GoogleRecaptchaEnterpriseValidator } from './validators/google-recaptcha-enterprise.validator';
-import { RecaptchaConfigRef } from '../models/recaptcha-config-ref';
+import { AbstractGoogleRecaptchaValidator } from './validators/abstract-google-recaptcha-validator.js';
+import { GoogleRecaptchaValidator } from './validators/google-recaptcha.validator.js';
+import { GoogleRecaptchaEnterpriseValidator } from './validators/google-recaptcha-enterprise.validator.js';
+import { RecaptchaConfigRef } from '../models/recaptcha-config-ref.js';
 
 @Injectable()
 export class RecaptchaValidatorResolver {
@@ -13,15 +13,18 @@ export class RecaptchaValidatorResolver {
 	) {}
 
 	resolve(): AbstractGoogleRecaptchaValidator<unknown> {
-		const configValue = this.configRef.valueOf;
-		if (configValue.secretKey) {
-			return this.googleRecaptchaValidator;
-		}
+		const type: string = this.configRef.valueOf.type;
 
-		if (Object.keys(configValue.enterprise || {}).length) {
-			return this.googleRecaptchaEnterpriseValidator;
-		}
+		switch (type) {
+			case 'v2':
+			case 'v3':
+				return this.googleRecaptchaValidator;
 
-		throw new Error('Cannot resolve the Google reCAPTCHA validator: neither "secretKey" nor "enterprise" options are configured.');
+			case 'enterprise':
+				return this.googleRecaptchaEnterpriseValidator;
+
+			default:
+				throw new Error(`Cannot resolve the Google reCAPTCHA validator for type '${type}'.`);
+		}
 	}
 }
