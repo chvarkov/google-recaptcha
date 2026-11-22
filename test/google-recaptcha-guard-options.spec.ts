@@ -1,6 +1,13 @@
 import { Logger } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { ErrorCode, GoogleRecaptchaException, GoogleRecaptchaGuard, GoogleRecaptchaModuleOptions, Recaptcha } from '../src';
+import {
+	ErrorCode,
+	GoogleRecaptchaException,
+	GoogleRecaptchaGuard,
+	GoogleRecaptchaModuleOptions,
+	GoogleRecaptchaV3ModuleOptions,
+	Recaptcha,
+} from '../src';
 import { RecaptchaRequestResolver } from '../src/services/recaptcha-request.resolver';
 import { RecaptchaValidatorResolver } from '../src/services/recaptcha-validator.resolver';
 import { RecaptchaConfigRef } from '../src/models/recaptcha-config-ref';
@@ -39,7 +46,7 @@ describe('Google recaptcha guard: decorator options', () => {
 
 	afterAll(() => network.close());
 
-	function createGuard(extra: Partial<GoogleRecaptchaModuleOptions> = {}): GoogleRecaptchaGuard {
+	function createGuard(extra: Partial<GoogleRecaptchaV3ModuleOptions> = {}): GoogleRecaptchaGuard {
 		const options: GoogleRecaptchaModuleOptions = {
 			secretKey: 'Secret',
 			response: (req) => req.body.recaptcha,

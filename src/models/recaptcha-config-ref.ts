@@ -7,35 +7,53 @@ export class RecaptchaConfigRef {
 		return this.value;
 	}
 
-	private readonly value: GoogleRecaptchaModuleOptions;
+	private value: GoogleRecaptchaModuleOptions;
 
 	/** Options are copied: setters never mutate the object passed by the user. */
 	constructor(value: GoogleRecaptchaModuleOptions) {
 		this.value = { ...value };
 	}
 
+	/** Keeps `type: 'v2'` / `'v3'`; switching from Enterprise results in reCAPTCHA v3. */
 	setSecretKey(secretKey: string): this {
-		this.value.secretKey = secretKey;
-		this.value.enterprise = undefined;
+		const value = this.value;
+
+		this.value =
+			value.type === 'v2'
+				? { ...value, secretKey }
+				: { ...value, type: value.type === 'enterprise' ? 'v3' : value.type, secretKey, enterprise: undefined };
 
 		return this;
 	}
 
+	/** Switches to reCAPTCHA Enterprise: `secretKey` and `siteVerifyUrl` are reset. */
 	setEnterpriseOptions(options: GoogleRecaptchaEnterpriseOptions): this {
-		this.value.secretKey = undefined;
-		this.value.enterprise = options;
+		this.value = {
+			...this.value,
+			type: 'enterprise',
+			enterprise: options,
+			secretKey: undefined,
+			siteVerifyUrl: undefined,
+		};
 
 		return this;
 	}
 
+	/** @throws Error for reCAPTCHA v2: its response has no score. */
 	setScore(score: ScoreValidator): this {
-		this.value.score = score;
+		const value = this.value;
+
+		if (value.type === 'v2') {
+			throw new Error('Score is not supported for reCAPTCHA v2.');
+		}
+
+		this.value = { ...value, score };
 
 		return this;
 	}
 
 	setSkipIf(skipIf: SkipIfValue): this {
-		this.value.skipIf = skipIf;
+		this.value = { ...this.value, skipIf };
 
 		return this;
 	}

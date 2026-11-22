@@ -14,8 +14,22 @@ export { RecaptchaVerificationResult } from './models/recaptcha-verification-res
 export { ClassificationReason } from './enums/classification-reason';
 export { GoogleRecaptchaEnterpriseReason } from './enums/google-recaptcha-enterprise-reason';
 export { RecaptchaConfigRef } from './models/recaptcha-config-ref';
-export type { GoogleRecaptchaModuleAsyncOptions, GoogleRecaptchaOptionsFactory } from './interfaces/google-recaptcha-module-options';
-export type { GoogleRecaptchaValidatorOptions } from './interfaces/google-recaptcha-validator-options';
+export type {
+	GoogleRecaptchaModuleAsyncOptions,
+	GoogleRecaptchaOptionsFactory,
+	GoogleRecaptchaCommonModuleOptions,
+	GoogleRecaptchaV2ModuleOptions,
+	GoogleRecaptchaV3ModuleOptions,
+	GoogleRecaptchaEnterpriseModuleOptions,
+} from './interfaces/google-recaptcha-module-options';
+export type {
+	GoogleRecaptchaType,
+	GoogleRecaptchaValidatorOptions,
+	GoogleRecaptchaCommonValidatorOptions,
+	GoogleRecaptchaV2ValidatorOptions,
+	GoogleRecaptchaV3ValidatorOptions,
+	GoogleRecaptchaEnterpriseValidatorOptions,
+} from './interfaces/google-recaptcha-validator-options';
 export type { GoogleRecaptchaGuardOptions } from './interfaces/google-recaptcha-guard-options';
 export type { GoogleRecaptchaEnterpriseOptions } from './interfaces/google-recaptcha-enterprise-options';
 export type { VerifyResponseDecoratorOptions, VerifyResponseOptions } from './interfaces/verify-response-decorator-options';

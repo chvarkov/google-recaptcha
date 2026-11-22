@@ -47,6 +47,7 @@ describe('Google recaptcha module', () => {
 	});
 
 	test('Test invalid config', async () => {
+		// @ts-expect-error neither `secretKey` nor `enterprise`: rejected by types, checked at runtime for JS users
 		await expect(createApp({ response: () => '' })).rejects.toThrow(
 			'Google reCAPTCHA options must contain either "secretKey" or "enterprise", but not both.'
 		);

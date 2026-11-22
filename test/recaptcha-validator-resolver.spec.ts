@@ -40,6 +40,7 @@ describe('RecaptchaValidatorResolver', () => {
 	});
 
 	test('resolve error', () => {
+		// @ts-expect-error neither `secretKey` nor `enterprise`: rejected by types, checked at runtime for JS users
 		const moduleOptions: GoogleRecaptchaModuleOptions = {
 			response: (): string => 'token',
 		};

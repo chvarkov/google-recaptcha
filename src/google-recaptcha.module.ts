@@ -16,6 +16,9 @@ import { RecaptchaValidatorResolver } from './services/recaptcha-validator.resol
 import { EnterpriseReasonTransformer } from './services/enterprise-reason.transformer';
 import { xor } from './helpers/xor';
 import { RecaptchaConfigRef } from './models/recaptcha-config-ref';
+import { GoogleRecaptchaType } from './interfaces/google-recaptcha-validator-options';
+
+const RECAPTCHA_TYPES: readonly string[] = ['v2', 'v3', 'enterprise'] satisfies GoogleRecaptchaType[];
 
 export class GoogleRecaptchaModule {
 	private static axiosDefaultConfig: AxiosRequestConfig = {
@@ -151,6 +154,26 @@ export class GoogleRecaptchaModule {
 		const hasEnterpriseOptions = !!Object.keys(options.enterprise || {}).length;
 		if (!xor(!!options.secretKey, hasEnterpriseOptions)) {
 			throw new Error('Google reCAPTCHA options must contain either "secretKey" or "enterprise", but not both.');
+		}
+
+		// Types already guarantee the checks below; they are for JS users and untyped configs.
+		const type: string | undefined = options.type;
+
+		if (type === undefined) {
+			return;
+		}
+
+		if (!RECAPTCHA_TYPES.includes(type)) {
+			throw new Error(`Unknown Google reCAPTCHA type '${type}'. Expected one of: ${RECAPTCHA_TYPES.join(', ')}.`);
+		}
+
+		if ((type === 'enterprise') !== hasEnterpriseOptions) {
+			const required = type === 'enterprise' ? 'enterprise' : 'secretKey';
+			throw new Error(`Google reCAPTCHA type '${type}' requires the "${required}" option.`);
+		}
+
+		if (type === 'v2' && (options.score != null || options.actions != null)) {
+			throw new Error('Google reCAPTCHA v2 does not support "score" and "actions" options.');
 		}
 	}
 

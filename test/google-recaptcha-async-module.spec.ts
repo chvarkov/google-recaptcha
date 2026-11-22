@@ -126,6 +126,7 @@ describe('Google recaptcha async module', () => {
 	test('Invalid options are rejected', async () => {
 		await expect(
 			Test.createTestingModule({
+				// @ts-expect-error neither `secretKey` nor `enterprise`: rejected by types, checked at runtime for JS users
 				imports: [GoogleRecaptchaModule.forRootAsync({ useFactory: () => ({ response: () => '' }) })],
 			}).compile()
 		).rejects.toThrow('Google reCAPTCHA options must contain either "secretKey" or "enterprise", but not both.');
