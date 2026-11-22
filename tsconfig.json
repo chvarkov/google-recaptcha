@@ -8,7 +8,7 @@
 		"emitDecoratorMetadata": true,
 		"experimentalDecorators": true,
 		"declarationMap": false,
-		"target": "es2017",
+		"target": "es2022",
 		"sourceMap": false,
 		"outDir": "./dist",
 		"rootDir": "./src"
