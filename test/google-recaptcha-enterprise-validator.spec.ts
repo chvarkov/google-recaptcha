@@ -58,6 +58,10 @@ describe('Google recaptcha enterprise validator: api key is never logged', () =>
 		const result = await ctx.validator.validate({ response: 'TOKEN' });
 
 		expect(result.success).toBe(false);
+		expect(result.errors).toEqual([ErrorCode.UnknownError]);
+		expect(result.nativeResponse).toBeUndefined();
+		expect(result.getResponse()).toBeUndefined();
+		expect(result.getEnterpriseRiskAnalytics()).toBeNull();
 		expect(ctx.logs).not.toContain(API_KEY);
 	});
 

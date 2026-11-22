@@ -92,11 +92,11 @@ describe('Recaptcha verification result decorator (enterprise)', () => {
 
 describe('RecaptchaVerificationResult.getEnterpriseRiskAnalytics', () => {
 	test('Returns null when there is no native response (e.g. HTTP error)', () => {
-		const result = new RecaptchaVerificationResult<VerifyResponseEnterprise>({
+		const result = new RecaptchaVerificationResult<VerifyResponseEnterprise | undefined>({
 			success: false,
 			errors: [],
 			hostname: '',
-			nativeResponse: null as unknown as VerifyResponseEnterprise,
+			nativeResponse: undefined,
 		});
 
 		expect(result.getEnterpriseRiskAnalytics()).toBeNull();

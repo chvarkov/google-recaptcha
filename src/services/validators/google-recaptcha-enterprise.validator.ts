@@ -10,8 +10,11 @@ import { EnterpriseReasonTransformer } from '../enterprise-reason.transformer';
 import { AxiosInstance } from 'axios';
 import { RecaptchaConfigRef } from '../../models/recaptcha-config-ref';
 
+/** `undefined` when Google did not return an assessment (HTTP error). */
+type EnterpriseNativeResponse = VerifyResponseEnterprise | undefined;
+
 @Injectable()
-export class GoogleRecaptchaEnterpriseValidator extends AbstractGoogleRecaptchaValidator<VerifyResponseEnterprise> {
+export class GoogleRecaptchaEnterpriseValidator extends AbstractGoogleRecaptchaValidator<EnterpriseNativeResponse> {
 	private readonly headers = { 'Content-Type': 'application/json' };
 
 	readonly logContext = GoogleRecaptchaContext.GoogleRecaptchaEnterprise;
@@ -25,7 +28,7 @@ export class GoogleRecaptchaEnterpriseValidator extends AbstractGoogleRecaptchaV
 		super(axios, logger, configRef);
 	}
 
-	async validate(options: VerifyResponseOptions): Promise<RecaptchaVerificationResult<VerifyResponseEnterprise>> {
+	async validate(options: VerifyResponseOptions): Promise<RecaptchaVerificationResult<EnterpriseNativeResponse>> {
 		const { data: result, error } = await this.verifyResponse(options.response, options.action, options.remoteIp);
 
 		const errors: ErrorCode[] = [];
@@ -61,7 +64,7 @@ export class GoogleRecaptchaEnterpriseValidator extends AbstractGoogleRecaptchaV
 			success,
 			errors,
 			// On HTTP error there is no response from Google.
-			nativeResponse: result as VerifyResponseEnterprise,
+			nativeResponse: result,
 			remoteIp: options.remoteIp,
 			score: result?.riskAnalysis?.score,
 			action: result?.tokenProperties?.action,
