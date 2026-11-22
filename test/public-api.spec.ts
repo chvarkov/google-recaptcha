@@ -8,6 +8,9 @@ import {
 	GoogleRecaptchaModuleOptions,
 	GoogleRecaptchaOptionsFactory,
 	GoogleRecaptchaValidatorOptions,
+	RecaptchaNativeResponse,
+	RecaptchaVerificationResult,
+	RecaptchaVerificationResultOptions,
 	RecaptchaRemoteIpProvider,
 	RecaptchaResponseProvider,
 	ScoreValidator,
@@ -60,6 +63,21 @@ describe('Public API', () => {
 		};
 		const riskAnalysis: VerifyResponseEnterpriseRiskAnalysis = { score: 0.1, reasons: [] };
 		const enterpriseResponse: VerifyResponseEnterprise = { tokenProperties, riskAnalysis, event: responseEvent, name: '' };
+
+		// Default generic is the union of real native responses, not `any`.
+		const result: RecaptchaVerificationResult = new RecaptchaVerificationResult({
+			success: true,
+			errors: [],
+			hostname: 'localhost',
+			nativeResponse: v3,
+		});
+		const native: RecaptchaNativeResponse = result.getResponse();
+		const plain: RecaptchaVerificationResultOptions<RecaptchaNativeResponse> = result.toObject();
+		// @ts-expect-error unknown properties are not accessible anymore
+		void plain.unknownProperty;
+
+		expect(native).toBe(v3);
+		expect(plain).toEqual({ success: true, errors: [], hostname: 'localhost', nativeResponse: v3 });
 
 		expect([asyncOptions, decoratorOptions, verifyOptions, v3, enterpriseResponse]).toHaveLength(5);
 		expect(GoogleRecaptchaEnterpriseReason.Expired).toBeDefined();

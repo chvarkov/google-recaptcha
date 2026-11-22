@@ -8,7 +8,7 @@ import { createGoogleRecaptchaValidator } from './helpers/create-google-recaptch
 import { createGoogleRecaptchaEnterpriseValidator } from './helpers/create-google-recaptcha-enterprise-validator';
 import { createExecutionContext } from './helpers/create-execution-context';
 import { TestRecaptchaNetwork } from './network/test-recaptcha-network';
-import { LiteralObject } from '../src/interfaces/literal-object';
+import { LiteralObject } from './utils/literal-object';
 
 @Recaptcha({ action: 'Login' })
 class ClassLevelController {

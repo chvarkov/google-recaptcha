@@ -8,7 +8,7 @@ import { VerifyResponseV2, VerifyResponseV3 } from '../../src/interfaces/verify-
 import { TestHttp } from '../utils/test-http';
 import { TestErrorFilter } from '../assets/test-error-filter';
 import { RECAPTCHA_AXIOS_INSTANCE } from '../../src/provider.declarations';
-import { LiteralObject } from '../../src/interfaces/literal-object';
+import { LiteralObject } from '../utils/literal-object';
 
 @Controller('test')
 class TestController {

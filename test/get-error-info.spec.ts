@@ -1,5 +1,5 @@
 import { getErrorInfo, isAxiosError } from '../src/helpers/get-error-info';
-import { LiteralObject } from '../src/interfaces/literal-object';
+import { LiteralObject } from './utils/literal-object';
 import { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
 describe('getErrorInfo', () => {

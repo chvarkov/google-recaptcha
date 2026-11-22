@@ -1,6 +1,12 @@
 import { ErrorCode } from '../enums/error-code';
-import { VerifyResponseEnterpriseRiskAnalysis } from '../interfaces/verify-response-enterprise';
-import { LiteralObject } from '../interfaces/literal-object';
+import { VerifyResponseEnterprise, VerifyResponseEnterpriseRiskAnalysis } from '../interfaces/verify-response-enterprise';
+import { VerifyResponseV2, VerifyResponseV3 } from '../interfaces/verify-response';
+
+/**
+ * Raw response of any validator the guard may use.
+ * `undefined` when Google did not return a response (Enterprise HTTP error).
+ */
+export type RecaptchaNativeResponse = VerifyResponseV2 | VerifyResponseV3 | VerifyResponseEnterprise | undefined;
 
 export interface RecaptchaVerificationResultOptions<Res> {
 	success: boolean;
@@ -12,7 +18,7 @@ export interface RecaptchaVerificationResultOptions<Res> {
 	errors: ErrorCode[];
 }
 
-export class RecaptchaVerificationResult<Res = LiteralObject> {
+export class RecaptchaVerificationResult<Res = RecaptchaNativeResponse> {
 	readonly success: boolean;
 
 	readonly hostname: string;
@@ -37,7 +43,7 @@ export class RecaptchaVerificationResult<Res = LiteralObject> {
 		this.nativeResponse = options.nativeResponse;
 	}
 
-	toObject(): LiteralObject {
+	toObject(): RecaptchaVerificationResultOptions<Res> {
 		return {
 			success: this.success,
 			hostname: this.hostname,

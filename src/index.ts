@@ -27,4 +27,5 @@ export type {
 	VerifyResponseEnterpriseTokenProperties,
 	VerifyResponseEnterpriseRiskAnalysis,
 } from './interfaces/verify-response-enterprise';
+export type { RecaptchaNativeResponse, RecaptchaVerificationResultOptions } from './models/recaptcha-verification-result';
 export type { ScoreValidator, SkipIfValue, RecaptchaResponseProvider, RecaptchaRemoteIpProvider } from './types';
