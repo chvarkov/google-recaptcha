@@ -85,7 +85,7 @@ export class GoogleRecaptchaModule {
 		};
 
 		return {
-			global: params.global ?? true,
+			global: params.global ?? false,
 			module: GoogleRecaptchaModule,
 			imports: params.imports,
 			providers: [...providers, axiosProvider],

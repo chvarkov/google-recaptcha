@@ -71,7 +71,7 @@ The list of changes made in the project can be found in the [CHANGELOG.md](./CHA
 | `actions`         | Optional.<br> Type: `string[]`<br> Available action list for reCAPTCHA v3 or enterprise. Not available for `type: 'v2'`. <br> You can make this check stricter by passing the action property parameter to `@Recaptcha(...)` decorator. |
 | `remoteIp`        | Optional.<br> Type: `(request) => string`<br> A function that returns a remote IP address from the request |
 | `axiosConfig`     | Optional.<br> Type: `AxiosRequestConfig`<br> Allows to setup proxy, response timeout, https agent etc...<br> `headers` and request-specific fields (`url`, `method`, `data`, etc.) are ignored. |
-| `global`     		| Optional.<br> Type: `boolean` <br> Default: `false` Defines a module in the [global scope](https://docs.nestjs.com/modules#global-modules). |
+| `global`          | Optional.<br> Type: `boolean` <br> Default: `false` <br> Defines a module in the [global scope](https://docs.nestjs.com/modules#global-modules). Set `true` if `@Recaptcha()` is used in modules that do not import `GoogleRecaptchaModule`. |
 
 **GoogleRecaptchaEnterpriseOptions**
 

@@ -9,7 +9,9 @@ import { RECAPTCHA_AXIOS_INSTANCE } from '../../../src/provider.declarations.js'
 import { VerifyResponseV3 } from '../../../src/interfaces/verify-response.js';
 import { MockedRecaptchaApi } from '../../utils/mocked-recaptcha-api.js';
 
+// Resolvers live in a separate TestModule that does not import GoogleRecaptchaModule.
 const recaptchaOptions = {
+	global: true,
 	type: 'v3' as const,
 	secretKey: 'secret_key',
 	actions: ['Submit'],

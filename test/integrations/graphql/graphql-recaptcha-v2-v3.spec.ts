@@ -74,6 +74,8 @@ describe('HTTP Recaptcha V2 V3', () => {
 				GoogleRecaptchaModule.forRoot({
 					debug: true,
 					response: (req: IncomingMessage): string | undefined => req.headers.recaptcha?.toString(),
+					// Resolvers live in a separate TestModule that does not import GoogleRecaptchaModule.
+					global: true,
 					type: 'v3',
 					secretKey: 'secret_key',
 					score: (score: number) => score >= 0.6,
