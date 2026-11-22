@@ -1,5 +1,5 @@
 import { ExecutionContext, Injectable } from '@nestjs/common';
-import { resolveRequest } from '../helpers/resolve-request';
+import { resolveRequest } from '../helpers/resolve-request.js';
 
 @Injectable()
 export class RecaptchaRequestResolver {

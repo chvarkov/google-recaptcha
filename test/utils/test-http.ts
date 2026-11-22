@@ -1,7 +1,7 @@
 import request from 'supertest';
 
 type App = Parameters<typeof request>[0];
-import { LiteralObject } from './literal-object';
+import { LiteralObject } from './literal-object.js';
 
 export interface ITestHttpRequestOptions {
 	responseType?: 'stream' | 'json' | 'blob';

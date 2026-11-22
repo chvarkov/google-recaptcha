@@ -1,4 +1,4 @@
-import { GoogleRecaptchaModuleOptions, GoogleRecaptchaSiteVerifyUrl } from '../../src';
+import { GoogleRecaptchaModuleOptions, GoogleRecaptchaSiteVerifyUrl } from '../../src/index.js';
 import * as https from 'https';
 
 export class TestConfigService {

@@ -1,6 +1,6 @@
-import { EnterpriseReasonTransformer } from '../src/services/enterprise-reason.transformer';
-import { GoogleRecaptchaEnterpriseReason } from '../src/enums/google-recaptcha-enterprise-reason';
-import { ErrorCode } from '../src';
+import { EnterpriseReasonTransformer } from '../src/services/enterprise-reason.transformer.js';
+import { GoogleRecaptchaEnterpriseReason } from '../src/enums/google-recaptcha-enterprise-reason.js';
+import { ErrorCode } from '../src/index.js';
 
 describe('EnterpriseReasonTransformer', () => {
 	const transformer = new EnterpriseReasonTransformer();

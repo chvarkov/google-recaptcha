@@ -1,4 +1,4 @@
-import { ErrorCode, GoogleRecaptchaException } from '../src';
+import { ErrorCode, GoogleRecaptchaException } from '../src/index.js';
 import { HttpStatus } from '@nestjs/common';
 
 describe('Google recaptcha exception', () => {

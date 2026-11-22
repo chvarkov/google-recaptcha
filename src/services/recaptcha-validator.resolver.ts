@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { AbstractGoogleRecaptchaValidator } from './validators/abstract-google-recaptcha-validator';
-import { GoogleRecaptchaValidator } from './validators/google-recaptcha.validator';
-import { GoogleRecaptchaEnterpriseValidator } from './validators/google-recaptcha-enterprise.validator';
-import { RecaptchaConfigRef } from '../models/recaptcha-config-ref';
+import { AbstractGoogleRecaptchaValidator } from './validators/abstract-google-recaptcha-validator.js';
+import { GoogleRecaptchaValidator } from './validators/google-recaptcha.validator.js';
+import { GoogleRecaptchaEnterpriseValidator } from './validators/google-recaptcha-enterprise.validator.js';
+import { RecaptchaConfigRef } from '../models/recaptcha-config-ref.js';
 
 @Injectable()
 export class RecaptchaValidatorResolver {

@@ -1,12 +1,12 @@
 import { Logger } from '@nestjs/common';
 import { AxiosInstance, AxiosRequestConfig } from 'axios';
-import { VerifyResponseOptions } from '../../interfaces/verify-response-decorator-options';
-import { ScoreValidator } from '../../types';
-import { RecaptchaVerificationResult } from '../../models/recaptcha-verification-result';
-import { RecaptchaConfigRef } from '../../models/recaptcha-config-ref';
-import { GoogleRecaptchaContext } from '../../enums/google-recaptcha-context';
-import { GoogleRecaptchaNetworkException } from '../../exceptions/google-recaptcha-network.exception';
-import { getErrorInfo, isAxiosError } from '../../helpers/get-error-info';
+import { VerifyResponseOptions } from '../../interfaces/verify-response-decorator-options.js';
+import { ScoreValidator } from '../../types.js';
+import { RecaptchaVerificationResult } from '../../models/recaptcha-verification-result.js';
+import { RecaptchaConfigRef } from '../../models/recaptcha-config-ref.js';
+import { GoogleRecaptchaContext } from '../../enums/google-recaptcha-context.js';
+import { GoogleRecaptchaNetworkException } from '../../exceptions/google-recaptcha-network.exception.js';
+import { getErrorInfo, isAxiosError } from '../../helpers/get-error-info.js';
 
 export interface PostError {
 	status?: number;

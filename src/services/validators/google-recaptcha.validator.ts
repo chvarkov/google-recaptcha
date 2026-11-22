@@ -1,15 +1,15 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { RECAPTCHA_AXIOS_INSTANCE, RECAPTCHA_LOGGER } from '../../provider.declarations';
-import { GoogleRecaptchaSiteVerifyUrl } from '../../enums/google-recaptcha-site-verify-url';
-import { VerifyResponseOptions } from '../../interfaces/verify-response-decorator-options';
-import { VerifyResponseV2, VerifyResponseV3 } from '../../interfaces/verify-response';
-import { ErrorCode } from '../../enums/error-code';
-import { AbstractGoogleRecaptchaValidator } from './abstract-google-recaptcha-validator';
-import { RecaptchaVerificationResult } from '../../models/recaptcha-verification-result';
-import { GoogleRecaptchaContext } from '../../enums/google-recaptcha-context';
-import { maskSecret } from '../../helpers/mask-secret';
+import { RECAPTCHA_AXIOS_INSTANCE, RECAPTCHA_LOGGER } from '../../provider.declarations.js';
+import { GoogleRecaptchaSiteVerifyUrl } from '../../enums/google-recaptcha-site-verify-url.js';
+import { VerifyResponseOptions } from '../../interfaces/verify-response-decorator-options.js';
+import { VerifyResponseV2, VerifyResponseV3 } from '../../interfaces/verify-response.js';
+import { ErrorCode } from '../../enums/error-code.js';
+import { AbstractGoogleRecaptchaValidator } from './abstract-google-recaptcha-validator.js';
+import { RecaptchaVerificationResult } from '../../models/recaptcha-verification-result.js';
+import { GoogleRecaptchaContext } from '../../enums/google-recaptcha-context.js';
+import { maskSecret } from '../../helpers/mask-secret.js';
 import { AxiosInstance } from 'axios';
-import { RecaptchaConfigRef } from '../../models/recaptcha-config-ref';
+import { RecaptchaConfigRef } from '../../models/recaptcha-config-ref.js';
 
 /** Raw siteverify response: Google returns errors as `error-codes`. */
 type SiteVerifyResponse = Omit<VerifyResponseV3, 'errors'> & { 'error-codes'?: ErrorCode[] };

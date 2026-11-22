@@ -1,6 +1,6 @@
-import { GoogleRecaptchaModuleOptions } from '../interfaces/google-recaptcha-module-options';
-import { GoogleRecaptchaEnterpriseOptions } from '../interfaces/google-recaptcha-enterprise-options';
-import { ScoreValidator, SkipIfValue } from '../types';
+import { GoogleRecaptchaModuleOptions } from '../interfaces/google-recaptcha-module-options.js';
+import { GoogleRecaptchaEnterpriseOptions } from '../interfaces/google-recaptcha-enterprise-options.js';
+import { ScoreValidator, SkipIfValue } from '../types.js';
 
 export class RecaptchaConfigRef {
 	get valueOf(): GoogleRecaptchaModuleOptions {

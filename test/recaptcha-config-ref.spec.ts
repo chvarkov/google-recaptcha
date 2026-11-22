@@ -1,6 +1,6 @@
-import { GoogleRecaptchaModuleOptions } from '../src';
-import { RecaptchaConfigRef } from '../src/models/recaptcha-config-ref';
-import { GoogleRecaptchaEnterpriseOptions } from '../src/interfaces/google-recaptcha-enterprise-options';
+import { GoogleRecaptchaModuleOptions } from '../src/index.js';
+import { RecaptchaConfigRef } from '../src/models/recaptcha-config-ref.js';
+import { GoogleRecaptchaEnterpriseOptions } from '../src/interfaces/google-recaptcha-enterprise-options.js';
 
 describe('RecaptchaConfigRef', () => {
 	const options: GoogleRecaptchaModuleOptions = {

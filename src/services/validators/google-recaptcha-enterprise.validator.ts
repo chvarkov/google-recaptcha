@@ -1,14 +1,14 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { RECAPTCHA_AXIOS_INSTANCE, RECAPTCHA_LOGGER } from '../../provider.declarations';
-import { VerifyResponseOptions } from '../../interfaces/verify-response-decorator-options';
-import { AbstractGoogleRecaptchaValidator, PostResult } from './abstract-google-recaptcha-validator';
-import { RecaptchaVerificationResult } from '../../models/recaptcha-verification-result';
-import { ErrorCode } from '../../enums/error-code';
-import { GoogleRecaptchaContext } from '../../enums/google-recaptcha-context';
-import { VerifyResponseEnterprise, VerifyTokenEnterpriseEvent } from '../../interfaces/verify-response-enterprise';
-import { EnterpriseReasonTransformer } from '../enterprise-reason.transformer';
+import { RECAPTCHA_AXIOS_INSTANCE, RECAPTCHA_LOGGER } from '../../provider.declarations.js';
+import { VerifyResponseOptions } from '../../interfaces/verify-response-decorator-options.js';
+import { AbstractGoogleRecaptchaValidator, PostResult } from './abstract-google-recaptcha-validator.js';
+import { RecaptchaVerificationResult } from '../../models/recaptcha-verification-result.js';
+import { ErrorCode } from '../../enums/error-code.js';
+import { GoogleRecaptchaContext } from '../../enums/google-recaptcha-context.js';
+import { VerifyResponseEnterprise, VerifyTokenEnterpriseEvent } from '../../interfaces/verify-response-enterprise.js';
+import { EnterpriseReasonTransformer } from '../enterprise-reason.transformer.js';
 import { AxiosInstance } from 'axios';
-import { RecaptchaConfigRef } from '../../models/recaptcha-config-ref';
+import { RecaptchaConfigRef } from '../../models/recaptcha-config-ref.js';
 
 /** `undefined` when Google did not return an assessment (HTTP error). */
 type EnterpriseNativeResponse = VerifyResponseEnterprise | undefined;

@@ -1,5 +1,5 @@
 import { ArgumentsHost, Catch, ExceptionFilter } from '@nestjs/common';
-import { GoogleRecaptchaException } from '../../src';
+import { GoogleRecaptchaException } from '../../src/index.js';
 import { Response } from 'express';
 
 @Catch(Error)

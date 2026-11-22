@@ -1,11 +1,11 @@
 import { Logger } from '@nestjs/common';
 import { AxiosError, AxiosHeaders, AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 import { inspect } from 'node:util';
-import { GoogleRecaptchaEnterpriseValidator } from '../src/services/validators/google-recaptcha-enterprise.validator';
-import { RecaptchaConfigRef } from '../src/models/recaptcha-config-ref';
-import { EnterpriseReasonTransformer } from '../src/services/enterprise-reason.transformer';
-import { GoogleRecaptchaNetworkException } from '../src/exceptions/google-recaptcha-network.exception';
-import { ErrorCode } from '../src';
+import { GoogleRecaptchaEnterpriseValidator } from '../src/services/validators/google-recaptcha-enterprise.validator.js';
+import { RecaptchaConfigRef } from '../src/models/recaptcha-config-ref.js';
+import { EnterpriseReasonTransformer } from '../src/services/enterprise-reason.transformer.js';
+import { GoogleRecaptchaNetworkException } from '../src/exceptions/google-recaptcha-network.exception.js';
+import { ErrorCode } from '../src/index.js';
 
 const API_KEY = 'SUPER_SECRET_ENTERPRISE_API_KEY';
 

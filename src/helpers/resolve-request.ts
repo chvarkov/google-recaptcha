@@ -1,6 +1,6 @@
 import { ExecutionContext } from '@nestjs/common';
-import { loadModule } from './load-module';
-import { RecaptchaContextType } from '../types';
+import { loadModule } from './load-module.js';
+import { RecaptchaContextType } from '../types.js';
 
 /** Request object of any platform (express, fastify, ...). The guard stores the verification result on it. */
 export type RecaptchaRequest = Record<string, unknown>;

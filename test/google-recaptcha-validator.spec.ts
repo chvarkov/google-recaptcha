@@ -1,8 +1,8 @@
 import { Test } from '@nestjs/testing';
-import { ErrorCode, GoogleRecaptchaModule } from '../src';
-import { GoogleRecaptchaValidator } from '../src/services/validators/google-recaptcha.validator';
-import { GoogleRecaptchaNetworkException } from '../src/exceptions/google-recaptcha-network.exception';
-import { RecaptchaConfigRef } from '../src/models/recaptcha-config-ref';
+import { ErrorCode, GoogleRecaptchaModule } from '../src/index.js';
+import { GoogleRecaptchaValidator } from '../src/services/validators/google-recaptcha.validator.js';
+import { GoogleRecaptchaNetworkException } from '../src/exceptions/google-recaptcha-network.exception.js';
+import { RecaptchaConfigRef } from '../src/models/recaptcha-config-ref.js';
 import { AxiosError, AxiosHeaders, AxiosInstance } from 'axios';
 import { Logger } from '@nestjs/common';
 import { inspect } from 'node:util';

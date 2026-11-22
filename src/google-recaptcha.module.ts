@@ -1,22 +1,22 @@
 import { DynamicModule, Logger, Provider } from '@nestjs/common';
-import { GoogleRecaptchaGuard } from './guards/google-recaptcha.guard';
-import { GoogleRecaptchaValidator } from './services/validators/google-recaptcha.validator';
-import { GoogleRecaptchaEnterpriseValidator } from './services/validators/google-recaptcha-enterprise.validator';
+import { GoogleRecaptchaGuard } from './guards/google-recaptcha.guard.js';
+import { GoogleRecaptchaValidator } from './services/validators/google-recaptcha.validator.js';
+import { GoogleRecaptchaEnterpriseValidator } from './services/validators/google-recaptcha-enterprise.validator.js';
 import {
 	GoogleRecaptchaModuleAsyncOptions,
 	GoogleRecaptchaModuleOptions,
 	GoogleRecaptchaOptionsFactory,
-} from './interfaces/google-recaptcha-module-options';
-import { RECAPTCHA_AXIOS_INSTANCE, RECAPTCHA_LOGGER, RECAPTCHA_OPTIONS } from './provider.declarations';
-import { RecaptchaRequestResolver } from './services/recaptcha-request.resolver';
+} from './interfaces/google-recaptcha-module-options.js';
+import { RECAPTCHA_AXIOS_INSTANCE, RECAPTCHA_LOGGER, RECAPTCHA_OPTIONS } from './provider.declarations.js';
+import { RecaptchaRequestResolver } from './services/recaptcha-request.resolver.js';
 import { Reflector } from '@nestjs/core';
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import { Agent } from 'https';
-import { RecaptchaValidatorResolver } from './services/recaptcha-validator.resolver';
-import { EnterpriseReasonTransformer } from './services/enterprise-reason.transformer';
-import { xor } from './helpers/xor';
-import { RecaptchaConfigRef } from './models/recaptcha-config-ref';
-import { GoogleRecaptchaType } from './interfaces/google-recaptcha-validator-options';
+import { RecaptchaValidatorResolver } from './services/recaptcha-validator.resolver.js';
+import { EnterpriseReasonTransformer } from './services/enterprise-reason.transformer.js';
+import { xor } from './helpers/xor.js';
+import { RecaptchaConfigRef } from './models/recaptcha-config-ref.js';
+import { GoogleRecaptchaType } from './interfaces/google-recaptcha-validator-options.js';
 
 const RECAPTCHA_TYPES: readonly string[] = ['v2', 'v3', 'enterprise'] satisfies GoogleRecaptchaType[];
 

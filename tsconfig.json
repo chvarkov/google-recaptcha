@@ -2,13 +2,14 @@
 	"compilerOptions": {
 		"strict": true,
 		"types": ["node"],
-		"module": "commonjs",
+		"module": "nodenext",
+		"moduleResolution": "nodenext",
 		"declaration": true,
 		"removeComments": false,
 		"emitDecoratorMetadata": true,
 		"experimentalDecorators": true,
 		"declarationMap": false,
-		"target": "es2022",
+		"target": "esnext",
 		"sourceMap": false,
 		"outDir": "./dist",
 		"rootDir": "./src"

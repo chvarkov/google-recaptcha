@@ -1,10 +1,10 @@
 import { Controller, INestApplication, Post } from '@nestjs/common';
-import { GoogleRecaptchaModule, Recaptcha, RecaptchaResult, RecaptchaVerificationResult } from '../src';
+import { GoogleRecaptchaModule, Recaptcha, RecaptchaResult, RecaptchaVerificationResult } from '../src/index.js';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Request } from 'express';
-import { VerifyResponseV3 } from '../src/interfaces/verify-response';
+import { VerifyResponseV3 } from '../src/interfaces/verify-response.js';
 import request from 'supertest';
-import { RECAPTCHA_AXIOS_INSTANCE } from '../src/provider.declarations';
+import { RECAPTCHA_AXIOS_INSTANCE } from '../src/provider.declarations.js';
 import axios from 'axios';
 
 @Controller('test')

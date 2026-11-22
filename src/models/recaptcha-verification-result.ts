@@ -1,6 +1,6 @@
-import { ErrorCode } from '../enums/error-code';
-import { VerifyResponseEnterprise, VerifyResponseEnterpriseRiskAnalysis } from '../interfaces/verify-response-enterprise';
-import { VerifyResponseV2, VerifyResponseV3 } from '../interfaces/verify-response';
+import { ErrorCode } from '../enums/error-code.js';
+import { VerifyResponseEnterprise, VerifyResponseEnterpriseRiskAnalysis } from '../interfaces/verify-response-enterprise.js';
+import { VerifyResponseV2, VerifyResponseV3 } from '../interfaces/verify-response.js';
 
 /**
  * Raw response of any validator the guard may use.

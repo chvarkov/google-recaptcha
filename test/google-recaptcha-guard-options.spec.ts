@@ -7,15 +7,15 @@ import {
 	GoogleRecaptchaModuleOptions,
 	GoogleRecaptchaV3ModuleOptions,
 	Recaptcha,
-} from '../src';
-import { RecaptchaRequestResolver } from '../src/services/recaptcha-request.resolver';
-import { RecaptchaValidatorResolver } from '../src/services/recaptcha-validator.resolver';
-import { RecaptchaConfigRef } from '../src/models/recaptcha-config-ref';
-import { createGoogleRecaptchaValidator } from './helpers/create-google-recaptcha-validator';
-import { createGoogleRecaptchaEnterpriseValidator } from './helpers/create-google-recaptcha-enterprise-validator';
-import { createExecutionContext } from './helpers/create-execution-context';
-import { TestRecaptchaNetwork } from './network/test-recaptcha-network';
-import { LiteralObject } from './utils/literal-object';
+} from '../src/index.js';
+import { RecaptchaRequestResolver } from '../src/services/recaptcha-request.resolver.js';
+import { RecaptchaValidatorResolver } from '../src/services/recaptcha-validator.resolver.js';
+import { RecaptchaConfigRef } from '../src/models/recaptcha-config-ref.js';
+import { createGoogleRecaptchaValidator } from './helpers/create-google-recaptcha-validator.js';
+import { createGoogleRecaptchaEnterpriseValidator } from './helpers/create-google-recaptcha-enterprise-validator.js';
+import { createExecutionContext } from './helpers/create-execution-context.js';
+import { TestRecaptchaNetwork } from './network/test-recaptcha-network.js';
+import { LiteralObject } from './utils/literal-object.js';
 
 @Recaptcha({ action: 'Login' })
 class ClassLevelController {

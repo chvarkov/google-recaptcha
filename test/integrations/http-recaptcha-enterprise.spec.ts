@@ -1,16 +1,23 @@
 import { Controller, INestApplication, Post } from '@nestjs/common';
-import { ClassificationReason, ErrorCode, GoogleRecaptchaModule, Recaptcha, RecaptchaResult, RecaptchaVerificationResult } from '../../src';
+import {
+	ClassificationReason,
+	ErrorCode,
+	GoogleRecaptchaModule,
+	Recaptcha,
+	RecaptchaResult,
+	RecaptchaVerificationResult,
+} from '../../src/index.js';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Request } from 'express';
 import request from 'supertest';
-import { MockedRecaptchaApi } from '../utils/mocked-recaptcha-api';
-import { VerifyResponseV2 } from '../../src/interfaces/verify-response';
-import { TestHttp } from '../utils/test-http';
-import { VerifyResponseEnterprise } from '../../src/interfaces/verify-response-enterprise';
-import { GoogleRecaptchaEnterpriseReason } from '../../src/enums/google-recaptcha-enterprise-reason';
-import { TestErrorFilter } from '../assets/test-error-filter';
-import { RECAPTCHA_AXIOS_INSTANCE } from '../../src/provider.declarations';
-import { LiteralObject } from '../utils/literal-object';
+import { MockedRecaptchaApi } from '../utils/mocked-recaptcha-api.js';
+import { VerifyResponseV2 } from '../../src/interfaces/verify-response.js';
+import { TestHttp } from '../utils/test-http.js';
+import { VerifyResponseEnterprise } from '../../src/interfaces/verify-response-enterprise.js';
+import { GoogleRecaptchaEnterpriseReason } from '../../src/enums/google-recaptcha-enterprise-reason.js';
+import { TestErrorFilter } from '../assets/test-error-filter.js';
+import { RECAPTCHA_AXIOS_INSTANCE } from '../../src/provider.declarations.js';
+import { LiteralObject } from '../utils/literal-object.js';
 
 @Controller('test')
 class TestController {

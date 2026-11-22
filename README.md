@@ -42,6 +42,11 @@ Usage example [here](https://github.com/chvarkov/google-recaptcha-example)
 $ npm i @nestlab/google-recaptcha
 ```
 
+The package is published as an ES module and requires Node.js `^22.12.0 || >=24`.
+It works in both ESM and CommonJS applications: in CommonJS `require('@nestlab/google-recaptcha')` loads it via
+[`require(esm)`](https://nodejs.org/api/modules.html#loading-ecmascript-modules-using-require).
+TypeScript projects compiled to CommonJS need `"module": "nodenext"` (TypeScript 5.8+) or `"moduleResolution": "node"` / `"node10"`; `"module": "node16"` is not supported.
+
 ## Changes
 
 The list of changes made in the project can be found in the [CHANGELOG.md](./CHANGELOG.md) file.

@@ -1,12 +1,12 @@
 import { CanActivate, ExecutionContext, Inject, Injectable, Logger } from '@nestjs/common';
-import { RECAPTCHA_LOGGER, RECAPTCHA_VALIDATION_OPTIONS } from '../provider.declarations';
-import { GoogleRecaptchaException } from '../exceptions/google-recaptcha.exception';
+import { RECAPTCHA_LOGGER, RECAPTCHA_VALIDATION_OPTIONS } from '../provider.declarations.js';
+import { GoogleRecaptchaException } from '../exceptions/google-recaptcha.exception.js';
 import { Reflector } from '@nestjs/core';
-import { RecaptchaRequestResolver } from '../services/recaptcha-request.resolver';
-import { VerifyResponseDecoratorOptions } from '../interfaces/verify-response-decorator-options';
-import { RecaptchaValidatorResolver } from '../services/recaptcha-validator.resolver';
-import { RecaptchaRequest } from '../helpers/resolve-request';
-import { RecaptchaConfigRef } from '../models/recaptcha-config-ref';
+import { RecaptchaRequestResolver } from '../services/recaptcha-request.resolver.js';
+import { VerifyResponseDecoratorOptions } from '../interfaces/verify-response-decorator-options.js';
+import { RecaptchaValidatorResolver } from '../services/recaptcha-validator.resolver.js';
+import { RecaptchaRequest } from '../helpers/resolve-request.js';
+import { RecaptchaConfigRef } from '../models/recaptcha-config-ref.js';
 
 @Injectable()
 export class GoogleRecaptchaGuard implements CanActivate {

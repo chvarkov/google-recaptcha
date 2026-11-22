@@ -6,7 +6,7 @@ import {
 	GoogleRecaptchaSiteVerifyUrl,
 	GoogleRecaptchaV2ModuleOptions,
 	GoogleRecaptchaV3ModuleOptions,
-} from '../src';
+} from '../src/index.js';
 
 const response = (): string => 'token';
 const enterprise = { projectId: 'p', siteKey: 's', apiKey: 'k' };

@@ -1,9 +1,9 @@
-import { GoogleRecaptchaGuardOptions } from './google-recaptcha-guard-options';
+import { GoogleRecaptchaGuardOptions } from './google-recaptcha-guard-options.js';
 import {
 	GoogleRecaptchaEnterpriseValidatorOptions,
 	GoogleRecaptchaV2ValidatorOptions,
 	GoogleRecaptchaV3ValidatorOptions,
-} from './google-recaptcha-validator-options';
+} from './google-recaptcha-validator-options.js';
 import { FactoryProvider, ModuleMetadata, Type, Logger } from '@nestjs/common';
 
 /** Module options shared by all reCAPTCHA types. */

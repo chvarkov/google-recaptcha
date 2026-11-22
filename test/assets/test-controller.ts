@@ -1,6 +1,6 @@
 import { Controller, UseGuards } from '@nestjs/common';
-import { GoogleRecaptchaGuard, Recaptcha } from '../../src';
-import { SetRecaptchaOptions } from '../../src/decorators/set-recaptcha-options';
+import { GoogleRecaptchaGuard, Recaptcha } from '../../src/index.js';
+import { SetRecaptchaOptions } from '../../src/decorators/set-recaptcha-options.js';
 
 @Controller('test')
 export class TestController {

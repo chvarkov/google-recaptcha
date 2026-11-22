@@ -4,10 +4,10 @@ import { NodeAdapter, NodeRequest } from '@nestjs/platform-node';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Args, Field, GraphQLModule, Mutation, ObjectType, Query, Resolver } from '@nestjs/graphql';
 import request from 'supertest';
-import { GoogleRecaptchaModule, Recaptcha, RecaptchaResult, RecaptchaVerificationResult } from '../../../src';
-import { RECAPTCHA_AXIOS_INSTANCE } from '../../../src/provider.declarations';
-import { VerifyResponseV3 } from '../../../src/interfaces/verify-response';
-import { MockedRecaptchaApi } from '../../utils/mocked-recaptcha-api';
+import { GoogleRecaptchaModule, Recaptcha, RecaptchaResult, RecaptchaVerificationResult } from '../../../src/index.js';
+import { RECAPTCHA_AXIOS_INSTANCE } from '../../../src/provider.declarations.js';
+import { VerifyResponseV3 } from '../../../src/interfaces/verify-response.js';
+import { MockedRecaptchaApi } from '../../utils/mocked-recaptcha-api.js';
 
 const recaptchaOptions = {
 	type: 'v3' as const,

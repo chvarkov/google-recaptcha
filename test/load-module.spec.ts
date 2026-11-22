@@ -1,4 +1,4 @@
-import { loadModule } from '../src/helpers/load-module';
+import { loadModule } from '../src/helpers/load-module.js';
 import { Reflector } from '@nestjs/core';
 
 describe('loadModule', () => {

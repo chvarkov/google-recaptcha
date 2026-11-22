@@ -1,7 +1,7 @@
-import { GoogleRecaptchaSiteVerifyUrl } from '../enums/google-recaptcha-site-verify-url';
-import { ScoreValidator } from '../types';
+import { GoogleRecaptchaSiteVerifyUrl } from '../enums/google-recaptcha-site-verify-url.js';
+import { ScoreValidator } from '../types.js';
 import { AxiosRequestConfig } from 'axios';
-import { GoogleRecaptchaEnterpriseOptions } from './google-recaptcha-enterprise-options';
+import { GoogleRecaptchaEnterpriseOptions } from './google-recaptcha-enterprise-options.js';
 
 export type GoogleRecaptchaType = 'v2' | 'v3' | 'enterprise';
 

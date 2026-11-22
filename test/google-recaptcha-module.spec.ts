@@ -1,8 +1,8 @@
 import { Test } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
-import { GoogleRecaptchaValidator } from '../src/services/validators/google-recaptcha.validator';
-import { GoogleRecaptchaGuard, GoogleRecaptchaModuleOptions, GoogleRecaptchaModule } from '../src';
-import { RECAPTCHA_OPTIONS } from '../src/provider.declarations';
+import { GoogleRecaptchaValidator } from '../src/services/validators/google-recaptcha.validator.js';
+import { GoogleRecaptchaGuard, GoogleRecaptchaModuleOptions, GoogleRecaptchaModule } from '../src/index.js';
+import { RECAPTCHA_OPTIONS } from '../src/provider.declarations.js';
 
 describe('Google recaptcha module', () => {
 	const customSiteVerifyUrl = 'CUSTOM_URL';

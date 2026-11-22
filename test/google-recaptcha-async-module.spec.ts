@@ -1,15 +1,15 @@
 import { Test } from '@nestjs/testing';
-import { GoogleRecaptchaValidator } from '../src/services/validators/google-recaptcha.validator';
-import { GoogleRecaptchaModule, GoogleRecaptchaModuleOptions } from '../src';
-import { TestConfigModule } from './assets/test-config-module';
-import { TestConfigService } from './assets/test-config-service';
-import { GoogleRecaptchaModuleOptionsFactory } from './assets/test-recaptcha-options-factory';
+import { GoogleRecaptchaValidator } from '../src/services/validators/google-recaptcha.validator.js';
+import { GoogleRecaptchaModule, GoogleRecaptchaModuleOptions } from '../src/index.js';
+import { TestConfigModule } from './assets/test-config-module.js';
+import { TestConfigService } from './assets/test-config-service.js';
+import { GoogleRecaptchaModuleOptionsFactory } from './assets/test-recaptcha-options-factory.js';
 import { HttpModule, HttpService } from '@nestjs/axios';
-import { RECAPTCHA_AXIOS_INSTANCE, RECAPTCHA_OPTIONS } from '../src/provider.declarations';
+import { RECAPTCHA_AXIOS_INSTANCE, RECAPTCHA_OPTIONS } from '../src/provider.declarations.js';
 import { AxiosInstance, AxiosProxyConfig, AxiosRequestConfig } from 'axios';
 import * as https from 'https';
 import { Type } from '@nestjs/common';
-import { GoogleRecaptchaOptionsFactory } from '../src/interfaces/google-recaptcha-module-options';
+import { GoogleRecaptchaOptionsFactory } from '../src/interfaces/google-recaptcha-module-options.js';
 
 describe('Google recaptcha async module', () => {
 	const checkDefaultConfigs = (defaults: AxiosRequestConfig): void => {

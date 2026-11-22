@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { ErrorCode } from '../enums/error-code';
+import { ErrorCode } from '../enums/error-code.js';
 
 const DEFAULT_ERROR_MESSAGE = 'Unexpected error. Please submit an issue to @nestlab/google-recaptcha.';
 

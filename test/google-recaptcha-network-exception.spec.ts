@@ -1,5 +1,5 @@
 import { HttpStatus } from '@nestjs/common';
-import { GoogleRecaptchaNetworkException } from '../src/exceptions/google-recaptcha-network.exception';
+import { GoogleRecaptchaNetworkException } from '../src/exceptions/google-recaptcha-network.exception.js';
 
 describe('Google recaptcha network exception', () => {
 	test('Test without error code', () => {

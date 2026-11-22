@@ -1,6 +1,6 @@
-import { GoogleRecaptchaEnterpriseValidator, GoogleRecaptchaModuleOptions, GoogleRecaptchaValidator } from '../src';
-import { RecaptchaValidatorResolver } from '../src/services/recaptcha-validator.resolver';
-import { RecaptchaConfigRef } from '../src/models/recaptcha-config-ref';
+import { GoogleRecaptchaEnterpriseValidator, GoogleRecaptchaModuleOptions, GoogleRecaptchaValidator } from '../src/index.js';
+import { RecaptchaValidatorResolver } from '../src/services/recaptcha-validator.resolver.js';
+import { RecaptchaConfigRef } from '../src/models/recaptcha-config-ref.js';
 
 describe('RecaptchaValidatorResolver', () => {
 	// Dependencies are not used: the resolver only picks an instance.

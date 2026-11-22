@@ -1,16 +1,16 @@
-import { GoogleRecaptchaException, GoogleRecaptchaGuard, GoogleRecaptchaModuleOptions } from '../src';
+import { GoogleRecaptchaException, GoogleRecaptchaGuard, GoogleRecaptchaModuleOptions } from '../src/index.js';
 import { Reflector } from '@nestjs/core';
-import { GoogleRecaptchaGuardOptions } from '../src/interfaces/google-recaptcha-guard-options';
-import { createGoogleRecaptchaValidator } from './helpers/create-google-recaptcha-validator';
-import { GoogleRecaptchaValidatorOptions } from '../src/interfaces/google-recaptcha-validator-options';
-import { createExecutionContext } from './helpers/create-execution-context';
-import { TestController } from './assets/test-controller';
-import { TestRecaptchaNetwork } from './network/test-recaptcha-network';
-import { RecaptchaRequestResolver } from '../src/services/recaptcha-request.resolver';
+import { GoogleRecaptchaGuardOptions } from '../src/interfaces/google-recaptcha-guard-options.js';
+import { createGoogleRecaptchaValidator } from './helpers/create-google-recaptcha-validator.js';
+import { GoogleRecaptchaValidatorOptions } from '../src/interfaces/google-recaptcha-validator-options.js';
+import { createExecutionContext } from './helpers/create-execution-context.js';
+import { TestController } from './assets/test-controller.js';
+import { TestRecaptchaNetwork } from './network/test-recaptcha-network.js';
+import { RecaptchaRequestResolver } from '../src/services/recaptcha-request.resolver.js';
 import { Logger } from '@nestjs/common';
-import { createGoogleRecaptchaEnterpriseValidator } from './helpers/create-google-recaptcha-enterprise-validator';
-import { RecaptchaValidatorResolver } from '../src/services/recaptcha-validator.resolver';
-import { RecaptchaConfigRef } from '../src/models/recaptcha-config-ref';
+import { createGoogleRecaptchaEnterpriseValidator } from './helpers/create-google-recaptcha-enterprise-validator.js';
+import { RecaptchaValidatorResolver } from '../src/services/recaptcha-validator.resolver.js';
+import { RecaptchaConfigRef } from '../src/models/recaptcha-config-ref.js';
 
 describe('Google recaptcha guard', () => {
 	let network: TestRecaptchaNetwork;

@@ -24,7 +24,7 @@ import {
 	VerifyResponseV3,
 	VerifyTokenEnterpriseEvent,
 	VerifyTokenEnterpriseResponseEvent,
-} from '../src';
+} from '../src/index.js';
 
 describe('Public API', () => {
 	test('exports public types and enums from the package root', () => {

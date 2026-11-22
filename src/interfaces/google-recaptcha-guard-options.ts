@@ -1,4 +1,4 @@
-import { RecaptchaRemoteIpProvider, RecaptchaResponseProvider, SkipIfValue } from '../types';
+import { RecaptchaRemoteIpProvider, RecaptchaResponseProvider, SkipIfValue } from '../types.js';
 
 export interface GoogleRecaptchaGuardOptions {
 	response: RecaptchaResponseProvider;
