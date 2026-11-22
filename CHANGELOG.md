@@ -1,5 +1,79 @@
 # Changelog
 
+## v4.0.0
+
+### Breaking changes
+
+- The package is published as an **ES module** only.
+    - CommonJS applications load it via [`require(esm)`](https://nodejs.org/api/modules.html#loading-ecmascript-modules-using-require), no code changes needed.
+    - TypeScript projects compiled to CommonJS need `"module": "nodenext"` (TypeScript 5.8+) or `"moduleResolution": "node"` / `"node10"`; `"module": "node16"` is not supported.
+    - Deep imports (`@nestlab/google-recaptcha/...`) are no longer available: import everything from the package root.
+- Node.js requirement: `>=20` ⇒ `^22.12.0 || >=24` (Node.js 20 is EOL, 22.12 is the first 22.x with `require(esm)` enabled by default).
+- New required module option `type`: `'v2'` | `'v3'` | `'enterprise'`. It defines which options are available and which checks are performed:
+    - `'v2'` - `secretKey` is required, `score` and `actions` are not allowed (reCAPTCHA v2 response has neither);
+    - `'v3'` - `secretKey` is required, `score` and `actions` are checked for every successful response;
+    - `'enterprise'` - `enterprise` is required, `secretKey` and `siteVerifyUrl` are not allowed.
+- `GoogleRecaptchaModuleOptions` is a union of `GoogleRecaptchaV2ModuleOptions`, `GoogleRecaptchaV3ModuleOptions` and `GoogleRecaptchaEnterpriseModuleOptions`: invalid combinations (missing `type`, both `secretKey` and `enterprise`, `score` for v2, etc.) are compile errors. They are also validated at startup for JavaScript users.
+- reCAPTCHA v3: a successful response without `action` / `score` (e.g. a v2 key configured as v3) is rejected with `forbidden-action` / `low-score` when `actions` / `score` are configured. Previously it was silently accepted as v2.
+- reCAPTCHA v2: `@Recaptcha({ action, score })` throws an error instead of silently skipping the checks.
+- Option `network` renamed to `siteVerifyUrl`.
+- Enum `GoogleRecaptchaNetwork` renamed to `GoogleRecaptchaSiteVerifyUrl` (values are unchanged).
+- `RecaptchaConfigRef`:
+    - `setEnterpriseOptions()` sets `type: 'enterprise'` and resets `secretKey` and `siteVerifyUrl`;
+    - `setSecretKey()` keeps `type: 'v2'` / `'v3'` and switches `'enterprise'` to `'v3'`;
+    - `setScore()` throws for `type: 'v2'`;
+    - setters replace the options object instead of mutating it: read `configRef.valueOf` each time instead of keeping a reference to it.
+- `score` moved from `GoogleRecaptchaGuardOptions` to the validator options (`GoogleRecaptchaModuleOptions` still contains it).
+- Stricter result types:
+    - default generic of `RecaptchaVerificationResult` is `RecaptchaNativeResponse` (`VerifyResponseV2 | VerifyResponseV3 | VerifyResponseEnterprise | undefined`) instead of an `any`-based object;
+    - `toObject()` returns `RecaptchaVerificationResultOptions<Res>`;
+    - `GoogleRecaptchaEnterpriseValidator` returns `RecaptchaVerificationResult<VerifyResponseEnterprise | undefined>`: `nativeResponse` is `undefined` on HTTP error.
+- Module option `global` is `false` by default. The documentation always stated `false`, but the module was actually registered as global (`true`); the code now matches the documentation.
+  If `@Recaptcha()` is used in controllers or resolvers of modules that do not import `GoogleRecaptchaModule`, the application fails at startup with `Nest can't resolve dependencies of the GoogleRecaptchaGuard`. Set `global: true` (in `forRoot()` / `forRootAsync()`) or re-export the configured module from a shared module and import that module where `@Recaptcha()` is used:
+  `@Module({ imports: [GoogleRecaptchaModule.forRoot({...})], exports: [GoogleRecaptchaModule] })`.
+- Default axios `timeout`: 60s ⇒ 10s. Can be changed via `axiosConfig.timeout`.
+- Error messages are reworded (e.g. `Low recaptcha score.` ⇒ `Low reCAPTCHA score.`). Use `GoogleRecaptchaException.errorCodes` instead of matching messages.
+
+#### Migration
+
+```diff
+ GoogleRecaptchaModule.forRoot({
++    type: 'v3',
++    global: true, // if @Recaptcha() is used outside the module that imports GoogleRecaptchaModule
+     secretKey: process.env.GOOGLE_RECAPTCHA_SECRET_KEY,
+     response: (req) => req.headers.recaptcha,
+-    network: GoogleRecaptchaNetwork.Recaptcha,
++    siteVerifyUrl: GoogleRecaptchaSiteVerifyUrl.Recaptcha,
+     score: 0.8,
+ });
+
+ GoogleRecaptchaModule.forRoot({
++    type: 'enterprise',
+     response: (req) => req.headers.recaptcha,
+     enterprise: { projectId, siteKey, apiKey },
+ });
+```
+
+For reCAPTCHA v2 use `type: 'v2'` and remove `score` / `actions` from the module options and `@Recaptcha(...)` decorators.
+
+### Added
+
+- Support Node.js 26.
+- Public types exported from the package root: module, guard and validator options (including per-type variants), `GoogleRecaptchaType`, `GoogleRecaptchaModuleAsyncOptions`, `GoogleRecaptchaOptionsFactory`, `VerifyResponseDecoratorOptions`, `VerifyResponseOptions`, `VerifyResponseV2`, `VerifyResponseV3`, `VerifyResponseEnterprise*`, `ScoreValidator`, `SkipIfValue`, `RecaptchaResponseProvider`, `RecaptchaRemoteIpProvider`, `RecaptchaNativeResponse`, `RecaptchaVerificationResultOptions`, `GoogleRecaptchaEnterpriseOptions`.
+- Exported enum `GoogleRecaptchaEnterpriseReason`.
+- GraphQL: the request is resolved from `req`, `request` or `reply.request` of the GraphQL context (Apollo and Mercurius on Express / Fastify). A clear error is thrown if the request is not exposed in the context.
+- `@nestjs/graphql` is declared as an optional peer dependency (`>=8.0.0 <15.0.0`).
+- Packages are published with npm provenance.
+
+### Fixed
+
+- `@Recaptcha(...)` options set on a controller class were ignored.
+- `score: 0` in `@Recaptcha(...)` was replaced by the module `score`.
+- reCAPTCHA secret key was logged in plain text in `debug` mode; now it is masked.
+- `RecaptchaConfigRef` setters mutated the options object passed to `forRoot()`.
+- An empty siteverify response failed with `TypeError`; now it results in `unknown-error`.
+- `skipIf` did not accept a callback with a typed request parameter (`(req: Request) => boolean`).
+
 ## v3.12.0
 - Support NestJS 12. Upgraded peer dependencies versions:
     - `@nestjs/common`: >=8.0.0 <13.0.0
