@@ -75,6 +75,30 @@ describe('Google recaptcha guard', () => {
 		expect(canActivate).toBeTruthy();
 	});
 
+	test('SkipIf = typed (req) => boolean receives the request', async () => {
+		const options = { ...validatorOptions, ...guardOptions };
+		const validator = createGoogleRecaptchaValidator(options);
+		const enterpriseValidator = createGoogleRecaptchaEnterpriseValidator(options);
+		const validatorResolver = new RecaptchaValidatorResolver(new RecaptchaConfigRef(options), validator, enterpriseValidator);
+
+		// Typed parameter must be accepted by SkipIfValue (compile-time check via test:types).
+		const skipIf = vi.fn(async (req: { headers: Record<string, string> }): Promise<boolean> => req.headers['x-skip'] === '1');
+
+		const guard = new GoogleRecaptchaGuard(
+			new Reflector(),
+			new RecaptchaRequestResolver(),
+			validatorResolver,
+			new Logger(),
+			new RecaptchaConfigRef({ ...options, skipIf })
+		);
+
+		const request = { headers: { 'x-skip': '1' }, body: {} };
+		const context = createExecutionContext(controller.submit.prototype, request);
+
+		await expect(guard.canActivate(context)).resolves.toBe(true);
+		expect(skipIf).toHaveBeenCalledWith(request);
+	});
+
 	test('Invalid secret', async () => {
 		const options = { ...validatorOptions, ...guardOptions };
 		const validator = createGoogleRecaptchaValidator(options);

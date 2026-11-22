@@ -10,6 +10,6 @@ export type RecaptchaRemoteIpProvider = (req: AnyRequest) => string | undefined 
 
 export type ScoreValidator = number | ((score: number) => boolean);
 
-export type SkipIfValue = boolean | (<Req = unknown>(request: Req) => boolean | Promise<boolean>);
+export type SkipIfValue = boolean | ((req: AnyRequest) => boolean | Promise<boolean>);
 
 export type RecaptchaContextType = ContextType | 'graphql';
