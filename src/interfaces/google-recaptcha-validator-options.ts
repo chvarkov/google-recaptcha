@@ -37,16 +37,16 @@ export interface GoogleRecaptchaV2ValidatorOptions extends GoogleRecaptchaCommon
 	actions?: never;
 }
 
-/** reCAPTCHA v3 (default for `secretKey` when `type` is not set). */
+/** reCAPTCHA v3: `score` and `action` are checked for every successful response. */
 export interface GoogleRecaptchaV3ValidatorOptions extends GoogleRecaptchaCommonValidatorOptions, GoogleRecaptchaSiteVerifyOptions {
-	type?: 'v3';
+	type: 'v3';
 	score?: ScoreValidator;
 	actions?: string[];
 }
 
 /** reCAPTCHA Enterprise: verification via the Google Cloud assessments API. */
 export interface GoogleRecaptchaEnterpriseValidatorOptions extends GoogleRecaptchaCommonValidatorOptions {
-	type?: 'enterprise';
+	type: 'enterprise';
 	enterprise: GoogleRecaptchaEnterpriseOptions;
 	score?: ScoreValidator;
 	actions?: string[];

@@ -48,6 +48,7 @@ describe('Google recaptcha guard: decorator options', () => {
 
 	function createGuard(extra: Partial<GoogleRecaptchaV3ModuleOptions> = {}): GoogleRecaptchaGuard {
 		const options: GoogleRecaptchaModuleOptions = {
+			type: 'v3',
 			secretKey: 'Secret',
 			response: (req) => req.body.recaptcha,
 			siteVerifyUrl: network.url,

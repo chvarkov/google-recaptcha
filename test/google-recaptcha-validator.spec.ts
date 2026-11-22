@@ -13,6 +13,7 @@ describe('Google recaptcha validator', () => {
 			imports: [
 				GoogleRecaptchaModule.forRoot({
 					response: () => 'TEST_TOKEN',
+					type: 'v3',
 					secretKey: 'TEST_SECRET',
 				}),
 			],
@@ -38,6 +39,7 @@ describe('Google recaptcha validator', () => {
 			imports: [
 				GoogleRecaptchaModule.forRoot({
 					response: () => 'TEST_TOKEN',
+					type: 'v3',
 					secretKey: 'TEST_SECRET',
 					axiosConfig: {
 						proxy: {
@@ -66,7 +68,7 @@ describe('Google recaptcha validator debug logging', () => {
 			post: vi.fn().mockResolvedValue({ data: { success: true, hostname: 'localhost' } }),
 		} as unknown as AxiosInstance;
 		const logger = { debug: vi.fn() } as unknown as Logger;
-		const configRef = new RecaptchaConfigRef({ secretKey, debug: true, response: () => 'TEST_TOKEN' });
+		const configRef = new RecaptchaConfigRef({ type: 'v3', secretKey, debug: true, response: () => 'TEST_TOKEN' });
 
 		const validator = new GoogleRecaptchaValidator(axiosMock, logger, configRef);
 		await validator.validate({ response: 'TEST_TOKEN', remoteIp: '127.0.0.1' });
@@ -91,7 +93,7 @@ describe('Google recaptcha validator debug logging', () => {
 describe('Google recaptcha validator: HTTP handling', () => {
 	function create(post: () => Promise<unknown>, debug = true) {
 		const logger = { debug: vi.fn() } as unknown as Logger;
-		const configRef = new RecaptchaConfigRef({ secretKey: 'SECRET', debug, response: () => 'TOKEN' });
+		const configRef = new RecaptchaConfigRef({ type: 'v3', secretKey: 'SECRET', debug, response: () => 'TOKEN' });
 		const validator = new GoogleRecaptchaValidator({ post: vi.fn(post) } as unknown as AxiosInstance, logger, configRef);
 
 		return { validator, debugMock: vi.mocked(logger.debug) };
@@ -157,7 +159,11 @@ describe('Google recaptcha validator: HTTP handling', () => {
 
 	test('Missing token and secret are sent as empty strings', async () => {
 		const post = vi.fn().mockResolvedValue({ data: { success: false, 'error-codes': [ErrorCode.MissingInputResponse] } });
-		const configRef = new RecaptchaConfigRef({ enterprise: { projectId: 'p', siteKey: 's', apiKey: 'k' }, response: () => undefined });
+		const configRef = new RecaptchaConfigRef({
+			type: 'enterprise',
+			enterprise: { projectId: 'p', siteKey: 's', apiKey: 'k' },
+			response: () => undefined,
+		});
 		const validator = new GoogleRecaptchaValidator({ post } as unknown as AxiosInstance, new Logger(), configRef);
 
 		const result = await validator.validate({ response: undefined });

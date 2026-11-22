@@ -24,12 +24,10 @@ describe('GoogleRecaptchaModuleOptions: types', () => {
 			siteVerifyUrl: GoogleRecaptchaSiteVerifyUrl.Recaptcha,
 		};
 		const v3: GoogleRecaptchaModuleOptions = { type: 'v3', response, secretKey: 'secret', score: 0.5, actions: ['login'] };
-		const v3Implicit: GoogleRecaptchaModuleOptions = { response, secretKey: 'secret', score: 0.5 };
 		const ent: GoogleRecaptchaModuleOptions = { type: 'enterprise', response, enterprise, score: 0.5, actions: ['login'] };
-		const entImplicit: GoogleRecaptchaModuleOptions = { response, enterprise };
 		const asyncV2 = GoogleRecaptchaModule.forRootAsync({ useFactory: () => ({ type: 'v2' as const, response, secretKey: 'secret' }) });
 
-		expect([v2, v3, v3Implicit, ent, entImplicit, asyncV2]).toHaveLength(6);
+		expect([v2, v3, ent, asyncV2]).toHaveLength(4);
 	});
 
 	test('invalid combinations', () => {
@@ -46,15 +44,26 @@ describe('GoogleRecaptchaModuleOptions: types', () => {
 		const entSecret: GoogleRecaptchaModuleOptions = { type: 'enterprise', response, secretKey: 'secret' };
 
 		// @ts-expect-error siteVerifyUrl is not used by Enterprise
-		const entUrl: GoogleRecaptchaModuleOptions = { response, enterprise, siteVerifyUrl: GoogleRecaptchaSiteVerifyUrl.Google };
+		const entUrl: GoogleRecaptchaModuleOptions = {
+			type: 'enterprise',
+			response,
+			enterprise,
+			siteVerifyUrl: GoogleRecaptchaSiteVerifyUrl.Google,
+		};
 
 		// @ts-expect-error secretKey and enterprise together
-		const both: GoogleRecaptchaModuleOptions = { response, secretKey: 'secret', enterprise };
+		const both: GoogleRecaptchaModuleOptions = { type: 'v3', response, secretKey: 'secret', enterprise };
+
+		// @ts-expect-error type is required
+		const noTypeV3: GoogleRecaptchaModuleOptions = { response, secretKey: 'secret' };
+
+		// @ts-expect-error type is required
+		const noTypeEnt: GoogleRecaptchaModuleOptions = { response, enterprise };
 
 		// @ts-expect-error unknown type
 		const unknownType: GoogleRecaptchaModuleOptions = { type: 'v4', response, secretKey: 'secret' };
 
-		expect([v2Score, v2Actions, v2Enterprise, entSecret, entUrl, both, unknownType]).toHaveLength(7);
+		expect([v2Score, v2Actions, v2Enterprise, entSecret, entUrl, both, noTypeV3, noTypeEnt, unknownType]).toHaveLength(9);
 	});
 
 	test('narrowing by type', () => {
@@ -68,17 +77,16 @@ describe('GoogleRecaptchaModuleOptions: types', () => {
 					const ent: GoogleRecaptchaEnterpriseModuleOptions = options;
 					return ent.enterprise.projectId;
 				}
-				default: {
-					// 'v3' or no type: v3 or Enterprise without explicit type.
-					const rest: GoogleRecaptchaV3ModuleOptions | GoogleRecaptchaEnterpriseModuleOptions = options;
-					return rest.secretKey ?? rest.enterprise?.projectId ?? '';
+				case 'v3': {
+					const v3: GoogleRecaptchaV3ModuleOptions = options;
+					return v3.secretKey;
 				}
 			}
 		};
 
-		expect(narrow({ type: 'v2', response, secretKey: 'secret' })).toBe('secret');
+		expect(narrow({ type: 'v2', response, secretKey: 'v2-secret' })).toBe('v2-secret');
+		expect(narrow({ type: 'v3', response, secretKey: 'v3-secret' })).toBe('v3-secret');
 		expect(narrow({ type: 'enterprise', response, enterprise })).toBe('p');
-		expect(narrow({ response, enterprise })).toBe('p');
 	});
 });
 
@@ -89,6 +97,12 @@ describe('GoogleRecaptchaModuleOptions: runtime validation (JS users)', () => {
 		await expect(compile({ type: 'v2', response, secretKey: 'secret' })).resolves.toBeDefined();
 		await expect(compile({ type: 'v3', response, secretKey: 'secret', score: 0 })).resolves.toBeDefined();
 		await expect(compile({ type: 'enterprise', response, enterprise })).resolves.toBeDefined();
+	});
+
+	test('missing type', async () => {
+		await expect(invalid({ response, secretKey: 'secret' })).rejects.toThrow(
+			'Google reCAPTCHA option "type" is required. Expected one of: v2, v3, enterprise.'
+		);
 	});
 
 	test('unknown type', async () => {

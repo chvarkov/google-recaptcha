@@ -43,6 +43,7 @@ describe('HTTP Recaptcha V2 V3', () => {
 				GoogleRecaptchaModule.forRoot({
 					debug: true,
 					response: (req: Request): string | undefined => req.headers.recaptcha?.toString(),
+					type: 'v3',
 					secretKey: 'secret_key',
 					score: 0.6,
 					actions: ['Submit'],
@@ -68,8 +69,8 @@ describe('HTTP Recaptcha V2 V3', () => {
 
 	afterAll(() => app.close());
 
-	test('V2 OK', async () => {
-		mockedRecaptchaApi.addResponse<VerifyResponseV2>('test_v2_ok', {
+	test('V2 response is rejected by v3 config (no action and score)', async () => {
+		mockedRecaptchaApi.addResponse<VerifyResponseV2>('test_v2_on_v3', {
 			success: true,
 			hostname: 'hostname',
 			challenge_ts: new Date().toISOString(),
@@ -81,13 +82,13 @@ describe('HTTP Recaptcha V2 V3', () => {
 			{},
 			{
 				headers: {
-					Recaptcha: 'test_v2_ok',
+					Recaptcha: 'test_v2_on_v3',
 				},
 			}
 		);
 
-		expect(res.statusCode).toBe(201);
-		expect(res.body.success).toBe(true);
+		expect(res.statusCode).toBe(400);
+		expect(res.body.errorCodes).toEqual([ErrorCode.ForbiddenAction, ErrorCode.LowScore]);
 	});
 
 	test('V2 API error', async () => {
@@ -203,5 +204,91 @@ describe('HTTP Recaptcha V2 V3', () => {
 		expect(res.body.errorCodes).toBeDefined();
 		expect(res.body.errorCodes.length).toBe(1);
 		expect(res.body.errorCodes[0]).toBe(ErrorCode.LowScore);
+	});
+});
+
+@Controller('test-v2')
+class TestV2Controller {
+	@Recaptcha()
+	@Post('submit')
+	submit(@RecaptchaResult() result: RecaptchaVerificationResult): LiteralObject {
+		return { success: result.success, score: result.score, action: result.action };
+	}
+
+	@Recaptcha({ action: 'Submit' })
+	@Post('with-action')
+	withAction(): LiteralObject {
+		return { success: true };
+	}
+}
+
+describe('HTTP Recaptcha V2 (type: v2)', () => {
+	const mockedRecaptchaApi = new MockedRecaptchaApi();
+
+	let http: TestHttp;
+	let app: INestApplication;
+
+	beforeAll(async () => {
+		const module = await Test.createTestingModule({
+			imports: [
+				GoogleRecaptchaModule.forRoot({
+					type: 'v2',
+					secretKey: 'secret_key',
+					response: (req: Request): string | undefined => req.headers.recaptcha?.toString(),
+				}),
+			],
+			controllers: [TestV2Controller],
+		})
+			.overrideProvider(RECAPTCHA_AXIOS_INSTANCE)
+			.useFactory({ factory: () => mockedRecaptchaApi.getAxios() })
+			.compile();
+
+		app = module.createNestApplication();
+		app.useGlobalFilters(new TestErrorFilter());
+		await app.init();
+
+		http = new TestHttp(app.getHttpServer());
+	});
+
+	afterAll(() => app.close());
+
+	test('V2 OK: action and score are not checked', async () => {
+		mockedRecaptchaApi.addResponse<VerifyResponseV2>('v2_ok', {
+			success: true,
+			hostname: 'hostname',
+			challenge_ts: new Date().toISOString(),
+			errors: [],
+		});
+
+		const res = await http.post('/test-v2/submit', {}, { headers: { Recaptcha: 'v2_ok' } });
+
+		expect(res.statusCode).toBe(201);
+		expect(res.body).toEqual({ success: true });
+	});
+
+	test('V2 invalid token: Google error codes are returned as is', async () => {
+		mockedRecaptchaApi.addResponse('v2_invalid', {
+			success: false,
+			'error-codes': [ErrorCode.InvalidInputResponse],
+		});
+
+		const res = await http.post('/test-v2/submit', {}, { headers: { Recaptcha: 'v2_invalid' } });
+
+		expect(res.statusCode).toBe(400);
+		expect(res.body.errorCodes).toEqual([ErrorCode.InvalidInputResponse]);
+	});
+
+	test('Decorator action on v2 config is a misconfiguration', async () => {
+		mockedRecaptchaApi.addResponse<VerifyResponseV2>('v2_action', {
+			success: true,
+			hostname: 'hostname',
+			challenge_ts: new Date().toISOString(),
+			errors: [],
+		});
+
+		const res = await http.post('/test-v2/with-action', {}, { headers: { Recaptcha: 'v2_action' } });
+
+		expect(res.statusCode).toBe(500);
+		expect(res.body.message).toBe('Google reCAPTCHA v2 does not support "score" and "action" checks.');
 	});
 });

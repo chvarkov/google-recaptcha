@@ -13,15 +13,18 @@ export class RecaptchaValidatorResolver {
 	) {}
 
 	resolve(): AbstractGoogleRecaptchaValidator<unknown> {
-		const configValue = this.configRef.valueOf;
-		if (configValue.secretKey) {
-			return this.googleRecaptchaValidator;
-		}
+		const type: string = this.configRef.valueOf.type;
 
-		if (Object.keys(configValue.enterprise || {}).length) {
-			return this.googleRecaptchaEnterpriseValidator;
-		}
+		switch (type) {
+			case 'v2':
+			case 'v3':
+				return this.googleRecaptchaValidator;
 
-		throw new Error('Cannot resolve the Google reCAPTCHA validator: neither "secretKey" nor "enterprise" options are configured.');
+			case 'enterprise':
+				return this.googleRecaptchaEnterpriseValidator;
+
+			default:
+				throw new Error(`Cannot resolve the Google reCAPTCHA validator for type '${type}'.`);
+		}
 	}
 }

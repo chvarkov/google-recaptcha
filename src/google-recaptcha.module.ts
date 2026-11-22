@@ -160,7 +160,7 @@ export class GoogleRecaptchaModule {
 		const type: string | undefined = options.type;
 
 		if (type === undefined) {
-			return;
+			throw new Error(`Google reCAPTCHA option "type" is required. Expected one of: ${RECAPTCHA_TYPES.join(', ')}.`);
 		}
 
 		if (!RECAPTCHA_TYPES.includes(type)) {

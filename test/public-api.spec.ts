@@ -34,7 +34,7 @@ describe('Public API', () => {
 		const skipIf: SkipIfValue = false;
 
 		const enterprise: GoogleRecaptchaEnterpriseOptions = { projectId: 'p', siteKey: 's', apiKey: 'k' };
-		const validatorOptions: GoogleRecaptchaValidatorOptions = { enterprise, score };
+		const validatorOptions: GoogleRecaptchaValidatorOptions = { type: 'enterprise', enterprise, score };
 		const guardOptions: GoogleRecaptchaGuardOptions = { response, remoteIp, skipIf };
 		const moduleOptions: GoogleRecaptchaModuleOptions = { ...validatorOptions, ...guardOptions };
 

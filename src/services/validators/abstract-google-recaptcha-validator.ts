@@ -70,25 +70,33 @@ export abstract class AbstractGoogleRecaptchaValidator<Res> {
 		}
 	}
 
-	protected isValidAction(action: string, options: VerifyResponseOptions): boolean {
+	/** Missing action (e.g. not returned by Google) is valid only when no action restrictions are configured. */
+	protected isValidAction(action: string | undefined, options: VerifyResponseOptions): boolean {
 		if (options.action) {
 			return options.action === action;
 		}
 
-		return this.options.valueOf.actions ? this.options.valueOf.actions.includes(action) : true;
-	}
+		const actions = this.options.valueOf.actions;
 
-	protected isValidScore(score: number, validator?: ScoreValidator): boolean {
-		const finalValidator = validator ?? this.options.valueOf.score;
-
-		if (finalValidator != null) {
-			if (typeof finalValidator === 'function') {
-				return finalValidator(score);
-			}
-
-			return score >= finalValidator;
+		if (!actions) {
+			return true;
 		}
 
-		return true;
+		return action !== undefined && actions.includes(action);
+	}
+
+	/** Missing score (e.g. not returned by Google) is valid only when no score validator is configured. */
+	protected isValidScore(score: number | undefined, validator?: ScoreValidator): boolean {
+		const finalValidator = validator ?? this.options.valueOf.score;
+
+		if (finalValidator == null) {
+			return true;
+		}
+
+		if (score === undefined) {
+			return false;
+		}
+
+		return typeof finalValidator === 'function' ? finalValidator(score) : score >= finalValidator;
 	}
 }

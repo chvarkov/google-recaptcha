@@ -19,6 +19,7 @@ describe('Google recaptcha module', () => {
 
 	beforeAll(async () => {
 		app = await createApp({
+			type: 'v3',
 			secretKey: 'secret key',
 			response: (req) => req.headers.authorization,
 			skipIf: () => process.env.NODE_ENV !== 'production',

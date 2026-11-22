@@ -22,8 +22,8 @@ export interface GoogleRecaptchaEnterpriseModuleOptions
 
 /**
  * - `type: 'v2'` with `secretKey` (no `score` / `actions`);
- * - `type: 'v3'` (or no `type`) with `secretKey`;
- * - `type: 'enterprise'` (or no `type`) with `enterprise`.
+ * - `type: 'v3'` with `secretKey`;
+ * - `type: 'enterprise'` with `enterprise`.
  */
 export type GoogleRecaptchaModuleOptions =
 	GoogleRecaptchaV2ModuleOptions | GoogleRecaptchaV3ModuleOptions | GoogleRecaptchaEnterpriseModuleOptions;

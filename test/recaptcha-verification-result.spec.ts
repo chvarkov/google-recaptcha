@@ -31,6 +31,7 @@ describe('Recaptcha verification result decorator', () => {
 			imports: [
 				GoogleRecaptchaModule.forRoot({
 					response: (req: Request): string | undefined => req.headers.recaptcha?.toString(),
+					type: 'v3',
 					secretKey: 'secret',
 				}),
 			],

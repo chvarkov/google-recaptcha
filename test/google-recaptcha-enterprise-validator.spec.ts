@@ -21,6 +21,7 @@ function createValidator(post: () => Promise<unknown>): { validator: GoogleRecap
 	const configRef = new RecaptchaConfigRef({
 		response: () => 'TOKEN',
 		debug: true,
+		type: 'enterprise',
 		enterprise: { projectId: 'p', siteKey: 'site', apiKey: API_KEY },
 	});
 	const validator = new GoogleRecaptchaEnterpriseValidator(
@@ -94,6 +95,7 @@ describe('Google recaptcha enterprise validator: non-axios errors', () => {
 		const configRef = new RecaptchaConfigRef({
 			response: () => 'TOKEN',
 			debug: true,
+			type: 'enterprise',
 			enterprise: { projectId: 'p', siteKey: 'site', apiKey: API_KEY },
 		});
 		const post = () => Promise.resolve({ data: { tokenProperties: { valid: true, action: 'Submit' } } });
@@ -113,7 +115,7 @@ describe('Google recaptcha enterprise validator: non-axios errors', () => {
 
 describe('Google recaptcha enterprise validator: misconfiguration', () => {
 	test('Throws when enterprise options are missing', async () => {
-		const configRef = new RecaptchaConfigRef({ response: () => 'TOKEN', secretKey: 'SECRET' });
+		const configRef = new RecaptchaConfigRef({ response: () => 'TOKEN', type: 'v3', secretKey: 'SECRET' });
 		const post = vi.fn();
 		const validator = new GoogleRecaptchaEnterpriseValidator(
 			{ post } as unknown as AxiosInstance,

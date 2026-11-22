@@ -10,6 +10,7 @@ import { VerifyResponseV3 } from '../../../src/interfaces/verify-response';
 import { MockedRecaptchaApi } from '../../utils/mocked-recaptcha-api';
 
 const recaptchaOptions = {
+	type: 'v3' as const,
 	secretKey: 'secret_key',
 	actions: ['Submit'],
 	score: 0.6,

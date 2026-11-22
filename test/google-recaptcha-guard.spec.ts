@@ -16,6 +16,7 @@ describe('Google recaptcha guard', () => {
 	let network: TestRecaptchaNetwork;
 	const networkPort = 6048;
 	const validatorOptions: GoogleRecaptchaValidatorOptions = {
+		type: 'v3',
 		secretKey: 'Secret',
 	};
 	const guardOptions: GoogleRecaptchaGuardOptions = {

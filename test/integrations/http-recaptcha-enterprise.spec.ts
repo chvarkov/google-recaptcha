@@ -49,6 +49,7 @@ describe('HTTP Recaptcha Enterprise', () => {
 				GoogleRecaptchaModule.forRoot({
 					debug: true,
 					response: (req: Request): string | undefined => req.headers.recaptcha_should_be_overwritten?.toString(),
+					type: 'enterprise',
 					enterprise: {
 						projectId: 'enterprise_projectId',
 						apiKey: 'enterprise_apiKey',

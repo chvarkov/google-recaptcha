@@ -13,6 +13,7 @@ describe('RecaptchaValidatorResolver', () => {
 	test('resolve', () => {
 		const moduleOptions: GoogleRecaptchaModuleOptions = {
 			response: (): string => 'token',
+			type: 'v3',
 			secretKey: 'Secret',
 		};
 
@@ -26,6 +27,7 @@ describe('RecaptchaValidatorResolver', () => {
 	test('resolve enterprise', () => {
 		const moduleOptions: GoogleRecaptchaModuleOptions = {
 			response: (): string => 'token',
+			type: 'enterprise',
 			enterprise: {
 				apiKey: 'enterprise_apiKey',
 				siteKey: 'enterprise_siteKey',

@@ -37,6 +37,7 @@ describe('Recaptcha verification result decorator (enterprise)', () => {
 			imports: [
 				GoogleRecaptchaModule.forRoot({
 					response: (req: Request): string | undefined => req.headers.recaptcha?.toString(),
+					type: 'enterprise',
 					enterprise: {
 						siteKey: 'siteKey',
 						apiKey: 'apiKey',

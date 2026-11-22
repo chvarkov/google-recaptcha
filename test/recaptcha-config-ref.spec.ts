@@ -4,6 +4,7 @@ import { GoogleRecaptchaEnterpriseOptions } from '../src/interfaces/google-recap
 
 describe('RecaptchaConfigRef', () => {
 	const options: GoogleRecaptchaModuleOptions = {
+		type: 'v3',
 		secretKey: 'SECRET',
 		response: () => 'RESPONSE',
 	};
@@ -59,8 +60,8 @@ describe('RecaptchaConfigRef', () => {
 		expect(v2.valueOf.type).toBe('v2');
 		expect(v2.valueOf.secretKey).toBe('NEW');
 
-		const implicit = new RecaptchaConfigRef(options).setSecretKey('NEW');
-		expect(implicit.valueOf.type).toBeUndefined();
+		const v3 = new RecaptchaConfigRef(options).setSecretKey('NEW');
+		expect(v3.valueOf.type).toBe('v3');
 
 		const ent = new RecaptchaConfigRef({
 			type: 'enterprise',

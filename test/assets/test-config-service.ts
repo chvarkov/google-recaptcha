@@ -4,6 +4,7 @@ import * as https from 'https';
 export class TestConfigService {
 	getGoogleRecaptchaOptions(): GoogleRecaptchaModuleOptions {
 		return {
+			type: 'v3',
 			secretKey: 'secret',
 			response: (req) => req.body.recaptcha,
 			skipIf: () => true,

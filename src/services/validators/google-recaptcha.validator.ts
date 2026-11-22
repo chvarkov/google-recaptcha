@@ -35,40 +35,36 @@ export class GoogleRecaptchaValidator extends AbstractGoogleRecaptchaValidator<V
 	 * @param {VerifyResponseOptions} options
 	 */
 	async validate(options: VerifyResponseOptions): Promise<RecaptchaVerificationResult<VerifyResponseV3>> {
-		const result = await this.verifyResponse(options.response, options.remoteIp);
+		const isV3 = this.options.valueOf.type === 'v3';
 
-		if (!this.isUseV3(result)) {
-			const resV2: VerifyResponseV2 = result;
-			return new RecaptchaVerificationResult({
-				nativeResponse: resV2 as VerifyResponseV3,
-				remoteIp: options.remoteIp,
-				score: undefined,
-				action: undefined,
-				errors: resV2.errors,
-				success: resV2.success,
-				hostname: resV2.hostname,
-			});
+		// v2 response has neither score nor action: silently skipping a check expected by the caller is unsafe.
+		if (!isV3 && (options.action != null || options.score != null)) {
+			throw new Error('Google reCAPTCHA v2 does not support "score" and "action" checks.');
 		}
 
-		if (!this.isValidAction(result.action, options)) {
-			result.success = false;
-			result.errors.push(ErrorCode.ForbiddenAction);
-		}
+		// v2 responses do not contain score/action: fields stay undefined.
+		const result = (await this.verifyResponse(options.response, options.remoteIp)) as Partial<VerifyResponseV3> & VerifyResponseV2;
 
-		if (!this.isValidScore(result.score, options.score)) {
-			result.success = false;
-			result.errors.push(ErrorCode.LowScore);
-		}
+		// Score and action are checked only when Google has confirmed the token; otherwise Google's error codes are returned as is.
+		if (isV3 && result.success) {
+			if (!this.isValidAction(result.action, options)) {
+				result.success = false;
+				result.errors.push(ErrorCode.ForbiddenAction);
+			}
 
-		const nativeResponse = { ...result };
+			if (!this.isValidScore(result.score, options.score)) {
+				result.success = false;
+				result.errors.push(ErrorCode.LowScore);
+			}
+		}
 
 		return new RecaptchaVerificationResult({
-			nativeResponse: nativeResponse,
+			nativeResponse: { ...result } as VerifyResponseV3,
 			remoteIp: options.remoteIp,
 			score: result.score,
+			action: result.action,
 			errors: result.errors,
 			success: result.success,
-			action: result.action,
 			hostname: result.hostname,
 		});
 	}
@@ -97,9 +93,5 @@ export class GoogleRecaptchaValidator extends AbstractGoogleRecaptchaValidator<V
 		const { 'error-codes': errorCodes, ...result } = data;
 
 		return { ...result, errors: errorCodes || [] };
-	}
-
-	private isUseV3(v: VerifyResponseV2): v is VerifyResponseV3 {
-		return 'score' in v && typeof v['score'] === 'number' && 'action' in v && typeof v['action'] === 'string';
 	}
 }

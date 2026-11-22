@@ -55,7 +55,7 @@ The list of changes made in the project can be found in the [CHANGELOG.md](./CHA
 | Property          | Description |
 |-------------------|-------------|
 | `response`        | **Required.**<br> Type: `(request) => string`<br> Function that returns response (recaptcha token) by request |
-| `type`            | Optional.<br> Type: `'v2'` \| `'v3'` \| `'enterprise'`<br> Default: `'v3'` with `secretKey`, `'enterprise'` with `enterprise` <br> reCAPTCHA type. Restricts available options: `'v2'` does not allow `score` and `actions` (reCAPTCHA v2 response has neither). |
+| `type`            | **Required.**<br> Type: `'v2'` \| `'v3'` \| `'enterprise'`<br> reCAPTCHA type. Defines available options and checks: <br> `'v2'` - `secretKey` is required, `score` / `actions` are not available (reCAPTCHA v2 response has neither); <br> `'v3'` - `secretKey` is required, `score` and `actions` are checked for every successful response; <br> `'enterprise'` - `enterprise` is required. |
 | `secretKey`       | Required for `'v2'` / `'v3'`.<br> Type: `string`<br> Google recaptcha secret key. Cannot be used with `enterprise` option. |
 | `debug`           | Optional.<br> Type: `boolean` <br> Default: `false` <br> Enables logging requests, responses, errors and transformed results |
 | `logger`          | Optional.<br> Type: `Logger` <br> Default: `new Logger()` <br> Instance of custom logger that extended from Logger (@nestjs/common) |
@@ -89,6 +89,7 @@ The `forRoot` method accepts a `GoogleRecaptchaModuleOptions` object that config
 @Module({
     imports: [
         GoogleRecaptchaModule.forRoot({
+            type: 'v3',
             secretKey: process.env.GOOGLE_RECAPTCHA_SECRET_KEY,
             response: req => req.headers.recaptcha,
         })
@@ -130,6 +131,7 @@ export class AppModule {
 @Module({
     imports: [
         GoogleRecaptchaModule.forRoot({
+            type: 'v2',
             secretKey: process.env.GOOGLE_RECAPTCHA_SECRET_KEY,
             response: req => req.headers.recaptcha,
             skipIf: process.env.NODE_ENV !== 'production',
@@ -152,6 +154,7 @@ export class AppModule {
 @Module({
     imports: [
         GoogleRecaptchaModule.forRoot({
+            type: 'v3',
             secretKey: process.env.GOOGLE_RECAPTCHA_SECRET_KEY,
             response: req => req.headers.recaptcha,
             skipIf: process.env.NODE_ENV !== 'production',
@@ -176,6 +179,7 @@ export class AppModule {
 @Module({
     imports: [
         GoogleRecaptchaModule.forRoot({
+            type: 'enterprise',
             response: (req) => req.headers.recaptcha,
             skipIf: process.env.NODE_ENV !== 'production',
             actions: ['SignUp', 'SignIn'],
@@ -204,6 +208,7 @@ export class AppModule {
 @Module({
     imports: [
         GoogleRecaptchaModule.forRoot({
+            type: 'v2',
             secretKey: process.env.GOOGLE_RECAPTCHA_SECRET_KEY,
             response: (req: IncomingMessage) => (req.headers.recaptcha || '').toString(),
             skipIf: process.env.NODE_ENV !== 'production',
@@ -226,6 +231,7 @@ export class AppModule {
 @Module({
     imports: [
         GoogleRecaptchaModule.forRoot({
+            type: 'v3',
             secretKey: process.env.GOOGLE_RECAPTCHA_SECRET_KEY,
             response: (req: IncomingMessage) => (req.headers.recaptcha || '').toString(),
             skipIf: process.env.NODE_ENV !== 'production',
@@ -250,6 +256,7 @@ export class AppModule {
 @Module({
     imports: [
         GoogleRecaptchaModule.forRoot({
+            type: 'enterprise',
             response: (req: IncomingMessage) => (req.headers.recaptcha || '').toString(),
             skipIf: process.env.NODE_ENV !== 'production',
             actions: ['SignUp', 'SignIn'],
@@ -277,6 +284,7 @@ export class AppModule {
 @Module({
     imports: [
         GoogleRecaptchaModule.forRoot({
+            type: 'enterprise',
             response: (req) => req.headers.recaptcha,
             skipIf: process.env.NODE_ENV !== 'production',
             actions: ['SignUp', 'SignIn'],
