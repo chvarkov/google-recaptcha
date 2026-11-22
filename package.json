@@ -32,7 +32,7 @@
 	},
 	"homepage": "https://github.com/chvarkov/google-recaptcha",
 	"engines": {
-		"node": ">=20"
+		"node": ">=22"
 	},
 	"dependencies": {
 		"axios": "^1.21.1"
@@ -62,11 +62,11 @@
 		"@nestjs/testing": "^12.6.0",
 		"@swc/core": "^1.16.22",
 		"@types/express": "^5.0.6",
-		"@types/node": "^20.19.43",
+		"@types/node": "^22.20.5",
 		"@types/supertest": "^7.2.1",
 		"@typescript-eslint/eslint-plugin": "^8.73.0",
 		"@typescript-eslint/parser": "^8.73.0",
-		"@vitest/coverage-v8": "^4.1.12",
+		"@vitest/coverage-v8": "^5.1.1",
 		"eslint": "^10.15.0",
 		"express": "^5.3.0",
 		"fastify": "^5.12.8",
@@ -80,6 +80,6 @@
 		"ts-node": "^10.9.2",
 		"typescript": "^6.0.3",
 		"unplugin-swc": "^2.0.0",
-		"vitest": "^4.1.12"
+		"vitest": "^5.1.1"
 	}
 }
