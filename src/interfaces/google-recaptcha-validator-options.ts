@@ -1,4 +1,4 @@
-import { GoogleRecaptchaNetwork } from '../enums/google-recaptcha-network';
+import { GoogleRecaptchaSiteVerifyUrl } from '../enums/google-recaptcha-site-verify-url';
 import { ScoreValidator } from '../types';
 import { AxiosRequestConfig } from 'axios';
 import { GoogleRecaptchaEnterpriseOptions } from './google-recaptcha-enterprise-options';
@@ -9,12 +9,13 @@ export interface GoogleRecaptchaValidatorOptions {
 	score?: ScoreValidator;
 
 	/**
-	 * If your server has trouble connecting to https://google.com then you can set networks:
-	 * GoogleRecaptchaNetwork.Google = 'https://www.google.com/recaptcha/api/siteverify'
-	 * GoogleRecaptchaNetwork.Recaptcha = 'https://recaptcha.net/recaptcha/api/siteverify'
-	 * or set any api url
+	 * URL of the reCAPTCHA siteverify API (not used by Enterprise). Default: `GoogleRecaptchaSiteVerifyUrl.Google`.
+	 * If your server has trouble connecting to https://google.com then you can use:
+	 * GoogleRecaptchaSiteVerifyUrl.Google = 'https://www.google.com/recaptcha/api/siteverify'
+	 * GoogleRecaptchaSiteVerifyUrl.Recaptcha = 'https://recaptcha.net/recaptcha/api/siteverify'
+	 * or any other URL (e.g. a proxy).
 	 */
-	network?: GoogleRecaptchaNetwork | string;
+	siteVerifyUrl?: GoogleRecaptchaSiteVerifyUrl | string;
 
 	/**
 	 * Config for the internal axios instance (proxy, timeout, https agent, etc.).

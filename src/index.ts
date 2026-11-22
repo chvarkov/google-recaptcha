@@ -5,7 +5,7 @@ export { GoogleRecaptchaGuard } from './guards/google-recaptcha.guard';
 export { GoogleRecaptchaModule } from './google-recaptcha.module';
 export { GoogleRecaptchaModuleOptions } from './interfaces/google-recaptcha-module-options';
 export { ErrorCode } from './enums/error-code';
-export { GoogleRecaptchaNetwork } from './enums/google-recaptcha-network';
+export { GoogleRecaptchaSiteVerifyUrl } from './enums/google-recaptcha-site-verify-url';
 export { GoogleRecaptchaException } from './exceptions/google-recaptcha.exception';
 export { GoogleRecaptchaNetworkException } from './exceptions/google-recaptcha-network.exception';
 export { GoogleRecaptchaValidator } from './services/validators/google-recaptcha.validator';

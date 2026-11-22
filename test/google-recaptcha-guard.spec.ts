@@ -121,11 +121,11 @@ describe('Google recaptcha guard', () => {
 			.catch((e) => expect(e).toBeInstanceOf(GoogleRecaptchaException));
 	});
 
-	test('Invalid network', async () => {
+	test('Invalid siteVerifyUrl', async () => {
 		const options = {
 			...validatorOptions,
 			...guardOptions,
-			network: 'https://localhost/some-invalid-path',
+			siteVerifyUrl: 'https://localhost/some-invalid-path',
 		};
 
 		const validator = createGoogleRecaptchaValidator(options);
@@ -155,7 +155,7 @@ describe('Google recaptcha guard', () => {
 		const options = {
 			...validatorOptions,
 			...guardOptions,
-			network: network.url,
+			siteVerifyUrl: network.url,
 		};
 
 		const validator = createGoogleRecaptchaValidator(options);

@@ -43,7 +43,7 @@ describe('Google recaptcha guard: decorator options', () => {
 		const options: GoogleRecaptchaModuleOptions = {
 			secretKey: 'Secret',
 			response: (req) => req.body.recaptcha,
-			network: network.url,
+			siteVerifyUrl: network.url,
 			...extra,
 		};
 		const configRef = new RecaptchaConfigRef(options);

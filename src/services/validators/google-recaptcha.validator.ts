@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { RECAPTCHA_AXIOS_INSTANCE, RECAPTCHA_LOGGER } from '../../provider.declarations';
-import { GoogleRecaptchaNetwork } from '../../enums/google-recaptcha-network';
+import { GoogleRecaptchaSiteVerifyUrl } from '../../enums/google-recaptcha-site-verify-url';
 import { VerifyResponseOptions } from '../../interfaces/verify-response-decorator-options';
 import { VerifyResponseV2, VerifyResponseV3 } from '../../interfaces/verify-response';
 import { ErrorCode } from '../../enums/error-code';
@@ -16,7 +16,7 @@ type SiteVerifyResponse = Omit<VerifyResponseV3, 'errors'> & { 'error-codes'?: E
 
 @Injectable()
 export class GoogleRecaptchaValidator extends AbstractGoogleRecaptchaValidator<VerifyResponseV3> {
-	private readonly defaultNetwork = GoogleRecaptchaNetwork.Google;
+	private readonly defaultSiteVerifyUrl = GoogleRecaptchaSiteVerifyUrl.Google;
 
 	private readonly headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
 
@@ -81,7 +81,7 @@ export class GoogleRecaptchaValidator extends AbstractGoogleRecaptchaValidator<V
 			body.append('remoteip', remoteIp);
 		}
 
-		const url = this.options.valueOf.network || this.defaultNetwork;
+		const url = this.options.valueOf.siteVerifyUrl || this.defaultSiteVerifyUrl;
 
 		// Secret key must never be logged in plain text.
 		const loggedBody = { secret: maskSecret(secretKey), response, remoteip: remoteIp };

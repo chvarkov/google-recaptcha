@@ -5,7 +5,7 @@ import { GoogleRecaptchaGuard, GoogleRecaptchaModuleOptions, GoogleRecaptchaModu
 import { RECAPTCHA_OPTIONS } from '../src/provider.declarations';
 
 describe('Google recaptcha module', () => {
-	const customNetwork = 'CUSTOM_URL';
+	const customSiteVerifyUrl = 'CUSTOM_URL';
 
 	const createApp = async (options: GoogleRecaptchaModuleOptions): Promise<INestApplication> => {
 		const testingModule = await Test.createTestingModule({
@@ -22,7 +22,7 @@ describe('Google recaptcha module', () => {
 			secretKey: 'secret key',
 			response: (req) => req.headers.authorization,
 			skipIf: () => process.env.NODE_ENV !== 'production',
-			network: customNetwork,
+			siteVerifyUrl: customSiteVerifyUrl,
 			global: false,
 		});
 	});
@@ -43,7 +43,7 @@ describe('Google recaptcha module', () => {
 		const options: GoogleRecaptchaModuleOptions = app.get(RECAPTCHA_OPTIONS);
 
 		expect(options).toBeDefined();
-		expect(options.network).toBe(customNetwork);
+		expect(options.siteVerifyUrl).toBe(customSiteVerifyUrl);
 	});
 
 	test('Test invalid config', async () => {

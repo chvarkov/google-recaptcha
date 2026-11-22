@@ -1,4 +1,4 @@
-import { GoogleRecaptchaModuleOptions, GoogleRecaptchaNetwork } from '../../src';
+import { GoogleRecaptchaModuleOptions, GoogleRecaptchaSiteVerifyUrl } from '../../src';
 import * as https from 'https';
 
 export class TestConfigService {
@@ -7,7 +7,7 @@ export class TestConfigService {
 			secretKey: 'secret',
 			response: (req) => req.body.recaptcha,
 			skipIf: () => true,
-			network: GoogleRecaptchaNetwork.Google,
+			siteVerifyUrl: GoogleRecaptchaSiteVerifyUrl.Google,
 			axiosConfig: {
 				httpsAgent: new https.Agent({
 					timeout: 15_000,
