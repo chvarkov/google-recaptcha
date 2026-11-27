@@ -3,6 +3,8 @@ import { AbstractGoogleRecaptchaValidator } from './validators/abstract-google-r
 import { GoogleRecaptchaValidator } from './validators/google-recaptcha.validator.js';
 import { GoogleRecaptchaEnterpriseValidator } from './validators/google-recaptcha-enterprise.validator.js';
 import { RecaptchaConfigRef } from '../models/recaptcha-config-ref.js';
+import { GoogleRecaptchaException } from '../exceptions/google-recaptcha.exception.js';
+import { ErrorCode } from '../enums/error-code.js';
 
 @Injectable()
 export class RecaptchaValidatorResolver {
@@ -13,7 +15,7 @@ export class RecaptchaValidatorResolver {
 	) {}
 
 	resolve(): AbstractGoogleRecaptchaValidator<unknown> {
-		const type: string = this.configRef.valueOf.type;
+		const type: string | undefined = this.configRef.valueOf.type;
 
 		switch (type) {
 			case 'v2':
@@ -22,6 +24,9 @@ export class RecaptchaValidatorResolver {
 
 			case 'enterprise':
 				return this.googleRecaptchaEnterpriseValidator;
+
+			case undefined:
+				throw new GoogleRecaptchaException([ErrorCode.NotConfigured]);
 
 			default:
 				throw new Error(`Cannot resolve the Google reCAPTCHA validator for type '${type}'.`);

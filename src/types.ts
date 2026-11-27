@@ -13,3 +13,6 @@ export type ScoreValidator = number | ((score: number) => boolean);
 export type SkipIfValue = boolean | ((req: AnyRequest) => boolean | Promise<boolean>);
 
 export type RecaptchaContextType = ContextType | 'graphql';
+
+/** `Omit` that keeps the union: built-in `Omit` would drop variant-specific fields (`type`, `secretKey`, `enterprise`, ...). */
+export type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;

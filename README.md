@@ -498,6 +498,10 @@ The class exposes methods that allow the customization of various Recaptcha opti
 ```typescript
 @Injectable()
 class RecaptchaConfigRef {
+  // Replaces type-dependent options at once and validates them: type, secretKey, siteVerifyUrl, enterprise, score, actions.
+  // Omitted ones are reset. Use it to switch between v2, v3 and Enterprise keys. Throws on invalid options (config stays unchanged).
+  setOptions(options: GoogleRecaptchaRuntimeOptions): this;
+
   // Sets the secret key for Recaptcha validation. Keeps type 'v2' / 'v3'; switches 'enterprise' to 'v3'.
   setSecretKey(secretKey: string): this;
 
@@ -509,6 +513,12 @@ class RecaptchaConfigRef {
 
   // Sets conditions under which Recaptcha validation should be skipped.
   setSkipIf(skipIf: SkipIfValue): this;
+
+  // Resets the keys: the guard behaves according to `whenNotConfigured` until setOptions() is called.
+  clear(): this;
+
+  // false while the keys are not set (forRootDeferred() before setOptions(), or after clear()).
+  readonly isConfigured: boolean;
 }
 ```
 
@@ -538,6 +548,73 @@ export class RecaptchaAdminService implements OnApplicationBootstrap {
 
 After call `this.recaptchaConfigRef.setSecretKey(...)` - `@Recaptcha` guard and `GoogleRecaptchaValidator` will use new secret key.
 
+**Switching reCAPTCHA type at runtime** (e.g. an administrator replaces a v3 key with a v2 one):
+
+```typescript
+async updateRecaptcha(config: RecaptchaSettings): Promise<void> {
+	// Validated before applying: an invalid config throws and the current one stays active.
+	this.recaptchaConfigRef.setOptions(
+		config.type === 'enterprise'
+			? { type: 'enterprise', enterprise: config.enterprise, score: config.score }
+			: config.type === 'v3'
+				? { type: 'v3', secretKey: config.secretKey, score: config.score, actions: config.actions }
+				: { type: 'v2', secretKey: config.secretKey },
+	);
+}
+```
+
+`setOptions()` changes only `type`, `secretKey`, `siteVerifyUrl`, `enterprise`, `score` and `actions`.
+`response`, `remoteIp`, `skipIf`, `debug`, `logger` and `axiosConfig` are kept (`skipIf` can be changed via `setSkipIf()`).
+
+**Keys are not known at startup** (e.g. they are set by an administrator and may be absent): use `forRootDeferred()`.
+It accepts the same options as `forRoot()` except the keys (`type`, `secretKey`, `siteVerifyUrl`, `enterprise`, `score`, `actions`):
+they are set later via `RecaptchaConfigRef.setOptions()`.
+
+```typescript
+@Module({
+	imports: [
+		GoogleRecaptchaModule.forRootDeferred({
+			global: true,
+			response: (req) => req.headers.recaptcha,
+			// Guard behaviour until setOptions() is called (and after clear()):
+			// 'reject' (default) - GoogleRecaptchaException with ErrorCode.NotConfigured (HTTP 500);
+			// 'skip' - requests pass without verification.
+			whenNotConfigured: 'reject',
+		}),
+	],
+})
+export class AppModule {}
+
+@Injectable()
+export class RecaptchaAdminService implements OnApplicationBootstrap {
+	constructor(private readonly recaptchaConfigRef: RecaptchaConfigRef) {}
+
+	async onApplicationBootstrap(): Promise<void> {
+		const settings = await this.settingsRepository.findRecaptchaSettings();
+
+		if (settings) {
+			this.recaptchaConfigRef.setOptions(settings); // { type, secretKey | enterprise, score?, actions? }
+		}
+	}
+
+	async disableRecaptcha(): Promise<void> {
+		this.recaptchaConfigRef.clear(); // back to `whenNotConfigured`
+	}
+}
+```
+
+`forRootDeferredAsync()` takes the same `useFactory` / `useClass` / `useExisting` options as `forRootAsync()`.
+`recaptchaConfigRef.isConfigured` tells whether the keys are set. While they are not, `setSecretKey()` and `setScore()` throw
+(v2 or v3 is ambiguous: use `setOptions()`), and `GoogleRecaptchaValidator` / `GoogleRecaptchaEnterpriseValidator` throw
+`GoogleRecaptchaException` with `ErrorCode.NotConfigured`.
+
+If the keys are always present at startup, prefer `forRoot()` / `forRootAsync()` (e.g. load them from a database in `useFactory`):
+a missing key is then a startup error instead of a runtime one.
+
+> `RecaptchaConfigRef` is a provider of the `GoogleRecaptchaModule` instance. Call `forRoot*()` **once**
+> (with `global: true` or re-export the module): each call creates its own `RecaptchaConfigRef`, and changes made
+> through one of them are not visible to guards resolved from another.
+
 ### Error handling
 
 **GoogleRecaptchaException**
@@ -563,6 +640,7 @@ One important feature of the `GoogleRecaptchaException` is that it contains an a
 | `ErrorCode.LowScore`             | Low score. (Thrown by the guard when the received score is below the expected one.) | 400         |
 | `ErrorCode.InvalidKeys`          | The keys were copied incorrectly, the wrong keys were used for the environment (e.g. development vs production), or the keys were revoked or deleted in the Google reCAPTCHA admin console. (Returned by the reCAPTCHA API.) | 400         |
 | `ErrorCode.NetworkError`         | Network error (e.g. ECONNRESET, ECONNREFUSED). | 500         |
+| `ErrorCode.NotConfigured`        | Keys are not set: `forRootDeferred()` before `RecaptchaConfigRef.setOptions()`, or after `clear()`. | 500         |
 | `ErrorCode.SiteMismatch`         | Site mismatch. (Returned by the reCAPTCHA Enterprise API only.) | 400         |
 | `ErrorCode.BrowserError`         | Browser error. (Returned by the reCAPTCHA Enterprise API only.) | 400         |
 

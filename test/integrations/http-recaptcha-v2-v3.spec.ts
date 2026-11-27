@@ -1,5 +1,12 @@
 import { Controller, INestApplication, Post } from '@nestjs/common';
-import { ErrorCode, GoogleRecaptchaModule, Recaptcha, RecaptchaResult, RecaptchaVerificationResult } from '../../src/index.js';
+import {
+	ErrorCode,
+	GoogleRecaptchaModule,
+	Recaptcha,
+	RecaptchaConfigRef,
+	RecaptchaResult,
+	RecaptchaVerificationResult,
+} from '../../src/index.js';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Request } from 'express';
 import request from 'supertest';
@@ -290,5 +297,65 @@ describe('HTTP Recaptcha V2 (type: v2)', () => {
 
 		expect(res.statusCode).toBe(500);
 		expect(res.body.message).toBe('Google reCAPTCHA v2 does not support "score" and "action" checks.');
+	});
+});
+
+describe('HTTP Recaptcha: runtime switch via RecaptchaConfigRef.setOptions()', () => {
+	const mockedRecaptchaApi = new MockedRecaptchaApi();
+
+	let http: TestHttp;
+	let app: INestApplication;
+	let configRef: RecaptchaConfigRef;
+
+	const v2Response: VerifyResponseV2 = {
+		success: true,
+		hostname: 'hostname',
+		challenge_ts: new Date().toISOString(),
+		errors: [],
+	};
+
+	beforeAll(async () => {
+		const module = await Test.createTestingModule({
+			imports: [
+				GoogleRecaptchaModule.forRoot({
+					type: 'v3',
+					secretKey: 'v3_secret_key',
+					score: 0.6,
+					actions: ['Submit'],
+					response: (req: Request): string | undefined => req.headers.recaptcha?.toString(),
+				}),
+			],
+			controllers: [TestV2Controller],
+		})
+			.overrideProvider(RECAPTCHA_AXIOS_INSTANCE)
+			.useFactory({ factory: () => mockedRecaptchaApi.getAxios() })
+			.compile();
+
+		app = module.createNestApplication();
+		app.useGlobalFilters(new TestErrorFilter());
+		await app.init();
+
+		configRef = app.get(RecaptchaConfigRef);
+		http = new TestHttp(app.getHttpServer());
+	});
+
+	afterAll(() => app.close());
+
+	test('v3 => v2 key without restart', async () => {
+		mockedRecaptchaApi.addResponse<VerifyResponseV2>('switch_before', v2Response);
+
+		const before = await http.post('/test-v2/submit', {}, { headers: { Recaptcha: 'switch_before' } });
+
+		expect(before.statusCode).toBe(400);
+		expect(before.body.errorCodes).toEqual([ErrorCode.ForbiddenAction, ErrorCode.LowScore]);
+
+		configRef.setOptions({ type: 'v2', secretKey: 'v2_secret_key' });
+
+		mockedRecaptchaApi.addResponse<VerifyResponseV2>('switch_after', v2Response);
+
+		const after = await http.post('/test-v2/submit', {}, { headers: { Recaptcha: 'switch_after' } });
+
+		expect(after.statusCode).toBe(201);
+		expect(after.body).toEqual({ success: true });
 	});
 });

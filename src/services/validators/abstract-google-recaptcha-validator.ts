@@ -7,6 +7,8 @@ import { RecaptchaConfigRef } from '../../models/recaptcha-config-ref.js';
 import { GoogleRecaptchaContext } from '../../enums/google-recaptcha-context.js';
 import { GoogleRecaptchaNetworkException } from '../../exceptions/google-recaptcha-network.exception.js';
 import { getErrorInfo, isAxiosError } from '../../helpers/get-error-info.js';
+import { GoogleRecaptchaException } from '../../exceptions/google-recaptcha.exception.js';
+import { ErrorCode } from '../../enums/error-code.js';
 
 export interface PostError {
 	status?: number;
@@ -61,6 +63,13 @@ export abstract class AbstractGoogleRecaptchaValidator<Res> {
 					data: response?.data ?? getErrorInfo(err),
 				},
 			};
+		}
+	}
+
+	/** @throws GoogleRecaptchaException (`not-configured`) while keys are not set (`forRootDeferred()`, `RecaptchaConfigRef.clear()`). */
+	protected assertConfigured(): void | never {
+		if (!this.options.isConfigured) {
+			throw new GoogleRecaptchaException([ErrorCode.NotConfigured]);
 		}
 	}
 

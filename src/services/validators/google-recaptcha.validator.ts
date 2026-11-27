@@ -32,9 +32,12 @@ export class GoogleRecaptchaValidator extends AbstractGoogleRecaptchaValidator<V
 
 	/**
 	 * @throws GoogleRecaptchaNetworkException
+	 * @throws GoogleRecaptchaException (`not-configured`) while keys are not set
 	 * @param {VerifyResponseOptions} options
 	 */
 	async validate(options: VerifyResponseOptions): Promise<RecaptchaVerificationResult<VerifyResponseV3>> {
+		this.assertConfigured();
+
 		const isV3 = this.options.valueOf.type === 'v3';
 
 		// v2 response has neither score nor action: silently skipping a check expected by the caller is unsafe.

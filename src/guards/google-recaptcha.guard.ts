@@ -1,6 +1,7 @@
 import { CanActivate, ExecutionContext, Inject, Injectable, Logger } from '@nestjs/common';
 import { RECAPTCHA_LOGGER, RECAPTCHA_VALIDATION_OPTIONS } from '../provider.declarations.js';
 import { GoogleRecaptchaException } from '../exceptions/google-recaptcha.exception.js';
+import { ErrorCode } from '../enums/error-code.js';
 import { Reflector } from '@nestjs/core';
 import { RecaptchaRequestResolver } from '../services/recaptcha-request.resolver.js';
 import { VerifyResponseDecoratorOptions } from '../interfaces/verify-response-decorator-options.js';
@@ -26,6 +27,14 @@ export class GoogleRecaptchaGuard implements CanActivate {
 
 		if (skip) {
 			return true;
+		}
+
+		if (!this.configRef.isConfigured) {
+			if (this.configRef.whenNotConfigured === 'skip') {
+				return true;
+			}
+
+			throw new GoogleRecaptchaException([ErrorCode.NotConfigured]);
 		}
 
 		const options = this.resolveDecoratorOptions(context);

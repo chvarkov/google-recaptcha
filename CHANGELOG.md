@@ -19,9 +19,12 @@
 - Option `network` renamed to `siteVerifyUrl`.
 - Enum `GoogleRecaptchaNetwork` renamed to `GoogleRecaptchaSiteVerifyUrl` (values are unchanged).
 - `RecaptchaConfigRef`:
+    - the options passed to `forRoot()` / returned by `forRootAsync()` are copied: mutating that object no longer changes the config, use `RecaptchaConfigRef` setters;
     - `setEnterpriseOptions()` sets `type: 'enterprise'` and resets `secretKey` and `siteVerifyUrl`;
     - `setSecretKey()` keeps `type: 'v2'` / `'v3'` and switches `'enterprise'` to `'v3'`;
     - `setScore()` throws for `type: 'v2'`;
+    - `valueOf` is `GoogleRecaptchaConfig`: `type`, `secretKey` and `enterprise` are `undefined` while not configured (`forRootDeferred()`, `clear()`);
+    - `setSecretKey()` / `setScore()` throw while not configured;
     - setters replace the options object instead of mutating it: read `configRef.valueOf` each time instead of keeping a reference to it.
 - `score` moved from `GoogleRecaptchaGuardOptions` to the validator options (`GoogleRecaptchaModuleOptions` still contains it).
 - Stricter result types:
@@ -58,6 +61,11 @@ For reCAPTCHA v2 use `type: 'v2'` and remove `score` / `actions` from the module
 
 ### Added
 
+- `GoogleRecaptchaModule.forRootDeferred()` / `forRootDeferredAsync()`: start without keys when they are set at runtime (e.g. by an administrator) via `RecaptchaConfigRef.setOptions()`. Option `whenNotConfigured`: `'reject'` (default) or `'skip'`.
+- `RecaptchaConfigRef.isConfigured` and `RecaptchaConfigRef.clear()`.
+- `ErrorCode.NotConfigured` (`not-configured`, HTTP 500): keys are not set.
+- Exported types `GoogleRecaptchaDeferredModuleOptions`, `GoogleRecaptchaDeferredModuleAsyncOptions`, `GoogleRecaptchaWhenNotConfigured`, `GoogleRecaptchaConfig`. `GoogleRecaptchaModuleAsyncOptions` and `GoogleRecaptchaOptionsFactory` accept the options type as a generic parameter.
+- `RecaptchaConfigRef.setOptions()`: replaces `type`, `secretKey`, `siteVerifyUrl`, `enterprise`, `score` and `actions` at once with validation. Allows switching between v2, v3 and Enterprise at runtime without restart (in v3.x the v2/v3 type was detected from the response). Type `GoogleRecaptchaRuntimeOptions` is exported.
 - Support Node.js 26.
 - Public types exported from the package root: module, guard and validator options (including per-type variants), `GoogleRecaptchaType`, `GoogleRecaptchaModuleAsyncOptions`, `GoogleRecaptchaOptionsFactory`, `VerifyResponseDecoratorOptions`, `VerifyResponseOptions`, `VerifyResponseV2`, `VerifyResponseV3`, `VerifyResponseEnterprise*`, `ScoreValidator`, `SkipIfValue`, `RecaptchaResponseProvider`, `RecaptchaRemoteIpProvider`, `RecaptchaNativeResponse`, `RecaptchaVerificationResultOptions`, `GoogleRecaptchaEnterpriseOptions`.
 - Exported enum `GoogleRecaptchaEnterpriseReason`.

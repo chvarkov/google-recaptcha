@@ -28,7 +28,13 @@ export class GoogleRecaptchaEnterpriseValidator extends AbstractGoogleRecaptchaV
 		super(axios, logger, configRef);
 	}
 
+	/**
+	 * @throws GoogleRecaptchaNetworkException
+	 * @throws GoogleRecaptchaException (`not-configured`) while keys are not set
+	 */
 	async validate(options: VerifyResponseOptions): Promise<RecaptchaVerificationResult<EnterpriseNativeResponse>> {
+		this.assertConfigured();
+
 		const { data: result, error } = await this.verifyResponse(options.response, options.action, options.remoteIp);
 
 		const errors: ErrorCode[] = [];
