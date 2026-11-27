@@ -387,6 +387,22 @@ export class FeedbackController {
 
 ```
 
+`@Recaptcha()` can also be set on a controller class: its options apply to all handlers, handler options override them.
+If both the class and a handler have `@Recaptcha()`, the token is verified once per request with the merged options.<br/>
+```typescript
+
+@Recaptcha({action: 'Feedback'})
+@Controller('feedback')
+export class FeedbackController {
+    @Recaptcha({score: 0.8}) // checks action 'Feedback' and score 0.8
+    @Post('send')
+    async send(): Promise<any> {
+        // TODO: Your implementation.
+    }
+}
+
+```
+
 You can find a usage example in the following [link](https://github.com/chvarkov/google-recaptcha-example).
 
 ### Usage in Graphql application

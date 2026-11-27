@@ -430,3 +430,89 @@ describe("HTTP Recaptcha: switch v3 => v2 with unsupportedChecks: 'ignore'", () 
 		expect(v2.body).toEqual({ success: true });
 	});
 });
+
+@Recaptcha({ action: 'Submit' })
+@Controller('test-class')
+class TestClassAndMethodController {
+	@Recaptcha({ score: 0.5 })
+	@Post('submit')
+	submit(@RecaptchaResult() result: RecaptchaVerificationResult): LiteralObject {
+		return { success: result.success, action: result.action, score: result.score };
+	}
+}
+
+describe('HTTP Recaptcha: @Recaptcha on both class and method', () => {
+	const mockedRecaptchaApi = new MockedRecaptchaApi();
+	const axiosInstance = mockedRecaptchaApi.getAxios();
+	const post = vi.spyOn(axiosInstance, 'post');
+
+	let http: TestHttp;
+	let app: INestApplication;
+
+	beforeAll(async () => {
+		const module = await Test.createTestingModule({
+			imports: [
+				GoogleRecaptchaModule.forRoot({
+					type: 'v3',
+					secretKey: 'secret_key',
+					response: (req: Request): string | undefined => req.headers.recaptcha?.toString(),
+				}),
+			],
+			controllers: [TestClassAndMethodController],
+		})
+			.overrideProvider(RECAPTCHA_AXIOS_INSTANCE)
+			.useValue(axiosInstance)
+			.compile();
+
+		app = module.createNestApplication();
+		app.useGlobalFilters(new TestErrorFilter());
+		await app.init();
+
+		http = new TestHttp(app.getHttpServer());
+	});
+
+	afterAll(() => app.close());
+
+	// Braces matter: a function returned from beforeEach is called by Vitest as a cleanup hook.
+	beforeEach(() => {
+		post.mockClear();
+	});
+
+	const v3Response = (action: string, score: number): VerifyResponseV3 => ({
+		success: true,
+		hostname: 'hostname',
+		challenge_ts: new Date().toISOString(),
+		errors: [],
+		action,
+		score,
+	});
+
+	test('valid token is sent to Google once', async () => {
+		mockedRecaptchaApi.addResponse<VerifyResponseV3>('class_method_ok', v3Response('Submit', 0.9));
+
+		const res = await http.post('/test-class/submit', {}, { headers: { Recaptcha: 'class_method_ok' } });
+
+		expect(res.statusCode).toBe(201);
+		expect(res.body).toEqual({ success: true, action: 'Submit', score: 0.9 });
+		expect(post).toHaveBeenCalledTimes(1);
+	});
+
+	test('merged options are checked: class action', async () => {
+		mockedRecaptchaApi.addResponse<VerifyResponseV3>('class_method_action', v3Response('Other', 0.9));
+
+		const res = await http.post('/test-class/submit', {}, { headers: { Recaptcha: 'class_method_action' } });
+
+		expect(res.statusCode).toBe(400);
+		expect(res.body.errorCodes).toEqual([ErrorCode.ForbiddenAction]);
+		expect(post).toHaveBeenCalledTimes(1);
+	});
+
+	test('merged options are checked: method score', async () => {
+		mockedRecaptchaApi.addResponse<VerifyResponseV3>('class_method_score', v3Response('Submit', 0.3));
+
+		const res = await http.post('/test-class/submit', {}, { headers: { Recaptcha: 'class_method_score' } });
+
+		expect(res.statusCode).toBe(400);
+		expect(res.body.errorCodes).toEqual([ErrorCode.LowScore]);
+	});
+});

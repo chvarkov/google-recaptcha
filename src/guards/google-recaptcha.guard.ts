@@ -10,6 +10,14 @@ import { RecaptchaRequest } from '../helpers/resolve-request.js';
 import { RecaptchaConfigRef } from '../models/recaptcha-config-ref.js';
 import { safeDebug } from '../helpers/safe-debug.js';
 
+/**
+ * Handlers already verified per request. `@Recaptcha()` on both a class and a method applies the guard twice:
+ * the second run must not re-send the token (Google would answer `timeout-or-duplicate`).
+ * Keyed by handler, not just by request: in GraphQL one request may run several resolvers with different options.
+ * Module scope: the runs may be served by different guard instances.
+ */
+const verifiedHandlers = new WeakMap<RecaptchaRequest, Set<unknown>>();
+
 @Injectable()
 export class GoogleRecaptchaGuard implements CanActivate {
 	constructor(
@@ -22,6 +30,12 @@ export class GoogleRecaptchaGuard implements CanActivate {
 
 	async canActivate(context: ExecutionContext): Promise<true | never> {
 		const request = this.requestResolver.resolve<RecaptchaRequest>(context);
+		const handler = context.getHandler();
+
+		// Both runs see the same merged class + handler options, so the first successful result applies.
+		if (verifiedHandlers.get(request)?.has(handler)) {
+			return true;
+		}
 
 		const skipIfValue = this.configRef.valueOf.skipIf;
 		const skip = typeof skipIfValue === 'function' ? await skipIfValue(request) : !!skipIfValue;
@@ -61,6 +75,10 @@ export class GoogleRecaptchaGuard implements CanActivate {
 		}
 
 		if (result.success) {
+			const handlers = verifiedHandlers.get(request) ?? new Set<unknown>();
+			handlers.add(handler);
+			verifiedHandlers.set(request, handlers);
+
 			return true;
 		}
 

@@ -78,6 +78,7 @@ For reCAPTCHA v2 use `type: 'v2'` and remove `score` / `actions` from the module
 ### Fixed
 
 - `@Recaptcha(...)` options set on a controller class were ignored.
+- `@Recaptcha(...)` on both a controller class and a handler verified the same token twice, and the second check failed with `timeout-or-duplicate`. Now the token is verified once per request and handler with the merged options.
 - `score: 0` in `@Recaptcha(...)` was replaced by the module `score`.
 - reCAPTCHA secret key was logged in plain text in `debug` mode; now it is masked.
 - `RecaptchaConfigRef` setters mutated the options object passed to `forRoot()`.
