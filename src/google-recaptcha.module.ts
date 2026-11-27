@@ -3,6 +3,8 @@ import { GoogleRecaptchaGuard } from './guards/google-recaptcha.guard.js';
 import { GoogleRecaptchaValidator } from './services/validators/google-recaptcha.validator.js';
 import { GoogleRecaptchaEnterpriseValidator } from './services/validators/google-recaptcha-enterprise.validator.js';
 import {
+	GoogleRecaptchaDeferredModuleAsyncOptions,
+	GoogleRecaptchaDeferredModuleOptions,
 	GoogleRecaptchaModuleAsyncOptions,
 	GoogleRecaptchaModuleOptions,
 	GoogleRecaptchaOptionsFactory,
@@ -14,11 +16,10 @@ import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import { Agent } from 'https';
 import { RecaptchaValidatorResolver } from './services/recaptcha-validator.resolver.js';
 import { EnterpriseReasonTransformer } from './services/enterprise-reason.transformer.js';
-import { xor } from './helpers/xor.js';
+import { validateCommonOptions, validateDeferredOptions, validateOptions } from './helpers/validate-options.js';
 import { RecaptchaConfigRef } from './models/recaptcha-config-ref.js';
-import { GoogleRecaptchaType } from './interfaces/google-recaptcha-validator-options.js';
 
-const RECAPTCHA_TYPES: readonly string[] = ['v2', 'v3', 'enterprise'] satisfies GoogleRecaptchaType[];
+type AsyncMethodName = 'forRootAsync' | 'forRootDeferredAsync';
 
 export class GoogleRecaptchaModule {
 	private static axiosDefaultConfig: AxiosRequestConfig = {
@@ -37,13 +38,36 @@ export class GoogleRecaptchaModule {
 		return this.createDynamicModule({
 			global: options.global,
 			imports: options.imports,
-			optionsProviders: this.createAsyncProviders(options),
+			optionsProviders: this.createAsyncProviders(options, 'forRootAsync'),
+		});
+	}
+
+	/**
+	 * Keys (`type`, `secretKey` / `enterprise`, `score`, `actions`) are not known at startup (e.g. set by an administrator):
+	 * set them later via `RecaptchaConfigRef.setOptions()`. Until then the guard behaves according to `whenNotConfigured`.
+	 */
+	static forRootDeferred(options: GoogleRecaptchaDeferredModuleOptions): DynamicModule {
+		return this.createDynamicModule({
+			global: options.global,
+			deferred: true,
+			optionsProviders: [{ provide: RECAPTCHA_OPTIONS, useValue: options }],
+		});
+	}
+
+	/** Async variant of `forRootDeferred()`. */
+	static forRootDeferredAsync(options: GoogleRecaptchaDeferredModuleAsyncOptions): DynamicModule {
+		return this.createDynamicModule({
+			global: options.global,
+			imports: options.imports,
+			deferred: true,
+			optionsProviders: this.createAsyncProviders(options, 'forRootDeferredAsync'),
 		});
 	}
 
 	private static createDynamicModule(params: {
 		global?: boolean;
 		imports?: GoogleRecaptchaModuleAsyncOptions['imports'];
+		deferred?: boolean;
 		optionsProviders: Provider[];
 	}): DynamicModule {
 		const providers: Provider[] = [
@@ -62,8 +86,15 @@ export class GoogleRecaptchaModule {
 			},
 			{
 				provide: RecaptchaConfigRef,
-				useFactory: (options: GoogleRecaptchaModuleOptions): RecaptchaConfigRef => {
-					this.validateOptions(options);
+				useFactory: (options: GoogleRecaptchaModuleOptions | GoogleRecaptchaDeferredModuleOptions): RecaptchaConfigRef => {
+					validateCommonOptions(options);
+
+					if (params.deferred) {
+						validateDeferredOptions(options as GoogleRecaptchaDeferredModuleOptions);
+					} else {
+						validateOptions(options as GoogleRecaptchaModuleOptions);
+					}
+
 					return new RecaptchaConfigRef(options);
 				},
 				inject: [RECAPTCHA_OPTIONS],
@@ -110,8 +141,8 @@ export class GoogleRecaptchaModule {
 		return config;
 	}
 
-	private static createAsyncProviders(options: GoogleRecaptchaModuleAsyncOptions): Provider[] {
-		const providers: Provider[] = [this.createAsyncOptionsProvider(options)];
+	private static createAsyncProviders<T>(options: GoogleRecaptchaModuleAsyncOptions<T>, method: AsyncMethodName): Provider[] {
+		const providers: Provider[] = [this.createAsyncOptionsProvider(options, method)];
 
 		if (options.useClass) {
 			providers.push({
@@ -123,7 +154,8 @@ export class GoogleRecaptchaModule {
 		return providers;
 	}
 
-	private static createAsyncOptionsProvider(options: GoogleRecaptchaModuleAsyncOptions): Provider {
+	/** @param method used in error messages: the helper is shared by `forRootAsync()` and `forRootDeferredAsync()`. */
+	private static createAsyncOptionsProvider<T>(options: GoogleRecaptchaModuleAsyncOptions<T>, method: AsyncMethodName): Provider {
 		if (options.useFactory) {
 			return {
 				provide: RECAPTCHA_OPTIONS,
@@ -135,12 +167,12 @@ export class GoogleRecaptchaModule {
 		const factoryClass = options.useExisting || options.useClass;
 
 		if (!factoryClass) {
-			throw new Error("GoogleRecaptchaModule.forRootAsync() requires one of 'useFactory', 'useClass' or 'useExisting'.");
+			throw new Error(`GoogleRecaptchaModule.${method}() requires one of 'useFactory', 'useClass' or 'useExisting'.`);
 		}
 
 		return {
 			provide: RECAPTCHA_OPTIONS,
-			useFactory: async (optionsFactory: GoogleRecaptchaOptionsFactory): Promise<GoogleRecaptchaModuleOptions> => {
+			useFactory: async (optionsFactory: GoogleRecaptchaOptionsFactory<T>): Promise<T> => {
 				if (!this.isGoogleRecaptchaFactory(optionsFactory)) {
 					throw new Error("Factory must implement the 'GoogleRecaptchaOptionsFactory' interface.");
 				}
@@ -150,34 +182,7 @@ export class GoogleRecaptchaModule {
 		};
 	}
 
-	private static validateOptions(options: GoogleRecaptchaModuleOptions): void | never {
-		const hasEnterpriseOptions = !!Object.keys(options.enterprise || {}).length;
-		if (!xor(!!options.secretKey, hasEnterpriseOptions)) {
-			throw new Error('Google reCAPTCHA options must contain either "secretKey" or "enterprise", but not both.');
-		}
-
-		// Types already guarantee the checks below; they are for JS users and untyped configs.
-		const type: string | undefined = options.type;
-
-		if (type === undefined) {
-			throw new Error(`Google reCAPTCHA option "type" is required. Expected one of: ${RECAPTCHA_TYPES.join(', ')}.`);
-		}
-
-		if (!RECAPTCHA_TYPES.includes(type)) {
-			throw new Error(`Unknown Google reCAPTCHA type '${type}'. Expected one of: ${RECAPTCHA_TYPES.join(', ')}.`);
-		}
-
-		if ((type === 'enterprise') !== hasEnterpriseOptions) {
-			const required = type === 'enterprise' ? 'enterprise' : 'secretKey';
-			throw new Error(`Google reCAPTCHA type '${type}' requires the "${required}" option.`);
-		}
-
-		if (type === 'v2' && (options.score != null || options.actions != null)) {
-			throw new Error('Google reCAPTCHA v2 does not support "score" and "actions" options.');
-		}
-	}
-
-	private static isGoogleRecaptchaFactory(object?: GoogleRecaptchaOptionsFactory): object is GoogleRecaptchaOptionsFactory {
+	private static isGoogleRecaptchaFactory<T>(object?: GoogleRecaptchaOptionsFactory<T>): object is GoogleRecaptchaOptionsFactory<T> {
 		return !!object && typeof object.createGoogleRecaptchaOptions === 'function';
 	}
 }

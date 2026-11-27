@@ -21,6 +21,11 @@ export type {
 	GoogleRecaptchaV2ModuleOptions,
 	GoogleRecaptchaV3ModuleOptions,
 	GoogleRecaptchaEnterpriseModuleOptions,
+	GoogleRecaptchaDeferredModuleOptions,
+	GoogleRecaptchaDeferredModuleAsyncOptions,
+	GoogleRecaptchaWhenNotConfigured,
+	GoogleRecaptchaUnsupportedChecks,
+	GoogleRecaptchaConfig,
 } from './interfaces/google-recaptcha-module-options.js';
 export type {
 	GoogleRecaptchaType,
@@ -29,6 +34,7 @@ export type {
 	GoogleRecaptchaV2ValidatorOptions,
 	GoogleRecaptchaV3ValidatorOptions,
 	GoogleRecaptchaEnterpriseValidatorOptions,
+	GoogleRecaptchaRuntimeOptions,
 } from './interfaces/google-recaptcha-validator-options.js';
 export type { GoogleRecaptchaGuardOptions } from './interfaces/google-recaptcha-guard-options.js';
 export type { GoogleRecaptchaEnterpriseOptions } from './interfaces/google-recaptcha-enterprise-options.js';

@@ -28,13 +28,23 @@ export class GoogleRecaptchaEnterpriseValidator extends AbstractGoogleRecaptchaV
 		super(axios, logger, configRef);
 	}
 
+	/**
+	 * @throws GoogleRecaptchaNetworkException
+	 * @throws GoogleRecaptchaException (`not-configured`) while keys are not set
+	 */
 	async validate(options: VerifyResponseOptions): Promise<RecaptchaVerificationResult<EnterpriseNativeResponse>> {
-		const { data: result, error } = await this.verifyResponse(options.response, options.action, options.remoteIp);
+		this.assertConfigured();
+
+		const { data, error } = await this.verifyResponse(options.response, options.action, options.remoteIp);
+
+		// Empty 2xx body (`null`, or `''` from axios; e.g. a misbehaving proxy) is treated as an HTTP error: no assessment from Google.
+		const result = data || undefined;
+		const hasAssessment = !error && !!result;
 
 		const errors: ErrorCode[] = [];
 		let success = result?.tokenProperties?.valid || false;
 
-		if (!error) {
+		if (hasAssessment) {
 			if (result.tokenProperties) {
 				if (result.tokenProperties.invalidReason) {
 					const invalidReasonCode = this.enterpriseReasonTransformer.transform(result.tokenProperties.invalidReason);
@@ -57,13 +67,13 @@ export class GoogleRecaptchaEnterpriseValidator extends AbstractGoogleRecaptchaV
 		}
 
 		if (!success && !errors.length) {
-			errors.push(error ? ErrorCode.UnknownError : ErrorCode.InvalidInputResponse);
+			errors.push(hasAssessment ? ErrorCode.InvalidInputResponse : ErrorCode.UnknownError);
 		}
 
 		return new RecaptchaVerificationResult({
 			success,
 			errors,
-			// On HTTP error there is no response from Google.
+			// On HTTP error or empty body there is no response from Google.
 			nativeResponse: result,
 			remoteIp: options.remoteIp,
 			score: result?.riskAnalysis?.score,
@@ -76,7 +86,7 @@ export class GoogleRecaptchaEnterpriseValidator extends AbstractGoogleRecaptchaV
 		response: string | undefined,
 		expectedAction?: string,
 		remoteIp?: string
-	): Promise<PostResult<VerifyResponseEnterprise>> {
+	): Promise<PostResult<VerifyResponseEnterprise | null>> {
 		const enterprise = this.options.valueOf.enterprise;
 
 		if (!enterprise) {
@@ -96,7 +106,7 @@ export class GoogleRecaptchaEnterpriseValidator extends AbstractGoogleRecaptchaV
 
 		const url = `https://recaptchaenterprise.googleapis.com/v1/projects/${projectId}/assessments`;
 
-		return this.post<VerifyResponseEnterprise>(url, body, {
+		return this.post<VerifyResponseEnterprise | null>(url, body, {
 			headers: this.headers,
 			params: { key: apiKey },
 		});

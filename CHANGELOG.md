@@ -13,15 +13,19 @@
     - `'v2'` - `secretKey` is required, `score` and `actions` are not allowed (reCAPTCHA v2 response has neither);
     - `'v3'` - `secretKey` is required, `score` and `actions` are checked for every successful response;
     - `'enterprise'` - `enterprise` is required, `secretKey` and `siteVerifyUrl` are not allowed.
-- `GoogleRecaptchaModuleOptions` is a union of `GoogleRecaptchaV2ModuleOptions`, `GoogleRecaptchaV3ModuleOptions` and `GoogleRecaptchaEnterpriseModuleOptions`: invalid combinations (missing `type`, both `secretKey` and `enterprise`, `score` for v2, etc.) are compile errors. They are also validated at startup for JavaScript users.
+- `GoogleRecaptchaModuleOptions` is a union of `GoogleRecaptchaV2ModuleOptions`, `GoogleRecaptchaV3ModuleOptions` and `GoogleRecaptchaEnterpriseModuleOptions`: invalid combinations (missing `type`, both `secretKey` and `enterprise`, `score` for v2, etc.) are compile errors. They are also validated at startup for JavaScript users and untyped configs: `secretKey` and `enterprise.projectId` / `siteKey` / `apiKey` must be non-empty strings.
 - reCAPTCHA v3: a successful response without `action` / `score` (e.g. a v2 key configured as v3) is rejected with `forbidden-action` / `low-score` when `actions` / `score` are configured. Previously it was silently accepted as v2.
-- reCAPTCHA v2: `@Recaptcha({ action, score })` throws an error instead of silently skipping the checks.
-- Option `network` renamed to `siteVerifyUrl`.
+- reCAPTCHA v2: `@Recaptcha({ action, score })` throws `GoogleRecaptchaException` with `ErrorCode.UnsupportedCheck` (`unsupported-check`, HTTP 500) instead of silently skipping the checks. The token is not sent to Google. Set module option `unsupportedChecks: 'ignore'` to skip them (e.g. when v2 / v3 is switched at runtime).
+- Option `network` renamed to `siteVerifyUrl`. A leftover `network` option (e.g. in JavaScript or an untyped config) throws at startup and in `RecaptchaConfigRef.setOptions()` instead of being silently ignored.
 - Enum `GoogleRecaptchaNetwork` renamed to `GoogleRecaptchaSiteVerifyUrl` (values are unchanged).
 - `RecaptchaConfigRef`:
+    - the options passed to `forRoot()` / returned by `forRootAsync()` are copied: mutating that object no longer changes the config, use `RecaptchaConfigRef` setters;
     - `setEnterpriseOptions()` sets `type: 'enterprise'` and resets `secretKey` and `siteVerifyUrl`;
     - `setSecretKey()` keeps `type: 'v2'` / `'v3'` and switches `'enterprise'` to `'v3'`;
     - `setScore()` throws for `type: 'v2'`;
+    - `setSecretKey()` / `setEnterpriseOptions()` validate the new config (empty `secretKey`, missing or empty `projectId` / `siteKey` / `apiKey`) and throw without changing the current one;
+    - `valueOf` is `GoogleRecaptchaConfig`: `type`, `secretKey` and `enterprise` are `undefined` while not configured (`forRootDeferred()`, `clear()`);
+    - `setSecretKey()` / `setScore()` throw while not configured;
     - setters replace the options object instead of mutating it: read `configRef.valueOf` each time instead of keeping a reference to it.
 - `score` moved from `GoogleRecaptchaGuardOptions` to the validator options (`GoogleRecaptchaModuleOptions` still contains it).
 - Stricter result types:
@@ -58,6 +62,12 @@ For reCAPTCHA v2 use `type: 'v2'` and remove `score` / `actions` from the module
 
 ### Added
 
+- Module option `unsupportedChecks`: `'reject'` (default) or `'ignore'` - decorator `score` / `action` checks for reCAPTCHA v2. Type `GoogleRecaptchaUnsupportedChecks` is exported.
+- `GoogleRecaptchaModule.forRootDeferred()` / `forRootDeferredAsync()`: start without keys when they are set at runtime (e.g. by an administrator) via `RecaptchaConfigRef.setOptions()`. Option `whenNotConfigured`: `'reject'` (default) or `'skip'`.
+- `RecaptchaConfigRef.isConfigured` and `RecaptchaConfigRef.clear()`.
+- `ErrorCode.NotConfigured` (`not-configured`, HTTP 500): keys are not set.
+- Exported types `GoogleRecaptchaDeferredModuleOptions`, `GoogleRecaptchaDeferredModuleAsyncOptions`, `GoogleRecaptchaWhenNotConfigured`, `GoogleRecaptchaConfig`. `GoogleRecaptchaModuleAsyncOptions` and `GoogleRecaptchaOptionsFactory` accept the options type as a generic parameter.
+- `RecaptchaConfigRef.setOptions()`: replaces `type`, `secretKey`, `siteVerifyUrl`, `enterprise`, `score` and `actions` at once with validation. Allows switching between v2, v3 and Enterprise at runtime without restart (in v3.x the v2/v3 type was detected from the response). Type `GoogleRecaptchaRuntimeOptions` is exported.
 - Support Node.js 26.
 - Public types exported from the package root: module, guard and validator options (including per-type variants), `GoogleRecaptchaType`, `GoogleRecaptchaModuleAsyncOptions`, `GoogleRecaptchaOptionsFactory`, `VerifyResponseDecoratorOptions`, `VerifyResponseOptions`, `VerifyResponseV2`, `VerifyResponseV3`, `VerifyResponseEnterprise*`, `ScoreValidator`, `SkipIfValue`, `RecaptchaResponseProvider`, `RecaptchaRemoteIpProvider`, `RecaptchaNativeResponse`, `RecaptchaVerificationResultOptions`, `GoogleRecaptchaEnterpriseOptions`.
 - Exported enum `GoogleRecaptchaEnterpriseReason`.
@@ -68,10 +78,12 @@ For reCAPTCHA v2 use `type: 'v2'` and remove `score` / `actions` from the module
 ### Fixed
 
 - `@Recaptcha(...)` options set on a controller class were ignored.
+- `@Recaptcha(...)` on both a controller class and a handler verified the same token twice, and the second check failed with `timeout-or-duplicate`. Now the token is verified once per request and handler with the merged options.
 - `score: 0` in `@Recaptcha(...)` was replaced by the module `score`.
 - reCAPTCHA secret key was logged in plain text in `debug` mode; now it is masked.
 - `RecaptchaConfigRef` setters mutated the options object passed to `forRoot()`.
-- An empty siteverify response failed with `TypeError`; now it results in `unknown-error`.
+- An exception thrown by the logger in `debug` mode turned a successful verification into `unknown-error` (or escaped from the guard). Logger errors are now ignored.
+- An empty siteverify / Enterprise assessment response (2xx with an empty or `null` body) failed with `TypeError`; now it results in `unknown-error`.
 - `skipIf` did not accept a callback with a typed request parameter (`(req: Request) => boolean`).
 
 ## v3.12.0

@@ -10,6 +10,7 @@ import { GoogleRecaptchaContext } from '../../enums/google-recaptcha-context.js'
 import { maskSecret } from '../../helpers/mask-secret.js';
 import { AxiosInstance } from 'axios';
 import { RecaptchaConfigRef } from '../../models/recaptcha-config-ref.js';
+import { GoogleRecaptchaException } from '../../exceptions/google-recaptcha.exception.js';
 
 /** Raw siteverify response: Google returns errors as `error-codes`. */
 type SiteVerifyResponse = Omit<VerifyResponseV3, 'errors'> & { 'error-codes'?: ErrorCode[] };
@@ -32,14 +33,24 @@ export class GoogleRecaptchaValidator extends AbstractGoogleRecaptchaValidator<V
 
 	/**
 	 * @throws GoogleRecaptchaNetworkException
+	 * @throws GoogleRecaptchaException (`not-configured`) while keys are not set
+	 * @throws GoogleRecaptchaException (`unsupported-check`) for v2 with `options.action` / `options.score` (unless `unsupportedChecks: 'ignore'`)
 	 * @param {VerifyResponseOptions} options
 	 */
 	async validate(options: VerifyResponseOptions): Promise<RecaptchaVerificationResult<VerifyResponseV3>> {
+		this.assertConfigured();
+
 		const isV3 = this.options.valueOf.type === 'v3';
 
-		// v2 response has neither score nor action: silently skipping a check expected by the caller is unsafe.
+		// v2 response has neither score nor action: silently skipping a check expected by the caller is unsafe,
+		// unless explicitly allowed (`unsupportedChecks: 'ignore'`, e.g. v2/v3 is chosen by an administrator at runtime).
+		// Thrown before the request: the token is not spent.
 		if (!isV3 && (options.action != null || options.score != null)) {
-			throw new Error('Google reCAPTCHA v2 does not support "score" and "action" checks.');
+			if (this.options.valueOf.unsupportedChecks !== 'ignore') {
+				throw new GoogleRecaptchaException([ErrorCode.UnsupportedCheck]);
+			}
+
+			this.debug({ action: options.action, score: options.score }, 'ignoredChecks');
 		}
 
 		// v2 responses do not contain score/action: fields stay undefined.

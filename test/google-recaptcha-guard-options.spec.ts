@@ -68,33 +68,34 @@ describe('Google recaptcha guard: decorator options', () => {
 		network.setResult({ success: true, action, score, hostname: 'localhost' });
 	}
 
-	const req = { body: { recaptcha: 'TOKEN' } };
+	// A new request object per call: the guard remembers verified handlers per request.
+	const req = () => ({ body: { recaptcha: 'TOKEN' } });
 
 	test('Class-level options are applied to handler without options', async () => {
-		const ctx = createExecutionContext(ClassLevelController.prototype.inherited, req, 'http', ClassLevelController);
+		const ctx = () => createExecutionContext(ClassLevelController.prototype.inherited, req(), 'http', ClassLevelController);
 
 		v3('Login');
-		await expect(createGuard().canActivate(ctx)).resolves.toBe(true);
+		await expect(createGuard().canActivate(ctx())).resolves.toBe(true);
 
 		v3('Register');
-		await expect(createGuard().canActivate(ctx)).rejects.toMatchObject({ errorCodes: [ErrorCode.ForbiddenAction] });
+		await expect(createGuard().canActivate(ctx())).rejects.toMatchObject({ errorCodes: [ErrorCode.ForbiddenAction] });
 	});
 
 	test('Handler-level options override class-level ones', async () => {
-		const ctx = createExecutionContext(ClassLevelController.prototype.overridden, req, 'http', ClassLevelController);
+		const ctx = () => createExecutionContext(ClassLevelController.prototype.overridden, req(), 'http', ClassLevelController);
 
 		v3('Register');
-		await expect(createGuard().canActivate(ctx)).resolves.toBe(true);
+		await expect(createGuard().canActivate(ctx())).resolves.toBe(true);
 
 		v3('Login');
-		await expect(createGuard().canActivate(ctx)).rejects.toBeInstanceOf(GoogleRecaptchaException);
+		await expect(createGuard().canActivate(ctx())).rejects.toBeInstanceOf(GoogleRecaptchaException);
 	});
 
 	test('Decorator score 0 is not replaced by module score', async () => {
-		const ctx = createExecutionContext(PlainController.prototype.zeroScore, req, 'http', PlainController);
+		const ctx = () => createExecutionContext(PlainController.prototype.zeroScore, req(), 'http', PlainController);
 
 		v3('Submit', 0.1);
-		await expect(createGuard({ score: 0.9 }).canActivate(ctx)).resolves.toBe(true);
+		await expect(createGuard({ score: 0.9 }).canActivate(ctx())).resolves.toBe(true);
 	});
 
 	test('Module remoteIp provider result is passed to validator', async () => {

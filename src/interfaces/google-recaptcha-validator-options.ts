@@ -1,5 +1,5 @@
 import { GoogleRecaptchaSiteVerifyUrl } from '../enums/google-recaptcha-site-verify-url.js';
-import { ScoreValidator } from '../types.js';
+import { DistributiveOmit, ScoreValidator } from '../types.js';
 import { AxiosRequestConfig } from 'axios';
 import { GoogleRecaptchaEnterpriseOptions } from './google-recaptcha-enterprise-options.js';
 
@@ -56,3 +56,10 @@ export interface GoogleRecaptchaEnterpriseValidatorOptions extends GoogleRecaptc
 
 export type GoogleRecaptchaValidatorOptions =
 	GoogleRecaptchaV2ValidatorOptions | GoogleRecaptchaV3ValidatorOptions | GoogleRecaptchaEnterpriseValidatorOptions;
+
+/**
+ * Type-dependent options that can be replaced at runtime via `RecaptchaConfigRef.setOptions()`:
+ * `type`, `secretKey`, `siteVerifyUrl`, `enterprise`, `score`, `actions`.
+ * `axiosConfig` is excluded: the axios instance is created once at startup.
+ */
+export type GoogleRecaptchaRuntimeOptions = DistributiveOmit<GoogleRecaptchaValidatorOptions, 'axiosConfig'>;

@@ -1,4 +1,4 @@
-import { GoogleRecaptchaModuleOptions } from '../src/index.js';
+import { GoogleRecaptchaModuleOptions, GoogleRecaptchaRuntimeOptions } from '../src/index.js';
 import { RecaptchaConfigRef } from '../src/models/recaptcha-config-ref.js';
 import { GoogleRecaptchaEnterpriseOptions } from '../src/interfaces/google-recaptcha-enterprise-options.js';
 
@@ -97,5 +97,248 @@ describe('RecaptchaConfigRef', () => {
 		ref.setSkipIf(true);
 		expect(ref.valueOf.skipIf).toBeTruthy();
 		expect(options.skipIf).toBeUndefined();
+	});
+
+	describe('setOptions', () => {
+		const enterprise: GoogleRecaptchaEnterpriseOptions = { apiKey: 'k', projectId: 'p', siteKey: 's' };
+		const skipIf = (): boolean => false;
+		const remoteIp = (): string => '127.0.0.1';
+
+		test('switches v3 => v2 and resets score/actions', () => {
+			const ref = new RecaptchaConfigRef({ ...options, score: 0.5, actions: ['login'], skipIf, remoteIp, debug: true });
+
+			ref.setOptions({ type: 'v2', secretKey: 'V2_SECRET' });
+
+			expect(ref.valueOf.type).toBe('v2');
+			expect(ref.valueOf.secretKey).toBe('V2_SECRET');
+			expect(ref.valueOf.score).toBeUndefined();
+			expect(ref.valueOf.actions).toBeUndefined();
+
+			// Non type-dependent options are kept.
+			expect(ref.valueOf.response).toBe(options.response);
+			expect(ref.valueOf.skipIf).toBe(skipIf);
+			expect(ref.valueOf.remoteIp).toBe(remoteIp);
+			expect(ref.valueOf.debug).toBe(true);
+		});
+
+		test('switches v2 => v3', () => {
+			const ref = new RecaptchaConfigRef({ type: 'v2', response: () => 'RESPONSE', secretKey: 'V2_SECRET' });
+
+			ref.setOptions({ type: 'v3', secretKey: 'V3_SECRET', score: 0.7, actions: ['login'], siteVerifyUrl: 'https://proxy.local' });
+
+			expect(ref.valueOf).toMatchObject({
+				type: 'v3',
+				secretKey: 'V3_SECRET',
+				score: 0.7,
+				actions: ['login'],
+				siteVerifyUrl: 'https://proxy.local',
+			});
+		});
+
+		test('switches v2 => Enterprise and back to v2', () => {
+			const ref = new RecaptchaConfigRef({
+				type: 'v2',
+				response: () => 'RESPONSE',
+				secretKey: 'SECRET',
+				siteVerifyUrl: 'https://proxy.local',
+			});
+
+			ref.setOptions({ type: 'enterprise', enterprise, score: 0.5 });
+
+			expect(ref.valueOf.type).toBe('enterprise');
+			expect(ref.valueOf.enterprise).toEqual(enterprise);
+			expect(ref.valueOf.secretKey).toBeUndefined();
+			expect(ref.valueOf.siteVerifyUrl).toBeUndefined();
+
+			ref.setOptions({ type: 'v2', secretKey: 'V2_SECRET' });
+
+			expect(ref.valueOf.type).toBe('v2');
+			expect(ref.valueOf.enterprise).toBeUndefined();
+			expect(ref.valueOf.score).toBeUndefined();
+		});
+
+		test('replaces the options object and does not mutate the original one', () => {
+			const ref = new RecaptchaConfigRef(options);
+			const before = ref.valueOf;
+
+			ref.setOptions({ type: 'v2', secretKey: 'V2_SECRET' });
+
+			expect(ref.valueOf).not.toBe(before);
+			expect(before.type).toBe('v3');
+			expect(options).toEqual({ type: 'v3', secretKey: 'SECRET', response: options.response });
+		});
+
+		test('ignores options that are not runtime-changeable', () => {
+			const ref = new RecaptchaConfigRef(options);
+			const response = (): string => 'OTHER';
+
+			// JS users / untyped configs.
+			ref.setOptions({ type: 'v2', secretKey: 'V2_SECRET', response } as unknown as GoogleRecaptchaRuntimeOptions);
+
+			expect(ref.valueOf.response).toBe(options.response);
+		});
+
+		test.each([
+			[{ type: 'v2', secretKey: 'S', score: 0.5 }, 'Google reCAPTCHA v2 does not support "score" and "actions" options.'],
+			[{ type: 'v2', secretKey: 'S', actions: ['login'] }, 'Google reCAPTCHA v2 does not support "score" and "actions" options.'],
+			[{ type: 'v3', secretKey: '' }, 'Google reCAPTCHA option "secretKey" must be a non-empty string.'],
+			[{ type: 'v3', secretKey: 123 }, 'Google reCAPTCHA option "secretKey" must be a non-empty string.'],
+			[{ type: 'enterprise', enterprise: {} }, 'Google reCAPTCHA option "enterprise.projectId" must be a non-empty string.'],
+			[
+				{ type: 'enterprise', enterprise: { projectId: 'p', siteKey: '', apiKey: 'k' } },
+				'Google reCAPTCHA option "enterprise.siteKey" must be a non-empty string.',
+			],
+			[
+				{ type: 'enterprise', enterprise: { projectId: 'p', siteKey: 's' } },
+				'Google reCAPTCHA option "enterprise.apiKey" must be a non-empty string.',
+			],
+			[
+				{ type: 'v3', secretKey: 'S', enterprise },
+				'Google reCAPTCHA options must contain either "secretKey" or "enterprise", but not both.',
+			],
+			[{ type: 'enterprise', secretKey: 'S' }, 'Google reCAPTCHA type \'enterprise\' requires the "enterprise" option.'],
+			[{ type: 'v2', enterprise }, 'Google reCAPTCHA type \'v2\' requires the "secretKey" option.'],
+			[{ secretKey: 'S' }, 'Google reCAPTCHA option "type" is required. Expected one of: v2, v3, enterprise.'],
+			[{ type: 'v4', secretKey: 'S' }, "Unknown Google reCAPTCHA type 'v4'. Expected one of: v2, v3, enterprise."],
+		])('throws for invalid options %j and keeps the current config', (invalid, message) => {
+			const ref = new RecaptchaConfigRef({ ...options, score: 0.5 });
+			const before = ref.valueOf;
+
+			expect(() => ref.setOptions(invalid as unknown as GoogleRecaptchaRuntimeOptions)).toThrow(message);
+			expect(ref.valueOf).toBe(before);
+		});
+
+		test('types', () => {
+			const ref = new RecaptchaConfigRef(options);
+
+			// @ts-expect-error v2 has no score
+			expect(() => ref.setOptions({ type: 'v2', secretKey: 'S', score: 0.5 })).toThrow();
+
+			// @ts-expect-error Enterprise requires enterprise options
+			expect(() => ref.setOptions({ type: 'enterprise', secretKey: 'S' })).toThrow();
+
+			// @ts-expect-error type is required
+			expect(() => ref.setOptions({ secretKey: 'S' })).toThrow();
+
+			// @ts-expect-error response is not runtime-changeable
+			ref.setOptions({ type: 'v3', secretKey: 'S', response: () => 'R' });
+		});
+	});
+
+	describe('not configured (forRootDeferred)', () => {
+		const deferred = (): RecaptchaConfigRef => new RecaptchaConfigRef({ response: () => 'RESPONSE', whenNotConfigured: 'skip' });
+
+		test('isConfigured / whenNotConfigured', () => {
+			const ref = deferred();
+
+			expect(ref.isConfigured).toBe(false);
+			expect(ref.whenNotConfigured).toBe('skip');
+			expect(new RecaptchaConfigRef(options).isConfigured).toBe(true);
+			expect(new RecaptchaConfigRef(options).whenNotConfigured).toBe('reject');
+
+			ref.setOptions({ type: 'v2', secretKey: 'S' });
+			expect(ref.isConfigured).toBe(true);
+		});
+
+		test('clear() resets keys and keeps other options', () => {
+			const skipIf = (): boolean => false;
+			const ref = new RecaptchaConfigRef({ ...options, score: 0.5, actions: ['login'], skipIf, debug: true });
+
+			ref.clear();
+
+			expect(ref.isConfigured).toBe(false);
+			for (const key of ['type', 'secretKey', 'siteVerifyUrl', 'enterprise', 'score', 'actions'] as const) {
+				expect(ref.valueOf[key]).toBeUndefined();
+			}
+			expect(ref.valueOf.response).toBe(options.response);
+			expect(ref.valueOf.skipIf).toBe(skipIf);
+			expect(ref.valueOf.debug).toBe(true);
+		});
+
+		test('setSecretKey / setScore throw: v2 or v3 is ambiguous', () => {
+			const ref = deferred();
+
+			expect(() => ref.setSecretKey('S')).toThrow(
+				'Google reCAPTCHA is not configured: setSecretKey() cannot be used before setOptions().'
+			);
+			expect(() => ref.setScore(0.5)).toThrow('Google reCAPTCHA is not configured: setScore() cannot be used before setOptions().');
+			expect(ref.isConfigured).toBe(false);
+		});
+
+		test('setEnterpriseOptions configures Enterprise', () => {
+			const ref = deferred().setEnterpriseOptions({ apiKey: 'k', projectId: 'p', siteKey: 's' });
+
+			expect(ref.isConfigured).toBe(true);
+			expect(ref.valueOf.type).toBe('enterprise');
+		});
+
+		test('setSkipIf works while not configured', () => {
+			const ref = deferred().setSkipIf(true);
+
+			expect(ref.valueOf.skipIf).toBe(true);
+			expect(ref.isConfigured).toBe(false);
+		});
+	});
+
+	test('unsupportedChecks is kept by setOptions() / clear()', () => {
+		const ref = new RecaptchaConfigRef({ ...options, unsupportedChecks: 'ignore' });
+
+		ref.setOptions({ type: 'v2', secretKey: 'S' });
+		expect(ref.valueOf.unsupportedChecks).toBe('ignore');
+
+		ref.clear();
+		expect(ref.valueOf.unsupportedChecks).toBe('ignore');
+	});
+
+	test('types: unsupportedChecks is not a runtime option', () => {
+		const ref = new RecaptchaConfigRef(options);
+
+		// @ts-expect-error set in module options
+		ref.setOptions({ type: 'v2', secretKey: 'S', unsupportedChecks: 'ignore' });
+
+		expect(ref.valueOf.unsupportedChecks).toBeUndefined();
+	});
+
+	describe('setters validate the new config', () => {
+		test.each(['', 123, null, undefined])('setSecretKey(%j) throws and keeps the current config', (secretKey) => {
+			const ref = new RecaptchaConfigRef(options);
+			const before = ref.valueOf;
+
+			expect(() => ref.setSecretKey(secretKey as unknown as string)).toThrow();
+			expect(ref.valueOf).toBe(before);
+		});
+
+		test('setSecretKey from Enterprise with an empty key keeps Enterprise', () => {
+			const enterprise = { apiKey: 'k', projectId: 'p', siteKey: 's' };
+			const ref = new RecaptchaConfigRef({ type: 'enterprise', response: () => 'RESPONSE', enterprise });
+
+			expect(() => ref.setSecretKey('')).toThrow('Google reCAPTCHA option "secretKey" must be a non-empty string.');
+			expect(ref.valueOf.type).toBe('enterprise');
+			expect(ref.valueOf.enterprise).toBe(enterprise);
+		});
+
+		test.each([
+			[{}, 'projectId'],
+			[{ projectId: 'p', siteKey: 's', apiKey: '' }, 'apiKey'],
+			[{ projectId: undefined, siteKey: 's', apiKey: 'k' }, 'projectId'],
+			[null, 'projectId'],
+		])('setEnterpriseOptions(%j) throws and keeps the current config', (enterprise, key) => {
+			const ref = new RecaptchaConfigRef(options);
+			const before = ref.valueOf;
+
+			expect(() => ref.setEnterpriseOptions(enterprise as unknown as GoogleRecaptchaEnterpriseOptions)).toThrow(
+				enterprise === null
+					? 'Google reCAPTCHA options must contain either "secretKey" or "enterprise", but not both.'
+					: `Google reCAPTCHA option "enterprise.${key}" must be a non-empty string.`
+			);
+			expect(ref.valueOf).toBe(before);
+		});
+
+		test('invalid setEnterpriseOptions() after forRootDeferred() keeps it not configured', () => {
+			const ref = new RecaptchaConfigRef({ response: () => 'RESPONSE', whenNotConfigured: 'skip' });
+
+			expect(() => ref.setEnterpriseOptions({ projectId: '', siteKey: 's', apiKey: 'k' })).toThrow();
+			expect(ref.isConfigured).toBe(false);
+		});
 	});
 });

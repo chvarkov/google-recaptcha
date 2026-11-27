@@ -1,5 +1,8 @@
 import { Test } from '@nestjs/testing';
 import {
+	GoogleRecaptchaDeferredModuleOptions,
+	GoogleRecaptchaRuntimeOptions,
+	RecaptchaConfigRef,
 	GoogleRecaptchaEnterpriseModuleOptions,
 	GoogleRecaptchaModule,
 	GoogleRecaptchaModuleOptions,
@@ -120,10 +123,60 @@ describe('GoogleRecaptchaModuleOptions: runtime validation (JS users)', () => {
 		);
 	});
 
+	test('empty keys', async () => {
+		await expect(invalid({ type: 'v3', response, secretKey: '' })).rejects.toThrow(
+			'Google reCAPTCHA option "secretKey" must be a non-empty string.'
+		);
+		await expect(invalid({ type: 'enterprise', response, enterprise: { ...enterprise, apiKey: '' } })).rejects.toThrow(
+			'Google reCAPTCHA option "enterprise.apiKey" must be a non-empty string.'
+		);
+	});
+
 	test('v2 with score or actions', async () => {
 		const message = 'Google reCAPTCHA v2 does not support "score" and "actions" options.';
 
 		await expect(invalid({ type: 'v2', response, secretKey: 'secret', score: 0 })).rejects.toThrow(message);
 		await expect(invalid({ type: 'v2', response, secretKey: 'secret', actions: [] })).rejects.toThrow(message);
+	});
+
+	describe('renamed option "network"', () => {
+		const message = 'Google reCAPTCHA option "network" was renamed to "siteVerifyUrl" in v4.0.0.';
+		const network = 'https://recaptcha.net/recaptcha/api/siteverify';
+
+		test('forRoot', async () => {
+			await expect(invalid({ type: 'v3', response, secretKey: 'secret', network })).rejects.toThrow(message);
+			// Even together with the new name: the leftover is a sign of a half-migrated config.
+			await expect(invalid({ type: 'v3', response, secretKey: 'secret', network, siteVerifyUrl: network })).rejects.toThrow(message);
+		});
+
+		test('forRootAsync', async () => {
+			const module = GoogleRecaptchaModule.forRootAsync({
+				useFactory: () => ({ type: 'v3', response, secretKey: 'secret', network }) as unknown as GoogleRecaptchaModuleOptions,
+			});
+
+			await expect(Test.createTestingModule({ imports: [module] }).compile()).rejects.toThrow(message);
+		});
+
+		test('forRootDeferred', async () => {
+			const module = GoogleRecaptchaModule.forRootDeferred({ response, network } as unknown as GoogleRecaptchaDeferredModuleOptions);
+
+			await expect(Test.createTestingModule({ imports: [module] }).compile()).rejects.toThrow(message);
+		});
+
+		test('RecaptchaConfigRef.setOptions', async () => {
+			const module = await compile({ type: 'v3', response, secretKey: 'secret' });
+			const configRef = module.get(RecaptchaConfigRef);
+
+			expect(() => configRef.setOptions({ type: 'v2', secretKey: 'S', network } as unknown as GoogleRecaptchaRuntimeOptions)).toThrow(
+				message
+			);
+			expect(configRef.valueOf.type).toBe('v3');
+		});
+
+		test('undefined value is allowed', async () => {
+			await expect(
+				compile({ type: 'v3', response, secretKey: 'secret', network: undefined } as GoogleRecaptchaModuleOptions)
+			).resolves.toBeDefined();
+		});
 	});
 });

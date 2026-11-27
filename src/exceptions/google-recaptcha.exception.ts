@@ -15,6 +15,8 @@ const ERROR_MESSAGES: Partial<Record<ErrorCode, string>> = {
 	[ErrorCode.SiteMismatch]: 'The user verification token did not match the provided site key.',
 	[ErrorCode.BrowserError]: 'A retriable error (such as a network failure) occurred in the browser.',
 	[ErrorCode.IncorrectCaptchaSol]: 'Incorrect captcha solution.',
+	[ErrorCode.NotConfigured]: 'Google reCAPTCHA is not configured.',
+	[ErrorCode.UnsupportedCheck]: 'Google reCAPTCHA v2 does not support "score" and "action" checks.',
 };
 
 /** Error codes caused by the client (invalid/expired token, low score, etc.). Everything else is a server-side error. */

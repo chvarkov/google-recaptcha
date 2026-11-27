@@ -7,6 +7,9 @@ import { RecaptchaConfigRef } from '../../models/recaptcha-config-ref.js';
 import { GoogleRecaptchaContext } from '../../enums/google-recaptcha-context.js';
 import { GoogleRecaptchaNetworkException } from '../../exceptions/google-recaptcha-network.exception.js';
 import { getErrorInfo, isAxiosError } from '../../helpers/get-error-info.js';
+import { safeDebug } from '../../helpers/safe-debug.js';
+import { GoogleRecaptchaException } from '../../exceptions/google-recaptcha.exception.js';
+import { ErrorCode } from '../../enums/error-code.js';
 
 export interface PostError {
 	status?: number;
@@ -40,11 +43,11 @@ export abstract class AbstractGoogleRecaptchaValidator<Res> {
 	protected async post<T>(url: string, body: unknown, config: AxiosRequestConfig, loggedBody: unknown = body): Promise<PostResult<T>> {
 		this.debug({ body: loggedBody }, 'request');
 
-		try {
-			const { data } = await this.axios.post<T>(url, body, config);
-			this.debug(data, 'response');
+		let data: T;
 
-			return { data };
+		// Only the request itself is inside `try`: logging must not turn a successful response into an error.
+		try {
+			({ data } = await this.axios.post<T>(url, body, config));
 		} catch (err) {
 			this.debug(getErrorInfo(err), 'error');
 
@@ -52,7 +55,7 @@ export abstract class AbstractGoogleRecaptchaValidator<Res> {
 				throw new GoogleRecaptchaNetworkException(err.code);
 			}
 
-			// Not only axios errors can get here (e.g. an exception thrown by the logger).
+			// Not only axios errors can get here (e.g. an exception thrown by a custom axios instance or interceptor).
 			const response = isAxiosError(err) ? err.response : undefined;
 
 			return {
@@ -62,11 +65,23 @@ export abstract class AbstractGoogleRecaptchaValidator<Res> {
 				},
 			};
 		}
+
+		this.debug(data, 'response');
+
+		return { data };
 	}
 
+	/** @throws GoogleRecaptchaException (`not-configured`) while keys are not set (`forRootDeferred()`, `RecaptchaConfigRef.clear()`). */
+	protected assertConfigured(): void | never {
+		if (!this.options.isConfigured) {
+			throw new GoogleRecaptchaException([ErrorCode.NotConfigured]);
+		}
+	}
+
+	/** Never throws: logger errors do not affect the verification result. */
 	protected debug(message: unknown, event: string): void {
 		if (this.options.valueOf.debug) {
-			this.logger.debug(message, `${this.logContext}.${event}`);
+			safeDebug(this.logger, message, `${this.logContext}.${event}`);
 		}
 	}
 
