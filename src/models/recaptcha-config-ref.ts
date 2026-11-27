@@ -53,6 +53,7 @@ export class RecaptchaConfigRef {
 	/**
 	 * Keeps `type: 'v2'` / `'v3'`; switching from Enterprise results in reCAPTCHA v3.
 	 * @throws Error if not configured: v2 or v3 is ambiguous, use `setOptions()`.
+	 * @throws Error if `secretKey` is empty; the current config stays unchanged.
 	 */
 	setSecretKey(secretKey: string): this {
 		const value = this.value;
@@ -61,25 +62,25 @@ export class RecaptchaConfigRef {
 			throw this.notConfiguredError('setSecretKey');
 		}
 
-		this.value =
+		return this.replaceValidated(
 			value.type === 'v2'
 				? { ...value, secretKey }
-				: { ...value, type: value.type === 'enterprise' ? 'v3' : value.type, secretKey, enterprise: undefined };
-
-		return this;
+				: { ...value, type: value.type === 'enterprise' ? 'v3' : value.type, secretKey, enterprise: undefined }
+		);
 	}
 
-	/** Switches to reCAPTCHA Enterprise: `secretKey` and `siteVerifyUrl` are reset. */
+	/**
+	 * Switches to reCAPTCHA Enterprise: `secretKey` and `siteVerifyUrl` are reset.
+	 * @throws Error if `projectId` / `siteKey` / `apiKey` is missing or empty; the current config stays unchanged.
+	 */
 	setEnterpriseOptions(options: GoogleRecaptchaEnterpriseOptions): this {
-		this.value = {
+		return this.replaceValidated({
 			...this.value,
 			type: 'enterprise',
 			enterprise: options,
 			secretKey: undefined,
 			siteVerifyUrl: undefined,
-		};
-
-		return this;
+		});
 	}
 
 	/**
@@ -104,6 +105,15 @@ export class RecaptchaConfigRef {
 
 	setSkipIf(skipIf: SkipIfValue): this {
 		this.value = { ...this.value, skipIf };
+
+		return this;
+	}
+
+	/** Validates the whole new config before replacing: an invalid one never becomes current (e.g. `isConfigured` with unusable keys). */
+	private replaceValidated(value: GoogleRecaptchaModuleOptions): this {
+		validateOptions(value);
+
+		this.value = value;
 
 		return this;
 	}

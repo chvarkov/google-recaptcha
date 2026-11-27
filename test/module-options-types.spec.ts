@@ -120,6 +120,15 @@ describe('GoogleRecaptchaModuleOptions: runtime validation (JS users)', () => {
 		);
 	});
 
+	test('empty keys', async () => {
+		await expect(invalid({ type: 'v3', response, secretKey: '' })).rejects.toThrow(
+			'Google reCAPTCHA option "secretKey" must be a non-empty string.'
+		);
+		await expect(invalid({ type: 'enterprise', response, enterprise: { ...enterprise, apiKey: '' } })).rejects.toThrow(
+			'Google reCAPTCHA option "enterprise.apiKey" must be a non-empty string.'
+		);
+	});
+
 	test('v2 with score or actions', async () => {
 		const message = 'Google reCAPTCHA v2 does not support "score" and "actions" options.';
 

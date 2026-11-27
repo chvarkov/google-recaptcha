@@ -13,7 +13,7 @@
     - `'v2'` - `secretKey` is required, `score` and `actions` are not allowed (reCAPTCHA v2 response has neither);
     - `'v3'` - `secretKey` is required, `score` and `actions` are checked for every successful response;
     - `'enterprise'` - `enterprise` is required, `secretKey` and `siteVerifyUrl` are not allowed.
-- `GoogleRecaptchaModuleOptions` is a union of `GoogleRecaptchaV2ModuleOptions`, `GoogleRecaptchaV3ModuleOptions` and `GoogleRecaptchaEnterpriseModuleOptions`: invalid combinations (missing `type`, both `secretKey` and `enterprise`, `score` for v2, etc.) are compile errors. They are also validated at startup for JavaScript users.
+- `GoogleRecaptchaModuleOptions` is a union of `GoogleRecaptchaV2ModuleOptions`, `GoogleRecaptchaV3ModuleOptions` and `GoogleRecaptchaEnterpriseModuleOptions`: invalid combinations (missing `type`, both `secretKey` and `enterprise`, `score` for v2, etc.) are compile errors. They are also validated at startup for JavaScript users and untyped configs: `secretKey` and `enterprise.projectId` / `siteKey` / `apiKey` must be non-empty strings.
 - reCAPTCHA v3: a successful response without `action` / `score` (e.g. a v2 key configured as v3) is rejected with `forbidden-action` / `low-score` when `actions` / `score` are configured. Previously it was silently accepted as v2.
 - reCAPTCHA v2: `@Recaptcha({ action, score })` throws `GoogleRecaptchaException` with `ErrorCode.UnsupportedCheck` (`unsupported-check`, HTTP 500) instead of silently skipping the checks. The token is not sent to Google. Set module option `unsupportedChecks: 'ignore'` to skip them (e.g. when v2 / v3 is switched at runtime).
 - Option `network` renamed to `siteVerifyUrl`.
@@ -23,6 +23,7 @@
     - `setEnterpriseOptions()` sets `type: 'enterprise'` and resets `secretKey` and `siteVerifyUrl`;
     - `setSecretKey()` keeps `type: 'v2'` / `'v3'` and switches `'enterprise'` to `'v3'`;
     - `setScore()` throws for `type: 'v2'`;
+    - `setSecretKey()` / `setEnterpriseOptions()` validate the new config (empty `secretKey`, missing or empty `projectId` / `siteKey` / `apiKey`) and throw without changing the current one;
     - `valueOf` is `GoogleRecaptchaConfig`: `type`, `secretKey` and `enterprise` are `undefined` while not configured (`forRootDeferred()`, `clear()`);
     - `setSecretKey()` / `setScore()` throw while not configured;
     - setters replace the options object instead of mutating it: read `configRef.valueOf` each time instead of keeping a reference to it.

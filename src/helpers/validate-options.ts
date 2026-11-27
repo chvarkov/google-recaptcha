@@ -5,6 +5,7 @@ import {
 	GoogleRecaptchaType,
 	GoogleRecaptchaValidatorOptions,
 } from '../interfaces/google-recaptcha-validator-options.js';
+import { GoogleRecaptchaEnterpriseOptions } from '../interfaces/google-recaptcha-enterprise-options.js';
 
 /** Options replaced by `RecaptchaConfigRef.setOptions()` / reset by `clear()`; not accepted by `forRootDeferred()`. */
 export const RUNTIME_OPTION_KEYS = [
@@ -16,6 +17,10 @@ export const RUNTIME_OPTION_KEYS = [
 	'actions',
 ] as const satisfies readonly (keyof GoogleRecaptchaRuntimeOptions)[];
 
+const ENTERPRISE_REQUIRED_KEYS = ['projectId', 'siteKey', 'apiKey'] as const satisfies readonly (keyof GoogleRecaptchaEnterpriseOptions)[];
+
+const isNonEmptyString = (value: unknown): value is string => typeof value === 'string' && value.length > 0;
+
 const RECAPTCHA_TYPES: readonly string[] = ['v2', 'v3', 'enterprise'] satisfies GoogleRecaptchaType[];
 
 /**
@@ -23,8 +28,9 @@ const RECAPTCHA_TYPES: readonly string[] = ['v2', 'v3', 'enterprise'] satisfies 
  * Types already guarantee these checks; they are for JS users and untyped configs (e.g. loaded from a database).
  */
 export function validateOptions(options: Partial<GoogleRecaptchaValidatorOptions>): void | never {
-	const hasEnterpriseOptions = !!Object.keys(options.enterprise || {}).length;
-	if (!xor(!!options.secretKey, hasEnterpriseOptions)) {
+	// Presence, not validity: empty values are reported below with a precise message.
+	const hasEnterpriseOptions = options.enterprise != null;
+	if (!xor(options.secretKey != null, hasEnterpriseOptions)) {
 		throw new Error('Google reCAPTCHA options must contain either "secretKey" or "enterprise", but not both.');
 	}
 
@@ -41,6 +47,16 @@ export function validateOptions(options: Partial<GoogleRecaptchaValidatorOptions
 	if ((type === 'enterprise') !== hasEnterpriseOptions) {
 		const required = type === 'enterprise' ? 'enterprise' : 'secretKey';
 		throw new Error(`Google reCAPTCHA type '${type}' requires the "${required}" option.`);
+	}
+
+	if (type === 'enterprise') {
+		for (const key of ENTERPRISE_REQUIRED_KEYS) {
+			if (!isNonEmptyString(options.enterprise?.[key])) {
+				throw new Error(`Google reCAPTCHA option "enterprise.${key}" must be a non-empty string.`);
+			}
+		}
+	} else if (!isNonEmptyString(options.secretKey)) {
+		throw new Error('Google reCAPTCHA option "secretKey" must be a non-empty string.');
 	}
 
 	if (type === 'v2' && (options.score != null || options.actions != null)) {

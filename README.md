@@ -504,9 +504,11 @@ class RecaptchaConfigRef {
   setOptions(options: GoogleRecaptchaRuntimeOptions): this;
 
   // Sets the secret key for Recaptcha validation. Keeps type 'v2' / 'v3'; switches 'enterprise' to 'v3'.
+  // Throws for an empty key (config stays unchanged).
   setSecretKey(secretKey: string): this;
 
   // Sets enterprise-specific options for Recaptcha validation (type becomes 'enterprise').
+  // Throws if projectId / siteKey / apiKey is missing or empty (config stays unchanged).
   setEnterpriseOptions(options: GoogleRecaptchaEnterpriseOptions): this;
 
   // Sets the score threshold for Recaptcha validation. Throws for type 'v2'.

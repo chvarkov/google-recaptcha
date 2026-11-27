@@ -181,7 +181,17 @@ describe('RecaptchaConfigRef', () => {
 		test.each([
 			[{ type: 'v2', secretKey: 'S', score: 0.5 }, 'Google reCAPTCHA v2 does not support "score" and "actions" options.'],
 			[{ type: 'v2', secretKey: 'S', actions: ['login'] }, 'Google reCAPTCHA v2 does not support "score" and "actions" options.'],
-			[{ type: 'v3', secretKey: '' }, 'Google reCAPTCHA options must contain either "secretKey" or "enterprise", but not both.'],
+			[{ type: 'v3', secretKey: '' }, 'Google reCAPTCHA option "secretKey" must be a non-empty string.'],
+			[{ type: 'v3', secretKey: 123 }, 'Google reCAPTCHA option "secretKey" must be a non-empty string.'],
+			[{ type: 'enterprise', enterprise: {} }, 'Google reCAPTCHA option "enterprise.projectId" must be a non-empty string.'],
+			[
+				{ type: 'enterprise', enterprise: { projectId: 'p', siteKey: '', apiKey: 'k' } },
+				'Google reCAPTCHA option "enterprise.siteKey" must be a non-empty string.',
+			],
+			[
+				{ type: 'enterprise', enterprise: { projectId: 'p', siteKey: 's' } },
+				'Google reCAPTCHA option "enterprise.apiKey" must be a non-empty string.',
+			],
 			[
 				{ type: 'v3', secretKey: 'S', enterprise },
 				'Google reCAPTCHA options must contain either "secretKey" or "enterprise", but not both.',
@@ -287,5 +297,48 @@ describe('RecaptchaConfigRef', () => {
 		ref.setOptions({ type: 'v2', secretKey: 'S', unsupportedChecks: 'ignore' });
 
 		expect(ref.valueOf.unsupportedChecks).toBeUndefined();
+	});
+
+	describe('setters validate the new config', () => {
+		test.each(['', 123, null, undefined])('setSecretKey(%j) throws and keeps the current config', (secretKey) => {
+			const ref = new RecaptchaConfigRef(options);
+			const before = ref.valueOf;
+
+			expect(() => ref.setSecretKey(secretKey as unknown as string)).toThrow();
+			expect(ref.valueOf).toBe(before);
+		});
+
+		test('setSecretKey from Enterprise with an empty key keeps Enterprise', () => {
+			const enterprise = { apiKey: 'k', projectId: 'p', siteKey: 's' };
+			const ref = new RecaptchaConfigRef({ type: 'enterprise', response: () => 'RESPONSE', enterprise });
+
+			expect(() => ref.setSecretKey('')).toThrow('Google reCAPTCHA option "secretKey" must be a non-empty string.');
+			expect(ref.valueOf.type).toBe('enterprise');
+			expect(ref.valueOf.enterprise).toBe(enterprise);
+		});
+
+		test.each([
+			[{}, 'projectId'],
+			[{ projectId: 'p', siteKey: 's', apiKey: '' }, 'apiKey'],
+			[{ projectId: undefined, siteKey: 's', apiKey: 'k' }, 'projectId'],
+			[null, 'projectId'],
+		])('setEnterpriseOptions(%j) throws and keeps the current config', (enterprise, key) => {
+			const ref = new RecaptchaConfigRef(options);
+			const before = ref.valueOf;
+
+			expect(() => ref.setEnterpriseOptions(enterprise as unknown as GoogleRecaptchaEnterpriseOptions)).toThrow(
+				enterprise === null
+					? 'Google reCAPTCHA options must contain either "secretKey" or "enterprise", but not both.'
+					: `Google reCAPTCHA option "enterprise.${key}" must be a non-empty string.`
+			);
+			expect(ref.valueOf).toBe(before);
+		});
+
+		test('invalid setEnterpriseOptions() after forRootDeferred() keeps it not configured', () => {
+			const ref = new RecaptchaConfigRef({ response: () => 'RESPONSE', whenNotConfigured: 'skip' });
+
+			expect(() => ref.setEnterpriseOptions({ projectId: '', siteKey: 's', apiKey: 'k' })).toThrow();
+			expect(ref.isConfigured).toBe(false);
+		});
 	});
 });
