@@ -269,4 +269,23 @@ describe('RecaptchaConfigRef', () => {
 			expect(ref.isConfigured).toBe(false);
 		});
 	});
+
+	test('unsupportedChecks is kept by setOptions() / clear()', () => {
+		const ref = new RecaptchaConfigRef({ ...options, unsupportedChecks: 'ignore' });
+
+		ref.setOptions({ type: 'v2', secretKey: 'S' });
+		expect(ref.valueOf.unsupportedChecks).toBe('ignore');
+
+		ref.clear();
+		expect(ref.valueOf.unsupportedChecks).toBe('ignore');
+	});
+
+	test('types: unsupportedChecks is not a runtime option', () => {
+		const ref = new RecaptchaConfigRef(options);
+
+		// @ts-expect-error set in module options
+		ref.setOptions({ type: 'v2', secretKey: 'S', unsupportedChecks: 'ignore' });
+
+		expect(ref.valueOf.unsupportedChecks).toBeUndefined();
+	});
 });

@@ -16,7 +16,7 @@ import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
 import { Agent } from 'https';
 import { RecaptchaValidatorResolver } from './services/recaptcha-validator.resolver.js';
 import { EnterpriseReasonTransformer } from './services/enterprise-reason.transformer.js';
-import { validateDeferredOptions, validateOptions } from './helpers/validate-options.js';
+import { validateCommonOptions, validateDeferredOptions, validateOptions } from './helpers/validate-options.js';
 import { RecaptchaConfigRef } from './models/recaptcha-config-ref.js';
 
 export class GoogleRecaptchaModule {
@@ -85,6 +85,8 @@ export class GoogleRecaptchaModule {
 			{
 				provide: RecaptchaConfigRef,
 				useFactory: (options: GoogleRecaptchaModuleOptions | GoogleRecaptchaDeferredModuleOptions): RecaptchaConfigRef => {
+					validateCommonOptions(options);
+
 					if (params.deferred) {
 						validateDeferredOptions(options as GoogleRecaptchaDeferredModuleOptions);
 					} else {

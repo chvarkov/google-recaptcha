@@ -1,5 +1,5 @@
 import { xor } from './xor.js';
-import { GoogleRecaptchaDeferredModuleOptions } from '../interfaces/google-recaptcha-module-options.js';
+import { GoogleRecaptchaCommonModuleOptions, GoogleRecaptchaDeferredModuleOptions } from '../interfaces/google-recaptcha-module-options.js';
 import {
 	GoogleRecaptchaRuntimeOptions,
 	GoogleRecaptchaType,
@@ -62,5 +62,14 @@ export function validateDeferredOptions(options: GoogleRecaptchaDeferredModuleOp
 
 	if (!WHEN_NOT_CONFIGURED_VALUES.includes(options.whenNotConfigured)) {
 		throw new Error(`Unknown "whenNotConfigured" value '${String(options.whenNotConfigured)}'. Expected one of: reject, skip.`);
+	}
+}
+
+const UNSUPPORTED_CHECKS_VALUES: readonly unknown[] = [undefined, 'reject', 'ignore'];
+
+/** Options shared by `forRoot*()` that are not covered by types for JS users and untyped configs. */
+export function validateCommonOptions(options: GoogleRecaptchaCommonModuleOptions): void | never {
+	if (!UNSUPPORTED_CHECKS_VALUES.includes(options.unsupportedChecks)) {
+		throw new Error(`Unknown "unsupportedChecks" value '${String(options.unsupportedChecks)}'. Expected one of: reject, ignore.`);
 	}
 }

@@ -62,6 +62,7 @@ The list of changes made in the project can be found in the [CHANGELOG.md](./CHA
 | `response`        | **Required.**<br> Type: `(request) => string`<br> Function that returns response (recaptcha token) by request |
 | `type`            | **Required.**<br> Type: `'v2'` \| `'v3'` \| `'enterprise'`<br> reCAPTCHA type. Defines available options and checks: <br> `'v2'` - `secretKey` is required, `score` / `actions` are not available (reCAPTCHA v2 response has neither); <br> `'v3'` - `secretKey` is required, `score` and `actions` are checked for every successful response; <br> `'enterprise'` - `enterprise` is required. |
 | `secretKey`       | Required for `'v2'` / `'v3'`.<br> Type: `string`<br> Google recaptcha secret key. Cannot be used with `enterprise` option. |
+| `unsupportedChecks` | Optional.<br> Type: `'reject'` \| `'ignore'` <br> Default: `'reject'` <br> Decorator `score` / `action` checks for reCAPTCHA v2 (its response has neither): `'reject'` - `GoogleRecaptchaException` with `ErrorCode.UnsupportedCheck`, `'ignore'` - the checks are skipped. Use `'ignore'` when v2 / v3 is switched at runtime via `RecaptchaConfigRef.setOptions()`. |
 | `debug`           | Optional.<br> Type: `boolean` <br> Default: `false` <br> Enables logging requests, responses, errors and transformed results |
 | `logger`          | Optional.<br> Type: `Logger` <br> Default: `new Logger()` <br> Instance of custom logger that extended from Logger (@nestjs/common) |
 | `skipIf`          | Optional.<br> Type: `boolean` \| `(request) => boolean \| Promise<boolean>` <br> Function that returns true if you allow the request to skip the recaptcha verification. Useful for involing other check methods (e.g. custom privileged API key) or for development or testing |
@@ -563,6 +564,14 @@ async updateRecaptcha(config: RecaptchaSettings): Promise<void> {
 }
 ```
 
+> **Switching to v2 and decorator checks.** reCAPTCHA v2 response has neither score nor action. If a route has
+> `@Recaptcha({ action })` / `@Recaptcha({ score })` (or `@SetRecaptchaOptions(...)` with them), after switching to `type: 'v2'`
+> every request to that route fails with `GoogleRecaptchaException` (`ErrorCode.UnsupportedCheck`, HTTP 500) - the check
+> is not silently skipped, and the token is not sent to Google.
+> If v2 / v3 is chosen at runtime (e.g. by an administrator) and routes have checks for v3, set `unsupportedChecks: 'ignore'`
+> in the module options (`forRoot*()`): for v2 the decorator checks are skipped (logged in `debug` mode), for v3 / Enterprise they work as usual.
+> Checks set in the module options (`score` / `actions`) are reset by `setOptions({ type: 'v2', ... })` and are not affected.
+
 `setOptions()` changes only `type`, `secretKey`, `siteVerifyUrl`, `enterprise`, `score` and `actions`.
 `response`, `remoteIp`, `skipIf`, `debug`, `logger` and `axiosConfig` are kept (`skipIf` can be changed via `setSkipIf()`).
 
@@ -640,6 +649,7 @@ One important feature of the `GoogleRecaptchaException` is that it contains an a
 | `ErrorCode.LowScore`             | Low score. (Thrown by the guard when the received score is below the expected one.) | 400         |
 | `ErrorCode.InvalidKeys`          | The keys were copied incorrectly, the wrong keys were used for the environment (e.g. development vs production), or the keys were revoked or deleted in the Google reCAPTCHA admin console. (Returned by the reCAPTCHA API.) | 400         |
 | `ErrorCode.NetworkError`         | Network error (e.g. ECONNRESET, ECONNREFUSED). | 500         |
+| `ErrorCode.UnsupportedCheck`     | `score` / `action` check (e.g. `@Recaptcha({ action })`) is requested for reCAPTCHA v2: its response has neither. | 500         |
 | `ErrorCode.NotConfigured`        | Keys are not set: `forRootDeferred()` before `RecaptchaConfigRef.setOptions()`, or after `clear()`. | 500         |
 | `ErrorCode.SiteMismatch`         | Site mismatch. (Returned by the reCAPTCHA Enterprise API only.) | 400         |
 | `ErrorCode.BrowserError`         | Browser error. (Returned by the reCAPTCHA Enterprise API only.) | 400         |

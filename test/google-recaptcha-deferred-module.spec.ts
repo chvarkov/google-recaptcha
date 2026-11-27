@@ -112,4 +112,22 @@ describe('GoogleRecaptchaModule.forRootDeferred()', () => {
 
 		expect([withKey, unknownMode, noResponse, forRoot]).toHaveLength(4);
 	});
+
+	test.each([
+		['forRoot', () => GoogleRecaptchaModule.forRoot({ type: 'v2', secretKey: 'S', response, unsupportedChecks: 'skip' as 'ignore' })],
+		['forRootDeferred', () => GoogleRecaptchaModule.forRootDeferred({ response, unsupportedChecks: 'skip' as 'ignore' })],
+	])('%s rejects unknown unsupportedChecks', async (_, createModule) => {
+		await expect(Test.createTestingModule({ imports: [createModule()] }).compile()).rejects.toThrow(
+			'Unknown "unsupportedChecks" value \'skip\'. Expected one of: reject, ignore.'
+		);
+	});
+
+	test('types: unsupportedChecks', () => {
+		const ignore: GoogleRecaptchaDeferredModuleOptions = { response, unsupportedChecks: 'ignore' };
+
+		// @ts-expect-error unknown value
+		const unknown: GoogleRecaptchaDeferredModuleOptions = { response, unsupportedChecks: 'skip' };
+
+		expect([ignore, unknown]).toHaveLength(2);
+	});
 });

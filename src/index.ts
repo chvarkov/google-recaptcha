@@ -24,6 +24,7 @@ export type {
 	GoogleRecaptchaDeferredModuleOptions,
 	GoogleRecaptchaDeferredModuleAsyncOptions,
 	GoogleRecaptchaWhenNotConfigured,
+	GoogleRecaptchaUnsupportedChecks,
 	GoogleRecaptchaConfig,
 } from './interfaces/google-recaptcha-module-options.js';
 export type {

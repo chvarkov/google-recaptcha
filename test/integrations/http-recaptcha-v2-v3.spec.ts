@@ -296,7 +296,7 @@ describe('HTTP Recaptcha V2 (type: v2)', () => {
 		const res = await http.post('/test-v2/with-action', {}, { headers: { Recaptcha: 'v2_action' } });
 
 		expect(res.statusCode).toBe(500);
-		expect(res.body.message).toBe('Google reCAPTCHA v2 does not support "score" and "action" checks.');
+		expect(res.body.errorCodes).toEqual([ErrorCode.UnsupportedCheck]);
 	});
 });
 
@@ -357,5 +357,76 @@ describe('HTTP Recaptcha: runtime switch via RecaptchaConfigRef.setOptions()', (
 
 		expect(after.statusCode).toBe(201);
 		expect(after.body).toEqual({ success: true });
+	});
+
+	test('v2 after the switch: decorator action results in GoogleRecaptchaException, token is not sent', async () => {
+		// No mocked response: a request to the API would fail the test.
+		const res = await http.post('/test-v2/with-action', {}, { headers: { Recaptcha: 'no_mock' } });
+
+		expect(configRef.valueOf.type).toBe('v2');
+		expect(res.statusCode).toBe(500);
+		expect(res.body.errorCodes).toEqual([ErrorCode.UnsupportedCheck]);
+	});
+});
+
+describe("HTTP Recaptcha: switch v3 => v2 with unsupportedChecks: 'ignore'", () => {
+	const mockedRecaptchaApi = new MockedRecaptchaApi();
+
+	let http: TestHttp;
+	let app: INestApplication;
+
+	beforeAll(async () => {
+		const module = await Test.createTestingModule({
+			imports: [
+				GoogleRecaptchaModule.forRoot({
+					type: 'v3',
+					secretKey: 'v3_secret_key',
+					unsupportedChecks: 'ignore',
+					response: (req: Request): string | undefined => req.headers.recaptcha?.toString(),
+				}),
+			],
+			controllers: [TestV2Controller],
+		})
+			.overrideProvider(RECAPTCHA_AXIOS_INSTANCE)
+			.useFactory({ factory: () => mockedRecaptchaApi.getAxios() })
+			.compile();
+
+		app = module.createNestApplication();
+		app.useGlobalFilters(new TestErrorFilter());
+		await app.init();
+
+		http = new TestHttp(app.getHttpServer());
+	});
+
+	afterAll(() => app.close());
+
+	test('decorator action is checked for v3 and ignored for v2', async () => {
+		mockedRecaptchaApi.addResponse<VerifyResponseV3>('ignore_v3_wrong_action', {
+			success: true,
+			hostname: 'hostname',
+			challenge_ts: new Date().toISOString(),
+			errors: [],
+			score: 0.9,
+			action: 'Other',
+		});
+
+		const v3 = await http.post('/test-v2/with-action', {}, { headers: { Recaptcha: 'ignore_v3_wrong_action' } });
+
+		expect(v3.statusCode).toBe(400);
+		expect(v3.body.errorCodes).toEqual([ErrorCode.ForbiddenAction]);
+
+		app.get(RecaptchaConfigRef).setOptions({ type: 'v2', secretKey: 'v2_secret_key' });
+
+		mockedRecaptchaApi.addResponse<VerifyResponseV2>('ignore_v2', {
+			success: true,
+			hostname: 'hostname',
+			challenge_ts: new Date().toISOString(),
+			errors: [],
+		});
+
+		const v2 = await http.post('/test-v2/with-action', {}, { headers: { Recaptcha: 'ignore_v2' } });
+
+		expect(v2.statusCode).toBe(201);
+		expect(v2.body).toEqual({ success: true });
 	});
 });

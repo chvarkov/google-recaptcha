@@ -1,5 +1,5 @@
 import { Test } from '@nestjs/testing';
-import { ErrorCode, GoogleRecaptchaModule } from '../src/index.js';
+import { ErrorCode, GoogleRecaptchaException, GoogleRecaptchaModule } from '../src/index.js';
 import { GoogleRecaptchaValidator } from '../src/services/validators/google-recaptcha.validator.js';
 import { GoogleRecaptchaNetworkException } from '../src/exceptions/google-recaptcha-network.exception.js';
 import { RecaptchaConfigRef } from '../src/models/recaptcha-config-ref.js';
@@ -172,5 +172,63 @@ describe('Google recaptcha validator: HTTP handling', () => {
 		expect(sentBody.get('secret')).toBe('');
 		expect(sentBody.get('response')).toBe('');
 		expect(result.errors).toEqual([ErrorCode.MissingInputResponse]);
+	});
+
+	test.each([[{ action: 'login' }], [{ score: 0.5 }], [{ score: 0 }]])(
+		'v2 with %j throws GoogleRecaptchaException (unsupported-check) without a request',
+		async (checks) => {
+			const post = vi.fn();
+			const validator = new GoogleRecaptchaValidator(
+				{ post } as unknown as AxiosInstance,
+				new Logger(),
+				new RecaptchaConfigRef({ type: 'v2', secretKey: 'S', response: () => 'TOKEN' })
+			);
+
+			const error = await validator.validate({ response: 'TOKEN', ...checks }).catch((e: unknown) => e);
+
+			expect(error).toBeInstanceOf(GoogleRecaptchaException);
+			expect((error as GoogleRecaptchaException).errorCodes).toEqual([ErrorCode.UnsupportedCheck]);
+			expect((error as GoogleRecaptchaException).getStatus()).toBe(500);
+			expect((error as GoogleRecaptchaException).message).toBe('Google reCAPTCHA v2 does not support "score" and "action" checks.');
+			expect(post).not.toHaveBeenCalled();
+		}
+	);
+
+	test.each([[{ action: 'login' }], [{ score: 0.5 }]])("v2 with %j and unsupportedChecks: 'ignore' skips the checks", async (checks) => {
+		const post = vi.fn().mockResolvedValue({
+			data: { success: true, hostname: 'localhost', challenge_ts: new Date().toISOString() },
+		});
+		const logger = new Logger();
+		const debug = vi.spyOn(logger, 'debug').mockImplementation(() => undefined);
+
+		const validator = new GoogleRecaptchaValidator(
+			{ post } as unknown as AxiosInstance,
+			logger,
+			new RecaptchaConfigRef({ type: 'v2', secretKey: 'S', response: () => 'TOKEN', unsupportedChecks: 'ignore', debug: true })
+		);
+
+		const result = await validator.validate({ response: 'TOKEN', ...checks });
+
+		expect(result.success).toBe(true);
+		expect(result.errors).toEqual([]);
+		expect(post).toHaveBeenCalledTimes(1);
+		expect(debug).toHaveBeenCalledWith({ action: undefined, score: undefined, ...checks }, 'GoogleRecaptcha.ignoredChecks');
+	});
+
+	test("unsupportedChecks: 'ignore' does not affect v3 checks", async () => {
+		const post = vi.fn().mockResolvedValue({
+			data: { success: true, hostname: 'localhost', challenge_ts: new Date().toISOString(), score: 0.9, action: 'other' },
+		});
+
+		const validator = new GoogleRecaptchaValidator(
+			{ post } as unknown as AxiosInstance,
+			new Logger(),
+			new RecaptchaConfigRef({ type: 'v3', secretKey: 'S', response: () => 'TOKEN', unsupportedChecks: 'ignore' })
+		);
+
+		const result = await validator.validate({ response: 'TOKEN', action: 'login', score: 0.95 });
+
+		expect(result.success).toBe(false);
+		expect(result.errors).toEqual([ErrorCode.ForbiddenAction, ErrorCode.LowScore]);
 	});
 });

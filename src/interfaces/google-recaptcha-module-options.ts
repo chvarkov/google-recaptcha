@@ -8,8 +8,20 @@ import {
 import { FactoryProvider, ModuleMetadata, Type, Logger } from '@nestjs/common';
 import { DistributiveOmit } from '../types.js';
 
+/**
+ * `score` / `action` checks requested by `@Recaptcha(...)` / `@SetRecaptchaOptions(...)` for reCAPTCHA v2 (its response has neither):
+ * `'reject'` - `GoogleRecaptchaException` (`unsupported-check`), `'ignore'` - the checks are skipped (logged in `debug` mode).
+ */
+export type GoogleRecaptchaUnsupportedChecks = 'reject' | 'ignore';
+
 /** Module options shared by all reCAPTCHA types. */
 export interface GoogleRecaptchaCommonModuleOptions extends GoogleRecaptchaGuardOptions {
+	/**
+	 * Decorator `score` / `action` checks for reCAPTCHA v2. Default: `'reject'`.
+	 * Use `'ignore'` when the type is switched at runtime (`RecaptchaConfigRef.setOptions()`) and routes have checks for v3.
+	 * Not changed by `setOptions()` / `clear()`.
+	 */
+	unsupportedChecks?: GoogleRecaptchaUnsupportedChecks;
 	debug?: boolean;
 	logger?: Logger;
 	global?: boolean;
