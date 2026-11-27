@@ -1,4 +1,4 @@
-import { GoogleRecaptchaException, GoogleRecaptchaGuard, GoogleRecaptchaModuleOptions } from '../src/index.js';
+import { GoogleRecaptchaException, GoogleRecaptchaGuard, GoogleRecaptchaModuleOptions, RecaptchaVerificationResult } from '../src/index.js';
 import { Reflector } from '@nestjs/core';
 import { GoogleRecaptchaGuardOptions } from '../src/interfaces/google-recaptcha-guard-options.js';
 import { createGoogleRecaptchaValidator } from './helpers/create-google-recaptcha-validator.js';
@@ -198,5 +198,24 @@ describe('Google recaptcha guard', () => {
 		Object.assign(context, { getType: () => 'unknown' });
 
 		await expect(guard.canActivate(context)).rejects.toThrow('Unsupported request type');
+	});
+
+	test('logger errors do not affect the guard result', async () => {
+		const options = { ...validatorOptions, ...guardOptions, debug: true };
+		const configRef = new RecaptchaConfigRef(options);
+		const result = new RecaptchaVerificationResult({ success: true, errors: [], hostname: 'localhost', nativeResponse: undefined });
+		const validatorResolver = {
+			resolve: () => ({ logContext: 'GoogleRecaptcha', validate: () => Promise.resolve(result) }),
+		} as unknown as RecaptchaValidatorResolver;
+		const logger = new Logger();
+		const debug = vi.spyOn(logger, 'debug').mockImplementation(() => {
+			throw new Error('logger is broken');
+		});
+
+		const guard = new GoogleRecaptchaGuard(new Reflector(), new RecaptchaRequestResolver(), validatorResolver, logger, configRef);
+		const context = createExecutionContext(controller.submit, { body: { recaptcha: 'RECAPTCHA_TOKEN' } });
+
+		await expect(guard.canActivate(context)).resolves.toBe(true);
+		expect(debug).toHaveBeenCalledWith(result.toObject(), 'GoogleRecaptcha.result');
 	});
 });

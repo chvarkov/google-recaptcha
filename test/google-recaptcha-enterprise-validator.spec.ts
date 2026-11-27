@@ -85,20 +85,81 @@ describe('Google recaptcha enterprise validator: api key is never logged', () =>
 	});
 });
 
+describe('Google recaptcha enterprise validator: broken logger', () => {
+	const brokenLogger = {
+		debug: () => {
+			throw new Error('logger is broken');
+		},
+	} as unknown as Logger;
+
+	const createWithBrokenLogger = (post: () => Promise<unknown>) =>
+		new GoogleRecaptchaEnterpriseValidator(
+			{ post } as unknown as AxiosInstance,
+			brokenLogger,
+			new RecaptchaConfigRef({
+				response: () => 'TOKEN',
+				debug: true,
+				type: 'enterprise',
+				enterprise: { projectId: 'p', siteKey: 'site', apiKey: API_KEY },
+			}),
+			new EnterpriseReasonTransformer()
+		);
+
+	test('logger errors do not affect a successful verification', async () => {
+		const validator = createWithBrokenLogger(() =>
+			Promise.resolve({ data: { tokenProperties: { valid: true, action: 'Submit' }, riskAnalysis: { score: 0.9 } } })
+		);
+
+		const result = await validator.validate({ response: 'TOKEN' });
+
+		expect(result.success).toBe(true);
+		expect(result.errors).toEqual([]);
+	});
+
+	test('logger errors do not replace network errors', async () => {
+		const validator = createWithBrokenLogger(() =>
+			Promise.reject(new AxiosError('connect ECONNREFUSED', 'ECONNREFUSED', requestConfig, {}))
+		);
+
+		await expect(validator.validate({ response: 'TOKEN' })).rejects.toThrow(GoogleRecaptchaNetworkException);
+	});
+
+	test('logger errors do not replace HTTP errors', async () => {
+		const validator = createWithBrokenLogger(() =>
+			Promise.reject(
+				new AxiosError(
+					'Request failed',
+					'ERR_BAD_REQUEST',
+					requestConfig,
+					{},
+					{
+						status: 500,
+						statusText: 'Internal Server Error',
+						data: {},
+						headers: {},
+						config: requestConfig,
+					}
+				)
+			)
+		);
+
+		const result = await validator.validate({ response: 'TOKEN' });
+
+		expect(result.success).toBe(false);
+		expect(result.errors).toEqual([ErrorCode.UnknownError]);
+	});
+});
+
 describe('Google recaptcha enterprise validator: non-axios errors', () => {
-	test('Exception inside response handler returns UnknownError instead of TypeError', async () => {
-		const logger = {
-			debug: (_: unknown, ctx: string) => {
-				if (ctx.endsWith('.response')) throw new Error('logger is broken');
-			},
-		} as unknown as Logger;
+	test('Exception thrown by the axios instance returns UnknownError', async () => {
+		const logger = { debug: () => undefined } as unknown as Logger;
 		const configRef = new RecaptchaConfigRef({
 			response: () => 'TOKEN',
 			debug: true,
 			type: 'enterprise',
 			enterprise: { projectId: 'p', siteKey: 'site', apiKey: API_KEY },
 		});
-		const post = () => Promise.resolve({ data: { tokenProperties: { valid: true, action: 'Submit' } } });
+		const post = () => Promise.reject(new TypeError('interceptor is broken'));
 		const validator = new GoogleRecaptchaEnterpriseValidator(
 			{ post } as unknown as AxiosInstance,
 			logger,

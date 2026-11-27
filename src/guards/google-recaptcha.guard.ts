@@ -8,6 +8,7 @@ import { VerifyResponseDecoratorOptions } from '../interfaces/verify-response-de
 import { RecaptchaValidatorResolver } from '../services/recaptcha-validator.resolver.js';
 import { RecaptchaRequest } from '../helpers/resolve-request.js';
 import { RecaptchaConfigRef } from '../models/recaptcha-config-ref.js';
+import { safeDebug } from '../helpers/safe-debug.js';
 
 @Injectable()
 export class GoogleRecaptchaGuard implements CanActivate {
@@ -56,7 +57,7 @@ export class GoogleRecaptchaGuard implements CanActivate {
 		request.recaptchaValidationResult = result;
 
 		if (this.configRef.valueOf.debug) {
-			this.logger.debug(result.toObject(), `${validator.logContext}.result`);
+			safeDebug(this.logger, result.toObject(), `${validator.logContext}.result`);
 		}
 
 		if (result.success) {

@@ -231,4 +231,25 @@ describe('Google recaptcha validator: HTTP handling', () => {
 		expect(result.success).toBe(false);
 		expect(result.errors).toEqual([ErrorCode.ForbiddenAction, ErrorCode.LowScore]);
 	});
+
+	test('logger errors do not affect a successful verification (v3)', async () => {
+		const post = vi.fn().mockResolvedValue({
+			data: { success: true, hostname: 'localhost', challenge_ts: new Date().toISOString(), score: 0.9, action: 'login' },
+		});
+		const logger = new Logger();
+		vi.spyOn(logger, 'debug').mockImplementation(() => {
+			throw new Error('logger is broken');
+		});
+
+		const validator = new GoogleRecaptchaValidator(
+			{ post } as unknown as AxiosInstance,
+			logger,
+			new RecaptchaConfigRef({ type: 'v3', secretKey: 'S', response: () => 'TOKEN', debug: true })
+		);
+
+		const result = await validator.validate({ response: 'TOKEN', action: 'login' });
+
+		expect(result.success).toBe(true);
+		expect(result.errors).toEqual([]);
+	});
 });
