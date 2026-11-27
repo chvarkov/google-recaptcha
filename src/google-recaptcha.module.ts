@@ -19,6 +19,8 @@ import { EnterpriseReasonTransformer } from './services/enterprise-reason.transf
 import { validateCommonOptions, validateDeferredOptions, validateOptions } from './helpers/validate-options.js';
 import { RecaptchaConfigRef } from './models/recaptcha-config-ref.js';
 
+type AsyncMethodName = 'forRootAsync' | 'forRootDeferredAsync';
+
 export class GoogleRecaptchaModule {
 	private static axiosDefaultConfig: AxiosRequestConfig = {
 		timeout: 10_000,
@@ -36,7 +38,7 @@ export class GoogleRecaptchaModule {
 		return this.createDynamicModule({
 			global: options.global,
 			imports: options.imports,
-			optionsProviders: this.createAsyncProviders(options),
+			optionsProviders: this.createAsyncProviders(options, 'forRootAsync'),
 		});
 	}
 
@@ -58,7 +60,7 @@ export class GoogleRecaptchaModule {
 			global: options.global,
 			imports: options.imports,
 			deferred: true,
-			optionsProviders: this.createAsyncProviders(options),
+			optionsProviders: this.createAsyncProviders(options, 'forRootDeferredAsync'),
 		});
 	}
 
@@ -139,8 +141,8 @@ export class GoogleRecaptchaModule {
 		return config;
 	}
 
-	private static createAsyncProviders<T>(options: GoogleRecaptchaModuleAsyncOptions<T>): Provider[] {
-		const providers: Provider[] = [this.createAsyncOptionsProvider(options)];
+	private static createAsyncProviders<T>(options: GoogleRecaptchaModuleAsyncOptions<T>, method: AsyncMethodName): Provider[] {
+		const providers: Provider[] = [this.createAsyncOptionsProvider(options, method)];
 
 		if (options.useClass) {
 			providers.push({
@@ -152,7 +154,8 @@ export class GoogleRecaptchaModule {
 		return providers;
 	}
 
-	private static createAsyncOptionsProvider<T>(options: GoogleRecaptchaModuleAsyncOptions<T>): Provider {
+	/** @param method used in error messages: the helper is shared by `forRootAsync()` and `forRootDeferredAsync()`. */
+	private static createAsyncOptionsProvider<T>(options: GoogleRecaptchaModuleAsyncOptions<T>, method: AsyncMethodName): Provider {
 		if (options.useFactory) {
 			return {
 				provide: RECAPTCHA_OPTIONS,
@@ -164,7 +167,7 @@ export class GoogleRecaptchaModule {
 		const factoryClass = options.useExisting || options.useClass;
 
 		if (!factoryClass) {
-			throw new Error("GoogleRecaptchaModule.forRootAsync() requires one of 'useFactory', 'useClass' or 'useExisting'.");
+			throw new Error(`GoogleRecaptchaModule.${method}() requires one of 'useFactory', 'useClass' or 'useExisting'.`);
 		}
 
 		return {

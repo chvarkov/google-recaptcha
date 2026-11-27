@@ -130,4 +130,10 @@ describe('GoogleRecaptchaModule.forRootDeferred()', () => {
 
 		expect([ignore, unknown]).toHaveLength(2);
 	});
+
+	test('forRootDeferredAsync: options provider is required', () => {
+		expect(() => GoogleRecaptchaModule.forRootDeferredAsync({})).toThrow(
+			"GoogleRecaptchaModule.forRootDeferredAsync() requires one of 'useFactory', 'useClass' or 'useExisting'."
+		);
+	});
 });
