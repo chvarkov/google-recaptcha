@@ -113,6 +113,20 @@ describe('Google recaptcha enterprise validator: non-axios errors', () => {
 	});
 });
 
+describe('Google recaptcha enterprise validator: empty response body', () => {
+	test.each([null, undefined, ''])('2xx with body %j returns UnknownError instead of TypeError', async (data) => {
+		const ctx = createValidator(() => Promise.resolve({ status: 200, data }));
+
+		const result = await ctx.validator.validate({ response: 'TOKEN' });
+
+		expect(result.success).toBe(false);
+		expect(result.errors).toEqual([ErrorCode.UnknownError]);
+		expect(result.nativeResponse).toBeUndefined();
+		expect(result.hostname).toBe('');
+		expect(result.getEnterpriseRiskAnalytics()).toBeNull();
+	});
+});
+
 describe('Google recaptcha enterprise validator: misconfiguration', () => {
 	test('Throws when enterprise options are missing', async () => {
 		const configRef = new RecaptchaConfigRef({ response: () => 'TOKEN', type: 'v3', secretKey: 'SECRET' });

@@ -81,7 +81,7 @@ For reCAPTCHA v2 use `type: 'v2'` and remove `score` / `actions` from the module
 - `score: 0` in `@Recaptcha(...)` was replaced by the module `score`.
 - reCAPTCHA secret key was logged in plain text in `debug` mode; now it is masked.
 - `RecaptchaConfigRef` setters mutated the options object passed to `forRoot()`.
-- An empty siteverify response failed with `TypeError`; now it results in `unknown-error`.
+- An empty siteverify / Enterprise assessment response (2xx with an empty or `null` body) failed with `TypeError`; now it results in `unknown-error`.
 - `skipIf` did not accept a callback with a typed request parameter (`(req: Request) => boolean`).
 
 ## v3.12.0
