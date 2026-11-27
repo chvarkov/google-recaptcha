@@ -16,7 +16,7 @@
 - `GoogleRecaptchaModuleOptions` is a union of `GoogleRecaptchaV2ModuleOptions`, `GoogleRecaptchaV3ModuleOptions` and `GoogleRecaptchaEnterpriseModuleOptions`: invalid combinations (missing `type`, both `secretKey` and `enterprise`, `score` for v2, etc.) are compile errors. They are also validated at startup for JavaScript users and untyped configs: `secretKey` and `enterprise.projectId` / `siteKey` / `apiKey` must be non-empty strings.
 - reCAPTCHA v3: a successful response without `action` / `score` (e.g. a v2 key configured as v3) is rejected with `forbidden-action` / `low-score` when `actions` / `score` are configured. Previously it was silently accepted as v2.
 - reCAPTCHA v2: `@Recaptcha({ action, score })` throws `GoogleRecaptchaException` with `ErrorCode.UnsupportedCheck` (`unsupported-check`, HTTP 500) instead of silently skipping the checks. The token is not sent to Google. Set module option `unsupportedChecks: 'ignore'` to skip them (e.g. when v2 / v3 is switched at runtime).
-- Option `network` renamed to `siteVerifyUrl`.
+- Option `network` renamed to `siteVerifyUrl`. A leftover `network` option (e.g. in JavaScript or an untyped config) throws at startup and in `RecaptchaConfigRef.setOptions()` instead of being silently ignored.
 - Enum `GoogleRecaptchaNetwork` renamed to `GoogleRecaptchaSiteVerifyUrl` (values are unchanged).
 - `RecaptchaConfigRef`:
     - the options passed to `forRoot()` / returned by `forRootAsync()` are copied: mutating that object no longer changes the config, use `RecaptchaConfigRef` setters;

@@ -21,6 +21,19 @@ const ENTERPRISE_REQUIRED_KEYS = ['projectId', 'siteKey', 'apiKey'] as const sat
 
 const isNonEmptyString = (value: unknown): value is string => typeof value === 'string' && value.length > 0;
 
+/** Options renamed in v4: a leftover old name (JS, untyped config from a database) would be silently ignored otherwise. */
+const RENAMED_OPTIONS: Readonly<Record<string, string>> = {
+	network: 'siteVerifyUrl',
+};
+
+function assertNoRenamedOptions(options: object): void | never {
+	for (const [oldName, newName] of Object.entries(RENAMED_OPTIONS)) {
+		if ((options as Record<string, unknown>)[oldName] !== undefined) {
+			throw new Error(`Google reCAPTCHA option "${oldName}" was renamed to "${newName}" in v4.0.0.`);
+		}
+	}
+}
+
 const RECAPTCHA_TYPES: readonly string[] = ['v2', 'v3', 'enterprise'] satisfies GoogleRecaptchaType[];
 
 /**
@@ -28,6 +41,8 @@ const RECAPTCHA_TYPES: readonly string[] = ['v2', 'v3', 'enterprise'] satisfies 
  * Types already guarantee these checks; they are for JS users and untyped configs (e.g. loaded from a database).
  */
 export function validateOptions(options: Partial<GoogleRecaptchaValidatorOptions>): void | never {
+	assertNoRenamedOptions(options);
+
 	// Presence, not validity: empty values are reported below with a precise message.
 	const hasEnterpriseOptions = options.enterprise != null;
 	if (!xor(options.secretKey != null, hasEnterpriseOptions)) {
@@ -68,6 +83,8 @@ const WHEN_NOT_CONFIGURED_VALUES: readonly unknown[] = [undefined, 'reject', 'sk
 
 /** `forRootDeferred()`: keys are set only via `RecaptchaConfigRef.setOptions()`, so a half-applied config cannot slip in. */
 export function validateDeferredOptions(options: GoogleRecaptchaDeferredModuleOptions): void | never {
+	assertNoRenamedOptions(options);
+
 	for (const key of RUNTIME_OPTION_KEYS) {
 		if (options[key] !== undefined) {
 			throw new Error(
